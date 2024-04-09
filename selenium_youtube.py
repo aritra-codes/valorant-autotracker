@@ -10,13 +10,14 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 
 import constants as c
+import helpers as h
 
 def input_to_field(field: WebElement, text: str) -> None:
     field.clear()
     field.send_keys(text)
 
 options = Options()
-options.profile = FirefoxProfile("C:/Users/Aritra/AppData/Roaming/Mozilla/Firefox/Profiles/pubangy1.selenium")
+options.profile = FirefoxProfile(h.get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR))
 
 
 def upload_video(path: str, title: str, description: str="", visibility: c.Visibility=c.Visibility.PRIVATE) -> str:

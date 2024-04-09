@@ -6,12 +6,12 @@ from gspread.spreadsheet import Spreadsheet
 from gspread.worksheet import Worksheet
 from oauth2client.service_account import ServiceAccountCredentials
 import requests
-from configparser import ConfigParser
+from configparser import RawConfigParser
 
 import constants as c
 
 def get_sheet(name: str) -> Spreadsheet:
-    creds = ServiceAccountCredentials.from_json_keyfile_name(c.KEY_FILE_NAME, c.SCOPE)
+    creds = ServiceAccountCredentials.from_json_keyfile_name(get_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH), c.SCOPE)
     client = gspread.authorize(creds)
 
     return client.open(name)
@@ -44,9 +44,9 @@ def convert_valorant_date(unformatted_date: str) -> datetime:
     datetime_obj = datetime.strptime(unformatted_date, r"%A, %B %d, %Y %I:%M %p")
     return datetime_obj - timedelta(minutes=57)
 
-def format_match_info(match_info: dict) -> dict:
+def format_match_info(match_info: dict, puuid: str) -> dict:
     meta = match_info["metadata"]
-    player = next(player for player in match_info["players"]["all_players"] if player["puuid"] == c.PUUID)
+    player = next(player for player in match_info["players"]["all_players"] if player["puuid"] == puuid)
     stats = player["stats"]
     team = match_info["teams"][player["team"].lower()]
 
@@ -69,11 +69,19 @@ def format_match_info(match_info: dict) -> dict:
             "headshot_percentage": headshot_percentage,
             "average_damage_per_round": average_damage_per_round}
 
-def find_video_path(datetime_obj: datetime) -> str:
-    directory = get_setting(*c.VIDEO_DIRECTORY_SETTING_LOCATOR)
+"""def compare_datetime_without_seconds(a: datetime, b: datetime) -> bool:
+    a.replace(second=0)
+    b.replace(second=0)
 
-    for filename in listdir(directory):
-        if filename.startswith(datetime_obj.strftime(c.INSIGHTS_FILENAME_FORMAT)) or filename.startswith((datetime_obj - timedelta(minutes=1)).strftime(c.INSIGHTS_FILENAME_FORMAT)):
+    return a == b"""
+
+def find_video_path(match_datetime: datetime) -> str:
+    directory = get_setting(*c.VIDEO_DIRECTORY_SETTING_LOCATOR)
+    filename_format = get_setting(*c.FILENAME_FORMAT_SETTING_LOCATOR)
+
+    for filename in reversed(listdir(directory)):
+
+        if filename.startswith(match_datetime.strftime(filename_format)) or filename.startswith((match_datetime - timedelta(minutes=1)).strftime(filename_format)):
             return f"{directory}/{filename}"
 
     raise FileNotFoundError
@@ -82,7 +90,7 @@ def format_video_title(formatted_match_info: dict) -> str:
     return f"VALORANT {formatted_match_info["date_started_obj"].strftime(r"%Y-%m-%d")} {formatted_match_info["map"]} {formatted_match_info["agent"]} {formatted_match_info["rank"].replace(" ", "")}"
 
 def get_setting(profile: str, name: str):
-    config = ConfigParser()
+    config = RawConfigParser()
     config.read(c.SETTINGS_FILE_NAME)
 
     return config.get(profile, name)

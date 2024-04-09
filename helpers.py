@@ -70,10 +70,11 @@ def format_match_info(match_info: dict) -> dict:
             "average_damage_per_round": average_damage_per_round}
 
 def find_video_path(datetime_obj: datetime) -> str:
-    
-    for filename in listdir(c.INSIGHTS_DIRECTORY):
+    directory = get_setting(*c.VIDEO_DIRECTORY_SETTING_LOCATOR)
+
+    for filename in listdir(directory):
         if filename.startswith(datetime_obj.strftime(c.INSIGHTS_FILENAME_FORMAT)) or filename.startswith((datetime_obj - timedelta(minutes=1)).strftime(c.INSIGHTS_FILENAME_FORMAT)):
-            return f"{c.INSIGHTS_DIRECTORY}/{filename}"
+            return f"{directory}/{filename}"
 
     raise FileNotFoundError
 

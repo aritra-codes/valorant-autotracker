@@ -45,3 +45,5 @@ UPLOAD_PROGRESS_LOCATOR = (By.XPATH, '//span[@class="progress-label style-scope 
 LINK_ANCHOR_LOCATOR = (By.XPATH, '//a[@class="style-scope ytcp-video-info"]')
 
 SETTINGS_FILE_NAME = "settings.ini"
+RECORDING_PROFILE_NAME = "RECORDING"
+VIDEO_DIRECTORY_SETTING_LOCATOR = (RECORDING_PROFILE_NAME, "video_directory")

@@ -1,0 +1,5 @@
+gspread
+oauth2client
+selenium
+customtkinter
+configparser

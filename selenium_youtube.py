@@ -55,7 +55,7 @@ def upload_video(path: str, title: str, description: str="", visibility: c.Visib
         # Waits for the video to be uploaded
         upload_progress = driver.find_element(*c.UPLOAD_PROGRESS_LOCATOR)
         while upload_progress.get_attribute("innerHTML").startswith("Uploading"):
-            time.sleep(30)
+            time.sleep(c.TIMEOUT)
 
         # Waits for the save button to be not disabled, then clicks it
         WebDriverWait(driver, c.TIMEOUT).until(EC.text_to_be_present_in_element_attribute(c.SAVE_BUTTON_LOCATOR, "aria-disabled", "false"))

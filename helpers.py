@@ -41,7 +41,7 @@ def get_mmr_changes(puuid: str, affinity: str, size: int) -> list:
     return [match["last_mmr_change"] for match in request["data"]]
 
 def convert_valorant_date(unformatted_date: str) -> datetime:
-    datetime_obj = datetime.strptime(unformatted_date, r"%A, %B %d, %Y %I:%M %p")
+    datetime_obj = datetime.strptime(unformatted_date, c.VALORANT_DATE_FORMAT)
     return datetime_obj - timedelta(minutes=57)
 
 def format_match_info(match_info: dict, puuid: str) -> dict:
@@ -93,4 +93,4 @@ def get_setting(profile: str, name: str):
     config = RawConfigParser()
     config.read(c.SETTINGS_FILE_NAME)
 
-    return config.get(profile, name)
+    return config.get(profile, name, fallback=None)

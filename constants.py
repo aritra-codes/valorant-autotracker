@@ -10,6 +10,7 @@ def MATCHES_URL(puuid: str, affinity: str) -> str:
     return f"{VALORANT_API_DOMAIN}/v3/by-puuid/matches/{affinity}/{puuid}"
 def MMR_HISTORY_URL(puuid: str, affinity: str) -> str:
     return f"{VALORANT_API_DOMAIN}/v1/by-puuid/lifetime/mmr-history/{affinity}/{puuid}"
+VALORANT_DATE_FORMAT = r"%A, %B %d, %Y %I:%M %p"
 MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
           'August', 'September', 'October', 'November', 'December']
 
@@ -41,10 +42,10 @@ UPLOAD_PROGRESS_LOCATOR = (By.XPATH, '//span[@class="progress-label style-scope 
 LINK_ANCHOR_LOCATOR = (By.XPATH, '//a[@class="style-scope ytcp-video-info"]')
 
 SETTINGS_FILE_NAME = "settings.ini"
-RECORDING_SETTING_PROFILE_NAME = "RECORDING"
-VIDEO_DIRECTORY_SETTING_LOCATOR = (RECORDING_SETTING_PROFILE_NAME, "video_directory")
-FILENAME_FORMAT_SETTING_LOCATOR = (RECORDING_SETTING_PROFILE_NAME, "filename_format")
-FIREFOX_PROFILE_SETTING_LOCATOR = (RECORDING_SETTING_PROFILE_NAME, "firefox_profile_path")
+VIDEO_SETTING_PROFILE_NAME = "VIDEO"
+VIDEO_DIRECTORY_SETTING_LOCATOR = (VIDEO_SETTING_PROFILE_NAME, "video_directory")
+FILENAME_FORMAT_SETTING_LOCATOR = (VIDEO_SETTING_PROFILE_NAME, "filename_format")
+FIREFOX_PROFILE_SETTING_LOCATOR = (VIDEO_SETTING_PROFILE_NAME, "firefox_profile_path")
 VALORANT_SETTING_PROFILE_NAME = "VALORANT"
 PUUID_SETTING_LOCATOR = (VALORANT_SETTING_PROFILE_NAME, "puuid")
 AFFINITY_SETTING_LOCATOR = (VALORANT_SETTING_PROFILE_NAME, "affinity")

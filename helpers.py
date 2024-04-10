@@ -123,3 +123,12 @@ def get_setting(section: str, name: str, integer: bool=False, floatp: bool=False
         return config.getboolean(**c_kwargs)
     else:
         return config.get(**c_kwargs)
+    
+def edit_setting(section: str, name: str, value: str | int | float | bool):
+    config = RawConfigParser()
+    config.read(c.SETTINGS_FILE_NAME)
+
+    config.set(section, name, value)
+
+    with open(c.SETTINGS_FILE_NAME, "w") as file:
+        config.write(file)

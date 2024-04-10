@@ -4,11 +4,12 @@ import constants as c
 config = RawConfigParser()
 
 config[c.VIDEO_SETTING_SECTION_NAME] = {
+    "autoupload_videos": True,
+    "firefox_profile_path": "C:/Users/Aritra/AppData/Roaming/Mozilla/Firefox/Profiles/pubangy1.selenium",
     "autoselect_videos": True,
     "video_directory": c.INSIGHTS_DIRECTORY,
     "filename_format": c.INSIGHTS_FILENAME_FORMAT,
-    "recording_start_delay": 0,
-    "firefox_profile_path": "C:/Users/Aritra/AppData/Roaming/Mozilla/Firefox/Profiles/pubangy1.selenium"
+    "recording_start_delay": 0
 }
 
 config[c.VALORANT_SETTING_SECTION_NAME] = {

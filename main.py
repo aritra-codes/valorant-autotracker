@@ -1,6 +1,5 @@
 import constants as c
 import helpers as h
-from selenium_youtube import upload_video
 
 def main() -> None:
     google_sheet_name = h.get_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR)
@@ -10,32 +9,16 @@ def main() -> None:
     affinity = h.get_setting(*c.AFFINITY_SETTING_LOCATOR)
 
     matches = h.get_new_matches(puuid, affinity, h.get_latest_match_id(sheet))
-    matches.reverse()
 
     if matches:
+        spreadsheet_format = h.get_setting(*c.SPREADSHEET_FORMAT_LOCATOR).split(",")
+
         mmr_changes = h.get_mmr_changes(puuid, affinity, len(matches))
-        mmr_changes.reverse()
 
         for index, match in enumerate(matches):
-            match = h.format_match_info(match, puuid)
-    
-            video_location = h.find_video_path(match["date_started_obj"])
+            match = h.format_match_info(match, puuid, mmr_changes[index])
 
-            formatted_match = [match["match_id"],
-                                match["date_started"],
-                                match["rank"],
-                                mmr_changes[index],
-                                match["rounds_won"],
-                                match["rounds_lost"],
-                                match["tracker_link"],
-                                upload_video(video_location, h.format_video_title(match), visibility=c.Visibility.UNLISTED),
-                                match["map"],
-                                match["agent"],
-                                match["kills"],
-                                match["deaths"],
-                                match["assists"],
-                                match["headshot_percentage"],
-                                match["average_damage_per_round"]]
+            formatted_match = [match.get(row_heading, "") for row_heading in spreadsheet_format]
 
             sheet.insert_row(formatted_match, 2, 'USER_ENTERED')
 

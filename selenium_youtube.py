@@ -16,11 +16,10 @@ def input_to_field(field: WebElement, text: str) -> None:
     field.clear()
     field.send_keys(text)
 
-options = Options()
-options.profile = FirefoxProfile(h.get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR))
+def upload_video(firefox_profile_path: str, path: str, title: str, description: str="", visibility: c.Visibility=c.Visibility.PRIVATE) -> str:
+    options = Options()
+    options.profile = FirefoxProfile(firefox_profile_path)
 
-
-def upload_video(path: str, title: str, description: str="", visibility: c.Visibility=c.Visibility.PRIVATE) -> str:
     driver = webdriver.Firefox(options=options)
 
     # Goes to the YouTube upload url

@@ -13,7 +13,7 @@ config[c.VIDEO_SETTING_SECTION_NAME] = {
 
 config[c.VALORANT_SETTING_SECTION_NAME] = {
     "puuid": "f356715e-1c24-58e8-b77b-40af0cd03bda",
-    "affinity": "eu"
+    "region": "eu"
 }
 
 config[c.SPREADSHEET_SETTING_SECTION_NAME] = {

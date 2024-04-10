@@ -57,3 +57,13 @@ SPREADSHEET_SETTING_SECTION_NAME = "SPREADSHEET"
 GOOGLE_SHEETS_NAME_SETTING_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "sheet_name")
 GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "service_account_key_json_path")
 SPREADSHEET_FORMAT_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "spreadsheet_format")
+
+# UI
+REGION_OPTIONS = {
+    "eu": "Europe (EU)",
+    "na": "North America (NA)",
+    "latam": "Latin America (LATAM)",
+    "br": "Brazil (BR)",
+    "ap": "Southeast Asia/Asia-Pacific (AP)",
+    "kr": "Korea (KR)"
+}

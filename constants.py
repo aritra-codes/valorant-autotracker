@@ -25,10 +25,6 @@ INSIGHTS_FILENAME_FORMAT = r"VALORANT %m-%d-%Y_%H-%M"
 
 # Selenium
 TIMEOUT = 60
-class Visibility(Enum):
-    PUBLIC: str = "public"
-    PRIVATE: str = "private"
-    UNLISTED: str = "unlisted"
 VIDEO_UPLOAD_LOCATOR = (By.XPATH, '//*[@id="content"]/input')
 TITLE_FIELD_LOCATOR = (By.XPATH, '//ytcp-video-title//div[@id="textbox"]')
 DESCRIPTION_FIELD_LOCATOR = (By.XPATH, '//ytcp-video-description//div[@id="textbox"]')
@@ -36,8 +32,8 @@ NOT_FOR_KIDS_RADIO_LOCATOR = (By.XPATH, '//tp-yt-paper-radio-button[@name="VIDEO
 NEXT_BUTTON_LOCATOR = (By.ID, "next-button")
 SAVE_BUTTON_LOCATOR = (By.ID, "done-button")
 CLOSE_BUTTON_LOCATOR = (By.ID, "close-button")
-def VISIBILITY_RADIO_LOCATOR(visibility: Visibility) -> tuple[str, str]:
-    return (By.XPATH, f'//tp-yt-paper-radio-button[@name="{visibility.name}"]')
+def VISIBILITY_RADIO_LOCATOR(visibility: str) -> tuple[str, str]:
+    return (By.XPATH, f'//tp-yt-paper-radio-button[@name="{visibility}"]')
 UPLOAD_PROGRESS_LOCATOR = (By.XPATH, '//span[@class="progress-label style-scope ytcp-video-upload-progress"]')
 LINK_ANCHOR_LOCATOR = (By.XPATH, '//a[@class="style-scope ytcp-video-info"]')
 
@@ -46,20 +42,32 @@ SETTINGS_FILE_NAME = "settings.ini"
 VIDEO_SETTING_SECTION_NAME = "VIDEO"
 AUTOUPLOAD_VIDEOS_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "autoupload_videos")
 FIREFOX_PROFILE_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "firefox_profile_path")
+VIDEO_VISIBILITY_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "video_visibility")
 AUTOSELECT_VIDEOS_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "autoselect_videos")
 VIDEO_DIRECTORY_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "video_directory")
 FILENAME_FORMAT_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "filename_format")
 RECORDING_START_DELAY_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "recording_start_delay")
+
 VALORANT_SETTING_SECTION_NAME = "VALORANT"
 PUUID_SETTING_LOCATOR = (VALORANT_SETTING_SECTION_NAME, "puuid")
 AFFINITY_SETTING_LOCATOR = (VALORANT_SETTING_SECTION_NAME, "region")
+
 SPREADSHEET_SETTING_SECTION_NAME = "SPREADSHEET"
-USE_GOOGLE_SHEETS_SETTING_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "use_google_sheets")
+SPREADSHEET_TO_READ_SETTING_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "spreadsheet_to_read")
+SPREADSHEET_FORMAT_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "spreadsheet_format")
+INSERT_TO_ROW_2_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "insert_to_row_2")
+WRITE_TO_EXCEL_FILE_SETTING_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "write_to_excel_file")
+EXCEL_FILE_PATH_SETTING_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "excel_file_path")
+WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "write_to_google_sheets")
 GOOGLE_SHEETS_NAME_SETTING_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "google_sheets_sheet_name")
 GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "google_service_account_key_json_path")
-SPREADSHEET_FORMAT_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "spreadsheet_format")
 
 # UI
+VIDEO_VISIBILITY_OPTIONS = {
+    "public": "Public",
+    "private": "Private",
+    "unlisted": "Unlisted"
+}
 REGION_OPTIONS = {
     "eu": "Europe (EU)",
     "na": "North America (NA)",

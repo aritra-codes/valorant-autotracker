@@ -16,7 +16,7 @@ def input_to_field(field: WebElement, text: str) -> None:
     field.clear()
     field.send_keys(text)
 
-def upload_video(firefox_profile_path: str, path: str, title: str, description: str="", visibility: c.Visibility=c.Visibility.PRIVATE) -> str:
+def upload_video(firefox_profile_path: str, path: str, title: str, description: str="", visibility: str="private") -> str:
     options = Options()
     options.profile = FirefoxProfile(firefox_profile_path)
 

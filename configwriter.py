@@ -6,6 +6,7 @@ config = RawConfigParser()
 config[c.VIDEO_SETTING_SECTION_NAME] = {
     "autoupload_videos": True,
     "firefox_profile_path": "C:/Users/Aritra/AppData/Roaming/Mozilla/Firefox/Profiles/pubangy1.selenium",
+    "video_visibility": "unlisted",
     "autoselect_videos": True,
     "video_directory": c.INSIGHTS_DIRECTORY,
     "filename_format": c.INSIGHTS_FILENAME_FORMAT,
@@ -18,8 +19,12 @@ config[c.VALORANT_SETTING_SECTION_NAME] = {
 }
 
 config[c.SPREADSHEET_SETTING_SECTION_NAME] = {
+    "spreadsheet_to_read": "google_sheets",
     "spreadsheet_format": "match_id,date_started,rank,mmr_change,rounds_won,rounds_lost,tracker_link,video_link,map,agent,kills,deaths,assists,headshot_percentage,average_damage_per_round",
-    "use_google_sheets": True,
+    "insert_to_row_2": True,
+    "write_to_excel_file": True,
+    "excel_file_path": "valorant.xlsx",
+    "write_to_google_sheets": True,
     "google_sheets_sheet_name": "Valorant Comp Matches",
     "google_service_account_key_json_path": "service_account_key.json"
 }

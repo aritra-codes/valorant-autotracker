@@ -18,12 +18,19 @@ def get_excel_workbook(path: str) -> Workbook:
 
     return workbook
 
-def insert_values_excel_sheet(workbook: Workbook, path: str, row: int, values: list) -> None:
+def insert_values_to_excel_sheet(workbook: Workbook, path: str, row: int, values: list[str]) -> None:
     sheet: ExcelWorksheet = workbook.active
     sheet.insert_rows(row)
 
     for index, value in enumerate(values):
-        sheet.cell(row, index + 1, value)
+        cell = sheet.cell(row, index + 1)
+        cell.value = value
+
+    workbook.save(path)
+
+def append_values_to_excel_sheet(workbook: Workbook, path: str, values: list[str]) -> None:
+    sheet: ExcelWorksheet = workbook.active
+    sheet.append(values)
 
     workbook.save(path)
 
@@ -68,7 +75,7 @@ def convert_valorant_date(unformatted_date: str) -> datetime:
     datetime_obj = datetime.strptime(unformatted_date, c.VALORANT_DATE_FORMAT)
     return datetime_obj - timedelta(minutes=57)
 
-def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict:
+def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str, str]:
     meta = match_info["metadata"]
     player = next(player for player in match_info["players"]["all_players"] if player["puuid"] == puuid)
     stats = player["stats"]
@@ -93,12 +100,15 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict:
                             "headshot_percentage": headshot_percentage,
                             "average_damage_per_round": average_damage_per_round}
 
-    if get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, boolean=True):
+    if get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True):
         video_location = find_video_path(date_started_obj)
-        video_link = selenium_youtube.upload_video(get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR),
+        firefox_profile_path = get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
+        visibility = get_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR)
+        
+        video_link = selenium_youtube.upload_video(firefox_profile_path,
                                                    video_location,
                                                    format_video_title(formatted_match_info),
-                                                   visibility=c.Visibility.UNLISTED)
+                                                   visibility=visibility)
         formatted_match_info["video_link"] = video_link
 
     return formatted_match_info

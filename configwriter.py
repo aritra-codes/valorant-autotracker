@@ -19,7 +19,6 @@ config[c.VALORANT_SETTING_SECTION_NAME] = {
 }
 
 config[c.SPREADSHEET_SETTING_SECTION_NAME] = {
-    "spreadsheet_to_read": "google_sheets",
     "spreadsheet_format": "match_id,date_started,rank,mmr_change,rounds_won,rounds_lost,tracker_link,video_link,map,agent,kills,deaths,assists,headshot_percentage,average_damage_per_round",
     "insert_to_row_2": True,
     "write_to_excel_file": True,

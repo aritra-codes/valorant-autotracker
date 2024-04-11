@@ -9,6 +9,8 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.worksheet.worksheet import Worksheet as ExcelWorksheet
 import requests
 from configparser import RawConfigParser
+import tkinter as tk
+from tkinter import filedialog
 
 import constants as c
 import selenium_youtube
@@ -41,8 +43,13 @@ def get_google_sheet(name: str) -> Spreadsheet:
 
     return sheet
 
-def get_latest_match_id(sheet: ExcelWorksheet | GoogleWorksheet) -> str:
-    return sheet.cell(2, 1).value
+def get_latest_match_id() -> str:
+    with open(c.LATEST_MATCH_ID_TXT_PATH) as file:
+        return file.read()
+    
+def update_latest_match_id(match_id: str) -> None:
+    with open(c.LATEST_MATCH_ID_TXT_PATH, "w") as file:
+        file.write(match_id) 
 
 def find_puuid(name: str, tag: str) -> str:
     request = requests.get(c.ACCOUNT_URL(name, tag), timeout=c.TIMEOUT).json()
@@ -52,22 +59,20 @@ def get_matches(puuid: str, affinity: str, size: int=10) -> list:
     request = requests.get(c.MATCHES_URL(puuid, affinity), {"mode": "competitive", "size": size}, timeout=c.TIMEOUT).json()
     return request["data"]
 
-def get_new_matches(puuid: str, affinity: str, latest_match_id: str) -> list | None:
+def get_new_matches(puuid: str, affinity: str, latest_match_id: str) -> list:
     index = 0
 
     for index, match in enumerate(matches := get_matches(puuid, affinity)):
         if match["metadata"]["matchid"] == latest_match_id:
             new_matches = matches[:index]
-            new_matches.reverse()
 
             return new_matches
 
-    return None
+    return matches
 
 def get_mmr_changes(puuid: str, affinity: str, size: int) -> list:
     request = requests.get(c.MMR_HISTORY_URL(puuid, affinity), {"size": size}, timeout=c.TIMEOUT).json()
     mmr_changes = [match["last_mmr_change"] for match in request["data"]]
-    mmr_changes.reverse()
 
     return mmr_changes
 
@@ -101,15 +106,26 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
                             "average_damage_per_round": average_damage_per_round}
 
     if get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True):
-        video_location = find_video_path(date_started_obj)
         firefox_profile_path = get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
+        title = format_video_title(formatted_match_info)
         visibility = get_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR)
+
+        if get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, boolean=True):
+            try:
+                video_path = autofind_video_path(date_started_obj)
+            except FileNotFoundError:
+                video_path = input_file_path(f"Autofind error, open video for {title}")
+        else:
+            video_path = input_file_path(f"Open video for {title}")
         
-        video_link = selenium_youtube.upload_video(firefox_profile_path,
-                                                   video_location,
-                                                   format_video_title(formatted_match_info),
+        if video_path:
+            video_link = selenium_youtube.upload_video(firefox_profile_path,
+                                                   video_path,
+                                                   title,
                                                    visibility=visibility)
-        formatted_match_info["video_link"] = video_link
+            formatted_match_info["video_link"] = video_link
+        else:
+            print(f"No video path found for '{title}', skipping upload...")
 
     return formatted_match_info
 
@@ -119,7 +135,15 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
 
     return a == b"""
 
-def find_video_path(match_datetime: datetime) -> str:
+def input_file_path(title: str) -> str:
+    root = tk.Tk()
+    root.withdraw()
+
+    file_path = filedialog.askopenfilename(title=title)
+
+    return file_path
+
+def autofind_video_path(match_datetime: datetime) -> str:
     recording_start_delay = get_setting(*c.RECORDING_START_DELAY_SETTING_LOCATOR, floatp=True)
     match_datetime += timedelta(seconds=recording_start_delay)
 

@@ -13,6 +13,7 @@ def MMR_HISTORY_URL(puuid: str, affinity: str) -> str:
 VALORANT_DATE_FORMAT = r"%A, %B %d, %Y %I:%M %p"
 MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
           'August', 'September', 'October', 'November', 'December']
+LATEST_MATCH_ID_TXT_PATH = "latest_match_id.txt"
 
 # Google Sheets
 SCOPE = scope = ['https://www.googleapis.com/auth/spreadsheets',
@@ -53,7 +54,6 @@ PUUID_SETTING_LOCATOR = (VALORANT_SETTING_SECTION_NAME, "puuid")
 AFFINITY_SETTING_LOCATOR = (VALORANT_SETTING_SECTION_NAME, "region")
 
 SPREADSHEET_SETTING_SECTION_NAME = "SPREADSHEET"
-SPREADSHEET_TO_READ_SETTING_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "spreadsheet_to_read")
 SPREADSHEET_FORMAT_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "spreadsheet_format")
 INSERT_TO_ROW_2_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "insert_to_row_2")
 WRITE_TO_EXCEL_FILE_SETTING_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "write_to_excel_file")
@@ -77,6 +77,7 @@ REGION_OPTIONS = {
     "kr": "Korea (KR)"
 }
 SPREADSHEET_FORMAT_OPTIONS = {
+    "": "-",
     "match_id": "Match ID",
     "date_started": "Date Started",
     "rank": "Rank",

@@ -1,5 +1,6 @@
 gspread
 oauth2client
+openpyxl
 selenium
 configparser
 customtkinter

@@ -54,8 +54,9 @@ VALORANT_SETTING_SECTION_NAME = "VALORANT"
 PUUID_SETTING_LOCATOR = (VALORANT_SETTING_SECTION_NAME, "puuid")
 AFFINITY_SETTING_LOCATOR = (VALORANT_SETTING_SECTION_NAME, "region")
 SPREADSHEET_SETTING_SECTION_NAME = "SPREADSHEET"
-GOOGLE_SHEETS_NAME_SETTING_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "sheet_name")
-GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "service_account_key_json_path")
+USE_GOOGLE_SHEETS_SETTING_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "use_google_sheets")
+GOOGLE_SHEETS_NAME_SETTING_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "google_sheets_sheet_name")
+GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "google_service_account_key_json_path")
 SPREADSHEET_FORMAT_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "spreadsheet_format")
 
 # UI
@@ -66,4 +67,21 @@ REGION_OPTIONS = {
     "br": "Brazil (BR)",
     "ap": "Southeast Asia/Asia-Pacific (AP)",
     "kr": "Korea (KR)"
+}
+SPREADSHEET_FORMAT_OPTIONS = {
+    "match_id": "Match ID",
+    "date_started": "Date Started",
+    "rank": "Rank",
+    "mmr_change": "MMR Change",
+    "rounds_won": "Rounds Won",
+    "rounds_lost": "Rounds Lost",
+    "tracker_link": "Tracker Link",
+    "video_link": "Video Link",
+    "map": "Map",
+    "agent": "Agent",
+    "kills": "Kills",
+    "deaths": "Deaths",
+    "assists": "Assists",
+    "headshot_percentage": "Headshot %",
+    "average_damage_per_round": "ADR"
 }

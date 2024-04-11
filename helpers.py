@@ -3,21 +3,38 @@ from datetime import datetime, timedelta
 
 import gspread
 from gspread.spreadsheet import Spreadsheet
-from gspread.worksheet import Worksheet
+from gspread.worksheet import Worksheet as GoogleWorksheet
 from oauth2client.service_account import ServiceAccountCredentials
+from openpyxl import Workbook, load_workbook
+from openpyxl.worksheet.worksheet import Worksheet as ExcelWorksheet
 import requests
 from configparser import RawConfigParser
 
 import constants as c
 import selenium_youtube
 
-def get_sheet(name: str) -> Spreadsheet:
+def get_excel_workbook(path: str) -> Workbook:
+    workbook = load_workbook(path)
+
+    return workbook
+
+def insert_values_excel_sheet(workbook: Workbook, path: str, row: int, values: list) -> None:
+    sheet: ExcelWorksheet = workbook.active
+    sheet.insert_rows(row)
+
+    for index, value in enumerate(values):
+        sheet.cell(row, index + 1, value)
+
+    workbook.save(path)
+
+def get_google_sheet(name: str) -> Spreadsheet:
     creds = ServiceAccountCredentials.from_json_keyfile_name(get_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR), c.SCOPE)
     client = gspread.authorize(creds)
+    sheet = client.open(name)
 
-    return client.open(name)
+    return sheet
 
-def get_latest_match_id(sheet: Worksheet) -> str:
+def get_latest_match_id(sheet: ExcelWorksheet | GoogleWorksheet) -> str:
     return sheet.cell(2, 1).value
 
 def find_puuid(name: str, tag: str) -> str:

@@ -18,9 +18,10 @@ config[c.VALORANT_SETTING_SECTION_NAME] = {
 }
 
 config[c.SPREADSHEET_SETTING_SECTION_NAME] = {
-    "sheet_name": "Valorant Comp Matches",
-    "service_account_key_json_path": "service_account_key.json",
-    "spreadsheet_format": "match_id,date_started,rank,mmr_change,rounds_won,rounds_lost,tracker_link,video_link,map,agent,kills,deaths,assists,headshot_percentage,average_damage_per_round"
+    "spreadsheet_format": "match_id,date_started,rank,mmr_change,rounds_won,rounds_lost,tracker_link,video_link,map,agent,kills,deaths,assists,headshot_percentage,average_damage_per_round",
+    "use_google_sheets": True,
+    "google_sheets_sheet_name": "Valorant Comp Matches",
+    "google_service_account_key_json_path": "service_account_key.json"
 }
 
 with open(c.SETTINGS_FILE_NAME, "w") as file:

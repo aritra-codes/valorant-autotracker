@@ -1,7 +1,7 @@
 from customtkinter import (set_appearance_mode, set_default_color_theme, 
                            CTk, CTkLabel, CTkEntry, CTkButton, CTkFrame, 
                            CTkImage, filedialog, END, CTkSwitch, StringVar, 
-                           CTkSlider, CTkComboBox, CTkOptionMenu)
+                           CTkSlider, CTkComboBox, CTkOptionMenu, CTkScrollableFrame)
 from PIL import Image
 import os
 from tkinter import Toplevel, Label, messagebox
@@ -95,11 +95,11 @@ class HoverButton(CTkButton):
 class SettingsWindow(Toplevel):
     def __init__(self):
         super().__init__()
-        self.geometry("800x660")
+        self.geometry("820x660")
         self.title("Settings")
         self.iconbitmap("logo.ico")
-        
-        self.frame = CTkFrame(self)
+                
+        self.frame = CTkScrollableFrame(self)
         self.frame.pack(pady=20, padx=20, fill="both", expand=True)
           
         self.video_header = CTkLabel(self.frame, text="Video", 
@@ -230,28 +230,124 @@ class SettingsWindow(Toplevel):
                                                width=250)
         self.region_dropdown.grid(row=12, column=1, pady=(10,0), sticky="w", columnspan=2)
 
+        self.spreadsheet_header = CTkLabel(self.frame, text="Spreadsheet", 
+                                     font=("Calibri Bold",18))
+        self.spreadsheet_header.grid(row=13, column=0, padx=10, pady=(15,0), sticky="w")
+
+        self.spreadsheet_format_label = CTkLabel(self.frame, text="Spreadsheet Format",
+                                                 font=default_font)
+        self.spreadsheet_format_label.grid(row=14, column=0, padx=10, pady=(10,0),
+                                           sticky="w")
+        
+        self.spreadsheet_format_button = CTkButton(self.frame, text="Edit",
+                                                   font=default_font, 
+                                                   command=self.spreadsheet_format_function)
+        self.spreadsheet_format_button.grid(row=14, column=1, pady=(10,0), sticky="w")
+
+        self.insert_r2_label = CTkLabel(self.frame, text="Insert at Row 2",
+                                        font=default_font)
+        self.insert_r2_label.grid(row=15, column=0, padx=10, pady=(10,0),
+                                  sticky="w")
+        self.insert_r2_switch_var = StringVar(value="off")
+        self.insert_r2_switch  = CTkSwitch(self.frame, text="",
+                                           command=self.insert_row2_function,
+                                           variable=self.insert_r2_switch_var, onvalue="on",
+                                           offvalue="off")
+        self.insert_r2_switch.grid(row=15, column=1, pady=(10,0),
+                                   sticky="w")
+        
+        self.insert_r2_hoverbutton = HoverButton(self.frame, text="", image=question_image,
+                                                 tooltip_text="Insert at row 2 will mean...",
+                                                 width=15, fg_color="transparent",
+                                                 hover_color="grey")
+        self.insert_r2_hoverbutton.grid(row=15, column=1, padx=40, pady=(10,0),
+                                        sticky="w")
+        self.insert_r2_hoverbutton.configure(state="disabled")
+
+        self.switch_var_spreadsheet = StringVar(value="off")
+        self.switch_googlesheet_label = CTkLabel(self.frame, text="Google Sheets",
+                                       font=default_font)
+        self.switch_googlesheet_label.grid(row=16, column=0, pady=(10,0), padx=10, sticky="w")
+        self.switch_googlesheet = CTkSwitch(self.frame, text="", command=self.googlesheet_switch,
+                                       variable=self.switch_var_spreadsheet, onvalue="on",
+                                       offvalue="off")
+        self.switch_googlesheet.grid(row=16, column=1, pady=(10,0), sticky="w")
+
+        self.spreadsheet_name_label = CTkLabel(self.frame, text="Spreadsheet Name",
+                                               font=default_font)
+        self.spreadsheet_name_label.grid(row=17, column=0, pady=(10,0), padx=10,
+                                         sticky="w")
+        self.spreadsheet_name_entry = CTkEntry(self.frame, font=default_font,
+                                               placeholder_text="Enter spreadsheet name (Google Sheets)")
+        self.spreadsheet_name_entry.grid(row=17, column=1, pady=(10,0), sticky="ew",
+                                         columnspan=3)
+        
+        self.google_service_key_label = CTkLabel(self.frame, text="Google Service Acc. Key",
+                                                 font=default_font)
+        self.google_service_key_label.grid(row=18, column=0, padx=10, pady=(10,0),
+                                           sticky="w")
+        self.google_service_key_entry = CTkEntry(self.frame, font=default_font,
+                                                 placeholder_text="Location of key (C:/...)")
+        self.google_service_key_entry.grid(row=18, column=1, pady=(10,0), sticky="ew",
+                                           columnspan=4)
+        self.google_key_dirchange = CTkButton(self.frame, text="Change  ", font=default_font,
+                                       width=70, command=self.google_key_dirchange_function,
+                                       image=change_dir)
+        self.google_key_dirchange.grid(row=18, column=5, pady=(10,0), padx=5)
+
+        self.excel_switch_var = StringVar(value="off")
+        self.excel_switch_label = CTkLabel(self.frame, text="Excel",
+                                       font=default_font)
+        self.excel_switch_label.grid(row=19, column=0, pady=(10,0), padx=10, sticky="w")
+        self.switch_excel = CTkSwitch(self.frame, text="", command=self.excel_switch,
+                                       variable=self.excel_switch_var, onvalue="on",
+                                       offvalue="off")
+        self.switch_excel.grid(row=19, column=1, pady=(10,0), sticky="w")
+
+        self.excel_file_path = CTkLabel(self.frame, text="Excel File Path",
+                                        font=default_font)
+        self.excel_file_path.grid(row=20, column=0, padx=10, pady=(10,0),
+                                  sticky="w")
+
+        self.excel_file_path_dir = CTkEntry(self.frame, font=default_font,
+                                            placeholder_text="Location of excel spreadsheet (C:/...)")
+        self.excel_file_path_dir.grid(row=20, column=1, pady=(10,0), sticky="ew",
+                                      columnspan=4)
+        self.excel_change = CTkButton(self.frame, text="Change  ", font=default_font,
+                                width=70, command=self.excel_dir_change,
+                                image=change_dir)
+        self.excel_change.grid(row=20, column=5, pady=(10,0), padx=5)
+
+        # Add below when settings are completed - make sure to change grid refs.
         self.save_button = CTkButton(self.frame, text="Save", font=default_font,
-                                     width=100, image=save_image)
-        self.save_button.grid(row=13, column=0, padx=10, pady=(20,0), sticky="w")
+                                     width=100, image=save_image, command=self.save_settings)
+        self.save_button.grid(row=21, column=0, padx=10, pady=(20,0), sticky="w")
 
         self.donation_button = CTkButton(self.frame, text="Why not consider donating?",
                                          font=default_font, image=donate_image,
                                          command=self.donate_function)
-        self.donation_button.grid(row=13, column=1, pady=(20,0), sticky="w")
-        
+        self.donation_button.grid(row=21, column=1, pady=(20,0), sticky="w")
+
         self.check_info()
 
     def check_info(self):
-        autoupload_video = h.get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR)
+        autoupload_video = h.get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True)
         firefox_profile_dir = h.get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
-        autoselect_video = h.get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR)
+        visibility = h.get_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR)
+        autoselect_video = h.get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, boolean=True)
         video_directory = h.get_setting(*c.VIDEO_DIRECTORY_SETTING_LOCATOR)
         filename_format = h.get_setting(*c.FILENAME_FORMAT_SETTING_LOCATOR)
         recording_delay = h.get_setting(*c.RECORDING_START_DELAY_SETTING_LOCATOR)
         puuid_setting_locator = h.get_setting(*c.PUUID_SETTING_LOCATOR)
         region_setting = h.get_setting(*c.AFFINITY_SETTING_LOCATOR)
-
-        if autoupload_video == "True":
+        spreadsheet_name = h.get_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR)
+        service_account_json = h.get_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR)
+        spreadsheet_row2 = h.get_setting(*c.INSERT_TO_ROW_2_LOCATOR, boolean=True)
+        write_to_excel = h.get_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, boolean=True)
+        excel_file_path = h.get_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR)
+        write_to_googlesheets = h.get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, boolean=True)
+        
+        if autoupload_video is True:
             self.switch_var.set("on")
             self.switch1()
         else:
@@ -263,8 +359,13 @@ class SettingsWindow(Toplevel):
             self.firefox_entry.insert(END, firefox_profile_dir)
         else:
             pass
+        
+        if visibility:
+            self.visibility_dropdown.set(c.VIDEO_VISIBILITY_OPTIONS[visibility])
+        else:
+            pass        
 
-        if autoselect_video == "True":
+        if autoselect_video is True:
             self.switch_var2.set("on")
             self.switch2()
         else:
@@ -300,7 +401,47 @@ class SettingsWindow(Toplevel):
             self.region_dropdown.set(c.REGION_OPTIONS[region_setting])
         else:
             pass
+
+        if spreadsheet_name:
+            self.spreadsheet_name_entry.delete(0,END)
+            self.spreadsheet_name_entry.insert(END,spreadsheet_name)
+        else:
+            pass
+
+        if service_account_json:
+            self.google_service_key_entry.delete(0,END)
+            self.google_service_key_entry.insert(END,service_account_json)
+        else:
+            pass
+
+        if spreadsheet_row2 is True:
+            self.insert_r2_switch_var.set("on")
+            self.insert_row2_function()
+        else:
+            self.insert_r2_switch_var.set("off")
+            self.insert_row2_function()
+
+        if write_to_excel is True:
+            self.excel_switch_var.set("on")
+            self.excel_switch()
+        else:
+            self.excel_switch_var.set("off")
+            self.excel_switch()
         
+        if excel_file_path:
+            self.excel_file_path_dir.delete(0,END)
+            self.excel_file_path_dir.insert(END, excel_file_path)
+        else:
+            pass
+
+        if write_to_googlesheets is True:
+            self.switch_var_spreadsheet.set("on")
+            self.googlesheet_switch()
+        else:
+            self.switch_var_spreadsheet.set("off")
+            self.googlesheet_switch()
+
+            
     def switch1(self):
         self.val = self.switch_onoff.get()
         if self.val == "off":
@@ -337,6 +478,7 @@ class SettingsWindow(Toplevel):
             self.secs_label.configure(text_color="grey")
             self.slider_value.configure(state="disabled",
                                         text_color="grey")
+            self.filename_hover_button.configure(state="disabled")
 
         elif self.val2 == "on":
             self.viddir_label.configure(text_color="black")
@@ -353,9 +495,11 @@ class SettingsWindow(Toplevel):
             self.secs_label.configure(text_color="black")
             self.slider_value.configure(state="normal",
                                         text_color="black")
+            self.filename_hover_button.configure(state="disabled")
 
     def visibility_function(self, visibility):
-        print(visibility)
+        # Insert functions here
+        pass
 
     def viddir_change_function(self):
         self.file = filedialog.askdirectory(title="Open")
@@ -373,7 +517,8 @@ class SettingsWindow(Toplevel):
         self.slider_value.insert(END, intvalue)
     
     def region_function(self, region):
-        print(region)
+        # Insert functions here
+        pass
 
     def find_puuid_function(self):
         name_entry = self.username_entry.get()
@@ -381,15 +526,184 @@ class SettingsWindow(Toplevel):
         if not name_entry:
             messagebox.showerror(title="Invalid Input", 
                                  message=f"Please enter a valid username.")
+            return
         elif not tag_entry:
             messagebox.showerror(title="Invalid Input", 
                                  message=f"Please enter a valid tag.")
+            return
         self.puuid = h.find_puuid(name_entry, tag_entry)
         self.puuid_entry.delete(0, END)
         self.puuid_entry.insert(END, self.puuid)
     
+    def google_key_dirchange_function(self):
+        self.jsonfile = filedialog.askopenfilename(title="Open", filetypes=[("JSON Files (*.json)", "*.json")])
+        self.google_service_key_entry.delete(0, END)
+        self.google_service_key_entry.insert(END, self.jsonfile)
+
+    def spreadsheet_format_function(self):
+        edit_app = SpreadsheetFormat()
+        edit_app.mainloop()
+
+    def insert_row2_function(self):
+        pass
+
+    def googlesheet_switch(self):
+        self.googlesheet_val = self.switch_var_spreadsheet.get()
+        if self.googlesheet_val == "off":
+            self.spreadsheet_name_label.configure(text_color="grey")
+            self.spreadsheet_name_entry.configure(state="disabled",
+                                                 placeholder_text_color="#c9c9c9",
+                                                 text_color="grey")
+            self.google_service_key_label.configure(text_color="grey")
+            self.google_service_key_entry.configure(state="disabled",
+                                                 placeholder_text_color="#c9c9c9",
+                                                 text_color="grey")
+            self.google_key_dirchange.configure(state="disabled")
+        elif self.googlesheet_val == "on":
+            self.spreadsheet_name_label.configure(text_color="black")
+            self.spreadsheet_name_entry.configure(state="normal",
+                                                 placeholder_text_color="grey",
+                                                 text_color="black")
+            self.google_service_key_label.configure(text_color="black")
+            self.google_service_key_entry.configure(state="normal",
+                                                 placeholder_text_color="grey",
+                                                 text_color="black")
+            self.google_key_dirchange.configure(state="normal")
+
+    def excel_switch(self):
+        self.excel_val = self.excel_switch_var.get()
+        if self.excel_val == "off":
+            self.excel_file_path.configure(text_color="grey")
+            self.excel_file_path_dir.configure(state="disabled",
+                                                 placeholder_text_color="#c9c9c9",
+                                                 text_color="grey")
+            self.excel_change.configure(state="disabled")
+        elif self.excel_val == "on":
+            self.excel_file_path.configure(text_color="black")
+            self.excel_file_path_dir.configure(state="normal",
+                                                 placeholder_text_color="grey",
+                                                 text_color="black")
+            self.excel_change.configure(state="normal")
+
+    def excel_dir_change(self):
+        self.excelfile = filedialog.askopenfilename(title="Open", filetypes=[
+            ("Excel Workbook (*.xlsx)", "*.xlsx"),
+            ("Excel Macro-Enabled Workbook (*.xlsm)", "*.xlsm"),
+            ("Excel Template (*.xltx)", "*.xltx"),
+            ("Excel Macro-Enabled Template (*.xltm)", "*.xltm")
+            ])
+        self.excel_file_path_dir.delete(0, END)
+        self.excel_file_path_dir.insert(END, self.excelfile)
+
+    def save_settings(self):
+        pass
+
     def donate_function(self):
         pass
+
+class SpreadsheetFormat(Toplevel):
+    def __init__(self):
+        super().__init__()
+        self.geometry("500x680")
+        self.title("Settings (Spreadsheet Format)")
+        self.iconbitmap("logo.ico")
+                
+        self.frame = CTkScrollableFrame(self)
+        self.frame.pack(pady=20, padx=20, fill="both", expand=True)
+
+        self.dropdown_menus_list = []
+        self.format_settings_list = []
+
+        self.row_count = -1
+        self.spreadsheet_format_label = CTkLabel(self.frame, text="Spreadsheet Format\n(Columns)",
+                                                    font=default_font)
+        self.spreadsheet_format_label.grid(row=0, column=0, padx=10, pady=(10,0),
+                                            sticky="w")
+
+        self.spreadsheet_format_list = ["Match ID","Date Started","Rank","MMR Change",
+                                        "Rounds Won","Rounds Lost","Tracker Link",
+                                        "Video Link","Map","Agent","Kills","Deaths",
+                                        "Assists","Headshot %","ADR"]
+        self.plus_button = CTkButton(self.frame, text="+", font=default_font,
+                                        command=self.add_boxes, width=20, corner_radius=20)
+        self.plus_button.grid(row=0, column=2, padx=10, pady=(10,0), sticky="e")
+
+        self.minus_button = CTkButton(self.frame, text="-", font=default_font,
+                                        command=self.subtract_boxes, width=20, corner_radius=20)
+        self.minus_button.grid(row=0, column=3, padx=0, pady=(10,0), sticky="w")
+
+        self.save_button = CTkButton(self.frame, text="Save", font=default_font,
+                                     width=100, image=save_image, command=self.save_format_changes)
+        self.save_button.grid(row=1, column=0, padx=10, pady=(20,0), sticky="w")
+
+        #------------------------------------------------------
+
+        self.count = 0
+        spreadsheet_format = h.get_setting(*c.SPREADSHEET_FORMAT_LOCATOR)
+
+        if spreadsheet_format:
+            items = spreadsheet_format.split(",")
+            for index, item in enumerate(items):
+                current_setting = c.SPREADSHEET_FORMAT_OPTIONS[item]
+                
+                self.add_boxes(current_setting, True if index == 0 else False)
+
+
+    def add_boxes(self, value="-", disabled: bool=False):
+        self.count += 1
+        self.final_count = self.row_count + self.count
+        
+        index = self.count - 1
+
+        if disabled:
+            dropdown_menu = CTkOptionMenu(self.frame, 
+                                    values=self.spreadsheet_format_list,
+                                    font=default_font, button_color="grey",
+                                    button_hover_color="dark grey",
+                                    fg_color="white", text_color="black")
+            dropdown_menu.configure(state="disabled")
+        else:
+            dropdown_menu = CTkOptionMenu(self.frame, 
+                                    values=self.spreadsheet_format_list,
+                                    command=lambda value: self.spreadsheet_format_function(index, value),
+                                    font=default_font, button_color="grey",
+                                    button_hover_color="dark grey",
+                                    fg_color="white", text_color="black")
+            dropdown_menu.configure(state="normal")
+        
+        dropdown_menu.set(value)
+        dropdown_menu.grid(row=self.final_count, column=1, pady=(10,0),
+                                sticky="ew")
+        self.dropdown_menus_list.append(dropdown_menu)
+        self.spreadsheet_format_function(self.count - 1, value)
+
+    def subtract_boxes(self):
+        #print(len(self.dropdown_menus_list))
+        self.minus_button.configure(state="normal")
+        if self.count > 1:
+            self.count -= 1
+            self.final_count = self.row_count + self.count
+            last_dropdown_menu = self.dropdown_menus_list.pop()
+            last_dropdown_menu.grid_forget()
+            last_dropdown_menu.destroy()
+
+            self.format_settings_list.pop()
+
+    def spreadsheet_format_function(self, index, setting):
+        # Looks in the SPREADSHEET_FORMAT_OPTIONS dict for the value and returns the corresponding key (e.g. "Match ID" returns "match_id")
+        options_dict = c.SPREADSHEET_FORMAT_OPTIONS
+        formatted_setting = list(options_dict.keys())[list(options_dict.values()).index(setting)]
+
+        try:
+            self.format_settings_list[index] = formatted_setting
+        except IndexError:
+            self.format_settings_list.append(formatted_setting)
+
+        # Comment below after testing
+        #print(self.format_settings_list)
+
+    def save_format_changes(self):
+        print("Saved")
 
 if __name__ == "__main__":
     app = App()

@@ -1,5 +1,3 @@
-from enum import Enum
-
 from selenium.webdriver.common.by import By
 
 # HenrikDev-API
@@ -22,7 +20,7 @@ SCOPE = scope = ['https://www.googleapis.com/auth/spreadsheets',
 
 # Recording clients
 INSIGHTS_DIRECTORY = "C:/Users/Aritra/Videos/Overwolf/Insights Capture"
-INSIGHTS_FILENAME_FORMAT = r"VALORANT %m-%d-%Y_%H-%M"
+INSIGHTS_FILENAME_FORMAT = r"VALORANT %m-%d-%Y_%H-%M-%S-%f.mp4"
 
 # Selenium
 TIMEOUT = 60

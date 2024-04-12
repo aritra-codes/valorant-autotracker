@@ -26,7 +26,7 @@ def main() -> None:
         formatted_matches_desc = []
         for index, match in enumerate(matches):
             match_info = h.format_match_info(match, puuid, mmr_changes[index])
-            #h.update_latest_match_id(formatted_match["match_id"])
+            h.update_latest_match_id(match_info["match_id"])
 
             formatted_matches_desc.append([match_info.get(row_heading, "") for row_heading in spreadsheet_format])
 

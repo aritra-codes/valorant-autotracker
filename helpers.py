@@ -129,12 +129,6 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
 
     return formatted_match_info
 
-"""def compare_datetime_without_seconds(a: datetime, b: datetime) -> bool:
-    a.replace(second=0)
-    b.replace(second=0)
-
-    return a == b"""
-
 def input_file_path(title: str) -> str:
     root = tk.Tk()
     root.withdraw()
@@ -142,6 +136,11 @@ def input_file_path(title: str) -> str:
     file_path = filedialog.askopenfilename(title=title)
 
     return file_path
+
+def compare_datetimes_lazily(a: datetime, b: datetime) -> bool:
+    t_kwargs = {"second": 0, "microsecond": 0}
+
+    return a.replace(**t_kwargs) == b.replace(**t_kwargs)
 
 def autofind_video_path(match_datetime: datetime) -> str:
     recording_start_delay = get_setting(*c.RECORDING_START_DELAY_SETTING_LOCATOR, floatp=True)
@@ -151,8 +150,12 @@ def autofind_video_path(match_datetime: datetime) -> str:
     filename_format = get_setting(*c.FILENAME_FORMAT_SETTING_LOCATOR)
 
     for filename in reversed(listdir(directory)):
+        try:
+            video_datetime = datetime.strptime(filename, filename_format)
+        except ValueError:
+            continue
 
-        if filename.startswith(match_datetime.strftime(filename_format)) or filename.startswith((match_datetime - timedelta(minutes=1)).strftime(filename_format)):
+        if compare_datetimes_lazily(video_datetime, match_datetime) or compare_datetimes_lazily(video_datetime, (match_datetime - timedelta(minutes=1))):
             return f"{directory}/{filename}"
 
     raise FileNotFoundError
@@ -183,3 +186,6 @@ def edit_setting(section: str, name: str, value: str | int | float | bool):
 
     with open(c.SETTINGS_FILE_NAME, "w") as file:
         config.write(file)
+
+def get_key_from_value(dictionary: dict, value):
+    return list(dictionary.keys())[list(dictionary.values()).index(value)]

@@ -80,18 +80,18 @@ def convert_valorant_date(unformatted_date: str) -> datetime:
     datetime_obj = datetime.strptime(unformatted_date, c.VALORANT_DATE_FORMAT)
     return datetime_obj - timedelta(minutes=57)
 
-def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str, str]:
+def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str, str | int]:
     meta = match_info["metadata"]
     player = next(player for player in match_info["players"]["all_players"] if player["puuid"] == puuid)
     stats = player["stats"]
     team = match_info["teams"][player["team"].lower()]
 
-    date_started_obj = convert_valorant_date(meta["game_start_patched"])
+    date_started_datetime = convert_valorant_date(meta["game_start_patched"])
     headshot_percentage = round((stats["headshots"] / (stats["headshots"] + stats["bodyshots"] + stats["legshots"])) * 100)
     average_damage_per_round = round(player["damage_made"] / meta["rounds_played"])
 
     formatted_match_info = {"match_id": meta["matchid"], 
-                            "date_started": date_started_obj.strftime(r"%d/%m/%Y"),
+                            "date_started": date_started_datetime.strftime(r"%d/%m/%Y"),
                             "rank": player["currenttier_patched"],
                             "mmr_change": mmr_change,
                             "rounds_won": team["rounds_won"], 
@@ -106,28 +106,34 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
                             "average_damage_per_round": average_damage_per_round}
 
     if get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True):
-        firefox_profile_path = get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
-        title = format_video_title(formatted_match_info)
-        visibility = get_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR)
-
-        if get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, boolean=True):
-            try:
-                video_path = autofind_video_path(date_started_obj)
-            except FileNotFoundError:
-                video_path = input_file_path(f"Autofind error, open video for {title}")
-        else:
-            video_path = input_file_path(f"Open video for {title}")
-        
-        if video_path:
-            video_link = selenium_youtube.upload_video(firefox_profile_path,
-                                                   video_path,
-                                                   title,
-                                                   visibility=visibility)
-            formatted_match_info["video_link"] = video_link
-        else:
-            print(f"No video path found for '{title}', skipping upload...")
+        try:
+            formatted_match_info["video_link"] = upload_video(formatted_match_info, date_started_datetime)
+        except FileNotFoundError as e:
+            print(e)
 
     return formatted_match_info
+
+def upload_video(match_info: dict[str, str | int], date_started_datetime: datetime):
+    firefox_profile_path = get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
+    title = format_video_title(match_info)
+    visibility = get_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR)
+
+    if get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, boolean=True):
+        try:
+            video_path = autofind_video_path(date_started_datetime)
+        except FileNotFoundError:
+            video_path = input_file_path(f"Autofind error, open video for {title}")
+    else:
+        video_path = input_file_path(f"Open video for {title}")
+    
+    if video_path:
+        video_link = selenium_youtube.upload_video(firefox_profile_path,
+                                                video_path,
+                                                title,
+                                                visibility=visibility)
+        return video_link
+    else:
+        raise FileNotFoundError(f"No video path found for '{title}', skipping upload...")
 
 def input_file_path(title: str) -> str:
     root = tk.Tk()

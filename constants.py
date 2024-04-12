@@ -18,10 +18,6 @@ SCOPE = scope = ['https://www.googleapis.com/auth/spreadsheets',
                  "https://www.googleapis.com/auth/drive.file",
                  "https://www.googleapis.com/auth/drive"]
 
-# Recording clients
-INSIGHTS_DIRECTORY = "C:/Users/Aritra/Videos/Overwolf/Insights Capture"
-INSIGHTS_FILENAME_FORMAT = r"VALORANT %m-%d-%Y_%H-%M-%S-%f.mp4"
-
 # Selenium
 TIMEOUT = 60
 VIDEO_UPLOAD_LOCATOR = (By.XPATH, '//*[@id="content"]/input')
@@ -32,7 +28,7 @@ NEXT_BUTTON_LOCATOR = (By.ID, "next-button")
 SAVE_BUTTON_LOCATOR = (By.ID, "done-button")
 CLOSE_BUTTON_LOCATOR = (By.ID, "close-button")
 def VISIBILITY_RADIO_LOCATOR(visibility: str) -> tuple[str, str]:
-    return (By.XPATH, f'//tp-yt-paper-radio-button[@name="{visibility}"]')
+    return (By.XPATH, f'//tp-yt-paper-radio-button[@name="{visibility.upper()}"]')
 UPLOAD_PROGRESS_LOCATOR = (By.XPATH, '//span[@class="progress-label style-scope ytcp-video-upload-progress"]')
 LINK_ANCHOR_LOCATOR = (By.XPATH, '//a[@class="style-scope ytcp-video-info"]')
 
@@ -41,9 +37,11 @@ SETTINGS_FILE_NAME = "settings.ini"
 VIDEO_SETTING_SECTION_NAME = "VIDEO"
 AUTOUPLOAD_VIDEOS_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "autoupload_videos")
 FIREFOX_PROFILE_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "firefox_profile_path")
+MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "max_videos_simultaneously")
 VIDEO_VISIBILITY_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "video_visibility")
 AUTOSELECT_VIDEOS_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "autoselect_videos")
 VIDEO_DIRECTORY_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "video_directory")
+RECORDING_CLIENT_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "recording_client")
 FILENAME_FORMAT_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "filename_format")
 RECORDING_START_DELAY_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "recording_start_delay")
 
@@ -61,6 +59,17 @@ GOOGLE_SHEETS_NAME_SETTING_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "google_
 GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "google_service_account_key_json_path")
 
 # UI
+RECORDING_CLIENT_FILENAME_FORMATS = {
+    "insights_capture": r"VALORANT %m-%d-%Y_%H-%M-%S-%f.mp4",
+    "medal": r"placeholder.mp4",
+    "outplayed": r"placeholder.mp4"
+}
+RECORDING_CLIENT_OPTIONS = {
+    "": "Custom",
+    "insights_capture": "Insights Capture",
+    "medal": "Medal",
+    "outplayed": "Outplayed"
+}
 VIDEO_VISIBILITY_OPTIONS = {
     "public": "Public",
     "private": "Private",

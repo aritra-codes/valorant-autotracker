@@ -8,8 +8,9 @@ config[c.VIDEO_SETTING_SECTION_NAME] = {
     "firefox_profile_path": "C:/Users/Aritra/AppData/Roaming/Mozilla/Firefox/Profiles/pubangy1.selenium",
     "video_visibility": "unlisted",
     "autoselect_videos": True,
-    "video_directory": c.INSIGHTS_DIRECTORY,
-    "filename_format": c.INSIGHTS_FILENAME_FORMAT,
+    "video_directory": "C:/Users/Aritra/Videos/Overwolf/Insights Capture",
+    "recording_client": "insights_capture",
+    "filename_format": c.RECORDING_CLIENT_FILENAME_FORMATS["insights_capture"],
     "recording_start_delay": 0
 }
 

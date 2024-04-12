@@ -40,9 +40,6 @@ def upload_video(firefox_profile_path: str, path: str, title: str, description: 
     for _ in range(3):
         driver.find_element(*c.NEXT_BUTTON_LOCATOR).click()
 
-    # Waits for the visibility radio button to load (and as a result the rest of the page)
-    WebDriverWait(driver, c.TIMEOUT).until(EC.visibility_of_element_located(c.VISIBILITY_RADIO_LOCATOR(visibility)))
-
     # Inputs the desired visibility option
     driver.find_element(*c.VISIBILITY_RADIO_LOCATOR(visibility)).click()
 

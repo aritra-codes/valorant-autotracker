@@ -13,8 +13,8 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.worksheet.worksheet import Worksheet as ExcelWorksheet
 import requests
 from configparser import RawConfigParser
-import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
+from selenium.common.exceptions import NoSuchWindowException, NoSuchElementException
 
 import constants as c
 import selenium_youtube
@@ -94,9 +94,11 @@ def get_new_matches(puuid: str, affinity: str, latest_match_id: str) -> list:
     for index, match in enumerate(matches := get_matches(puuid, affinity)):
         if match["metadata"]["matchid"] == latest_match_id:
             new_matches = matches[:index]
+            new_matches.reverse()
 
             return new_matches
 
+    matches.reverse()
     return matches
 
 def get_mmr_changes(puuid: str, affinity: str, size: int) -> list:
@@ -105,6 +107,7 @@ def get_mmr_changes(puuid: str, affinity: str, size: int) -> list:
     manage_henrikdev_api_errors(request["status"])
 
     mmr_changes = [match["last_mmr_change"] for match in request["data"]]
+    mmr_changes.reverse()
 
     return mmr_changes
 
@@ -138,7 +141,7 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
                             "average_damage_per_round": average_damage_per_round}
 
     if get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True):
-        while (threading.active_count - 1) >= get_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR, integer=True):
+        while (threading.active_count() - 1) >= get_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR, integer=True):
             sleep(c.UPLOAD_POLL_FREQUENCY)
 
         try:
@@ -148,10 +151,11 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
 
     return formatted_match_info
 
-def upload_video(match_info: dict[str, str | int], date_started_datetime: datetime):
+def upload_video(match_info: dict[str, str | int], date_started_datetime: datetime) -> str:
     firefox_profile_path = get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
     title = format_video_title(match_info)
     visibility = get_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR)
+    background = get_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, boolean=True)
 
     if get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, boolean=True):
         try:
@@ -162,18 +166,26 @@ def upload_video(match_info: dict[str, str | int], date_started_datetime: dateti
         video_path = input_file_path(f"Open video for {title}")
     
     if video_path:
-        video_link = selenium_youtube.upload_video(firefox_profile_path,
+        while True:
+            try:
+                video_link = selenium_youtube.upload_video(firefox_profile_path,
                                                 video_path,
                                                 title,
-                                                visibility=visibility)
-        return video_link
+                                                visibility=visibility,
+                                                background=background)
+            except (NoSuchWindowException, NoSuchElementException):
+                reupload_msgbox = messagebox.askquestion("Reupload Video?", f"An error has occured, would you like to reupload the video for {title}?")
+
+                if reupload_msgbox == "no":
+                    break
+            else:
+                break
     else:
         raise FileNotFoundError(f"No video path found for '{title}', skipping upload...")
+    
+    return video_link
 
 def input_file_path(title: str) -> str:
-    root = tk.Tk()
-    root.withdraw()
-
     file_path = filedialog.askopenfilename(title=title)
 
     return file_path

@@ -6,6 +6,7 @@ config = RawConfigParser()
 config[c.VIDEO_SETTING_SECTION_NAME] = {
     "autoupload_videos": True,
     "firefox_profile_path": "C:/Users/Aritra/AppData/Roaming/Mozilla/Firefox/Profiles/pubangy1.selenium",
+    "background_process": True,
     "max_videos_simultaneously": 2,
     "video_visibility": "unlisted",
     "autoselect_videos": True,

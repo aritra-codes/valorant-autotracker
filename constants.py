@@ -1,5 +1,19 @@
 from selenium.webdriver.common.by import By
 
+# Custom errors
+class APIError(Exception):
+    pass
+class FirefoxProfileNotFoundError(Exception):
+    pass
+class VideoUploadError(Exception):
+    pass
+class InvalidGoogleServiceAccountKeyError(Exception):
+    pass
+class VideoDirectoryNotFoundError(Exception):
+    pass
+class InvalidSettingsError(Exception):
+    pass
+
 # HenrikDev-API
 VALORANT_API_DOMAIN = "https://api.henrikdev.xyz/valorant"
 def ACCOUNT_BY_NAME_URL(name: str, tag: str) -> str:
@@ -35,7 +49,7 @@ UPLOAD_PROGRESS_LOCATOR = (By.XPATH, '//span[@class="progress-label style-scope 
 LINK_ANCHOR_LOCATOR = (By.XPATH, '//a[@class="style-scope ytcp-video-info"]')
 
 # Settings
-SETTINGS_FILE_NAME = "settings.ini"
+SETTINGS_FILE_PATH = "settings.ini"
 VIDEO_SETTING_SECTION_NAME = "VIDEO"
 AUTOUPLOAD_VIDEOS_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "autoupload_videos")
 FIREFOX_PROFILE_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "firefox_profile_path")

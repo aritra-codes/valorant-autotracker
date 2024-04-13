@@ -44,7 +44,7 @@ def main() -> None:
                 else:
                     h.append_row_to_excel_sheet(values=formatted_match, **excel_kwargs)
 
-            # h.update_latest_match_id(match_info["match_id"])
+            h.update_latest_match_id(match_info["match_id"])
     else:
         print("No new matches.")
 
@@ -53,3 +53,6 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         sys.exit("Exitting application...")
+    except Exception as e:
+        print(e)
+        sys.exit(1)

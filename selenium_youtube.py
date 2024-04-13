@@ -54,23 +54,26 @@ def upload_video(firefox_profile_path: str, path: str, title: str, description: 
 
         # Finishing up is done in a thread, so video link can be outputted in advance
         def finish():
-            # Waits for the video to be uploaded
-            upload_progress = driver.find_element(*c.UPLOAD_PROGRESS_LOCATOR)
-            while upload_progress.get_attribute("innerHTML").startswith("Uploading"):
-                time.sleep(c.UPLOAD_POLL_FREQUENCY)
+            try:
+                # Waits for the video to be uploaded
+                upload_progress = driver.find_element(*c.UPLOAD_PROGRESS_LOCATOR)
+                while upload_progress.get_attribute("innerHTML").startswith("Uploading"):
+                    time.sleep(c.UPLOAD_POLL_FREQUENCY)
 
-            # Waits for the save button to be not disabled, then clicks it
-            WebDriverWait(driver, c.TIMEOUT).until(EC.text_to_be_present_in_element_attribute(c.SAVE_BUTTON_LOCATOR, "aria-disabled", "false"))
-            driver.find_element(*c.SAVE_BUTTON_LOCATOR).click()
+                # Waits for the save button to be not disabled, then clicks it
+                WebDriverWait(driver, c.TIMEOUT).until(EC.text_to_be_present_in_element_attribute(c.SAVE_BUTTON_LOCATOR, "aria-disabled", "false"))
+                driver.find_element(*c.SAVE_BUTTON_LOCATOR).click()
 
-            # Waits for the save button to disappear (and as a result the rest of the page), so all changes are saved
-            WebDriverWait(driver, c.TIMEOUT).until(EC.invisibility_of_element_located(c.SAVE_BUTTON_LOCATOR))
-
-            driver.quit()
+                # Waits for the save button to disappear (and as a result the rest of the page), so all changes are saved
+                WebDriverWait(driver, c.TIMEOUT).until(EC.invisibility_of_element_located(c.SAVE_BUTTON_LOCATOR))
+            except Exception:
+                print(f"An error has occured, your upload for the video '{title}' may have been affected.")
+            finally:
+                driver.quit()
         threading.Thread(target=finish).start()
 
         return link
-    except Exception as e:
+    except Exception:
         driver.quit()
 
-        raise e
+        raise

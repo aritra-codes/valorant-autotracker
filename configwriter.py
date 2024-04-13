@@ -6,6 +6,7 @@ config = RawConfigParser()
 config[c.VIDEO_SETTING_SECTION_NAME] = {
     "autoupload_videos": True,
     "firefox_profile_path": "C:/Users/Aritra/AppData/Roaming/Mozilla/Firefox/Profiles/pubangy1.selenium",
+    "max_videos_simultaneously": 2,
     "video_visibility": "unlisted",
     "autoselect_videos": True,
     "video_directory": "C:/Users/Aritra/Videos/Overwolf/Insights Capture",
@@ -16,7 +17,8 @@ config[c.VIDEO_SETTING_SECTION_NAME] = {
 
 config[c.VALORANT_SETTING_SECTION_NAME] = {
     "puuid": "f356715e-1c24-58e8-b77b-40af0cd03bda",
-    "region": "eu"
+    "region": "eu",
+    "latest_match_id": "a889e40d-872f-4f41-93be-077eb2fff489"
 }
 
 config[c.SPREADSHEET_SETTING_SECTION_NAME] = {

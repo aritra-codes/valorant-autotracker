@@ -1,5 +1,9 @@
 from os import listdir
 from datetime import datetime, timedelta
+import sys
+from typing import NoReturn, Literal
+import threading
+from time import sleep
 
 import gspread
 from gspread.spreadsheet import Spreadsheet
@@ -20,17 +24,16 @@ def get_excel_workbook(path: str) -> Workbook:
 
     return workbook
 
-def insert_values_to_excel_sheet(workbook: Workbook, path: str, row: int, values: list[str]) -> None:
+def insert_row_to_excel_sheet(workbook: Workbook, path: str, row: int, values: list) -> None:
     sheet: ExcelWorksheet = workbook.active
     sheet.insert_rows(row)
 
-    for index, value in enumerate(values):
-        cell = sheet.cell(row, index + 1)
-        cell.value = value
+    sheet._current_row = row - 1
+    sheet.append(values)
 
     workbook.save(path)
 
-def append_values_to_excel_sheet(workbook: Workbook, path: str, values: list[str]) -> None:
+def append_row_to_excel_sheet(workbook: Workbook, path: str, values: list) -> None:
     sheet: ExcelWorksheet = workbook.active
     sheet.append(values)
 
@@ -44,19 +47,45 @@ def get_google_sheet(name: str) -> Spreadsheet:
     return sheet
 
 def get_latest_match_id() -> str:
-    with open(c.LATEST_MATCH_ID_TXT_PATH) as file:
-        return file.read()
+    return get_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR)
     
 def update_latest_match_id(match_id: str) -> None:
-    with open(c.LATEST_MATCH_ID_TXT_PATH, "w") as file:
-        file.write(match_id) 
+    edit_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR, match_id)
+
+def manage_henrikdev_api_errors(status_code: int) -> Literal[True] | NoReturn:
+    match status_code:
+        case 200:
+            return True
+        case 400:
+            sys.exit("Request error by the client. Make sure you have set a valid PUUID and region in the settings.")
+        case 403:
+            sys.exit("Forbidden to connect to the Riot API (most likely due to maintenance reasons). Please try again later.")
+        case 404:
+            sys.exit("Player not found, invalid puuid. Make sure you have set a valid PUUID and region in the settings.")
+        case 408:
+            sys.exit("Timeout while fetching riot data. Please try again.")
+        case 410:
+            sys.exit("Endpoint is deprecated. Please contact the developer.")
+        case 429:
+            sys.exit("Rate limit reached. Please try again later.")
+        case 500:
+            sys.exit("Internal server error. Make sure you have set a valid PUUID and region in the settings.")
+        case 501:
+            sys.exit("API Version not implemented. Please contact the developer.")
+        case 503:
+            sys.exit("Riot API seems to be down, API unable to connect. Please try again later.")
+        case _:
+            sys.exit("An error has occured.")
 
 def find_puuid(name: str, tag: str) -> str:
-    request = requests.get(c.ACCOUNT_URL(name, tag), timeout=c.TIMEOUT).json()
+    request = requests.get(c.ACCOUNT_BY_NAME_URL(name, tag)).json()
     return request["data"]["puuid"]
 
 def get_matches(puuid: str, affinity: str, size: int=10) -> list:
     request = requests.get(c.MATCHES_URL(puuid, affinity), {"mode": "competitive", "size": size}, timeout=c.TIMEOUT).json()
+
+    manage_henrikdev_api_errors(request["status"])
+
     return request["data"]
 
 def get_new_matches(puuid: str, affinity: str, latest_match_id: str) -> list:
@@ -72,6 +101,9 @@ def get_new_matches(puuid: str, affinity: str, latest_match_id: str) -> list:
 
 def get_mmr_changes(puuid: str, affinity: str, size: int) -> list:
     request = requests.get(c.MMR_HISTORY_URL(puuid, affinity), {"size": size}, timeout=c.TIMEOUT).json()
+
+    manage_henrikdev_api_errors(request["status"])
+
     mmr_changes = [match["last_mmr_change"] for match in request["data"]]
 
     return mmr_changes
@@ -106,6 +138,9 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
                             "average_damage_per_round": average_damage_per_round}
 
     if get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True):
+        while (threading.active_count - 1) >= get_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR, integer=True):
+            sleep(c.UPLOAD_POLL_FREQUENCY)
+
         try:
             formatted_match_info["video_link"] = upload_video(formatted_match_info, date_started_datetime)
         except FileNotFoundError as e:

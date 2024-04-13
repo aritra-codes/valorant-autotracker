@@ -2,8 +2,10 @@ from selenium.webdriver.common.by import By
 
 # HenrikDev-API
 VALORANT_API_DOMAIN = "https://api.henrikdev.xyz/valorant"
-def ACCOUNT_URL(name: str, tag: str) -> str:
+def ACCOUNT_BY_NAME_URL(name: str, tag: str) -> str:
     return f"{VALORANT_API_DOMAIN}/v1/account/{"%20".join(name.split())}/{tag}"
+def ACCOUNT_BY_PUUID_URL(puuid: str) -> str:
+    return f"/valorant/v1/by-puuid/account/{puuid}"
 def MATCHES_URL(puuid: str, affinity: str) -> str:
     return f"{VALORANT_API_DOMAIN}/v3/by-puuid/matches/{affinity}/{puuid}"
 def MMR_HISTORY_URL(puuid: str, affinity: str) -> str:
@@ -11,7 +13,6 @@ def MMR_HISTORY_URL(puuid: str, affinity: str) -> str:
 VALORANT_DATE_FORMAT = r"%A, %B %d, %Y %I:%M %p"
 MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
           'August', 'September', 'October', 'November', 'December']
-LATEST_MATCH_ID_TXT_PATH = "latest_match_id.txt"
 
 # Google Sheets
 SCOPE = scope = ['https://www.googleapis.com/auth/spreadsheets',
@@ -20,6 +21,7 @@ SCOPE = scope = ['https://www.googleapis.com/auth/spreadsheets',
 
 # Selenium
 TIMEOUT = 60
+UPLOAD_POLL_FREQUENCY = 60
 VIDEO_UPLOAD_LOCATOR = (By.XPATH, '//*[@id="content"]/input')
 TITLE_FIELD_LOCATOR = (By.XPATH, '//ytcp-video-title//div[@id="textbox"]')
 DESCRIPTION_FIELD_LOCATOR = (By.XPATH, '//ytcp-video-description//div[@id="textbox"]')
@@ -48,6 +50,7 @@ RECORDING_START_DELAY_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "recording_
 VALORANT_SETTING_SECTION_NAME = "VALORANT"
 PUUID_SETTING_LOCATOR = (VALORANT_SETTING_SECTION_NAME, "puuid")
 AFFINITY_SETTING_LOCATOR = (VALORANT_SETTING_SECTION_NAME, "region")
+LATEST_MATCH_ID_SETTING_LOCATOR = (VALORANT_SETTING_SECTION_NAME, "latest_match_id")
 
 SPREADSHEET_SETTING_SECTION_NAME = "SPREADSHEET"
 SPREADSHEET_FORMAT_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "spreadsheet_format")

@@ -53,7 +53,7 @@ def upload_video(firefox_profile_path: str, path: str, title: str, description: 
         # Waits for the video to be uploaded
         upload_progress = driver.find_element(*c.UPLOAD_PROGRESS_LOCATOR)
         while upload_progress.get_attribute("innerHTML").startswith("Uploading"):
-            time.sleep(c.TIMEOUT)
+            time.sleep(c.UPLOAD_POLL_FREQUENCY)
 
         # Waits for the save button to be not disabled, then clicks it
         WebDriverWait(driver, c.TIMEOUT).until(EC.text_to_be_present_in_element_attribute(c.SAVE_BUTTON_LOCATOR, "aria-disabled", "false"))

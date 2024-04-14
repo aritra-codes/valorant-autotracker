@@ -52,7 +52,7 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        sys.exit("Exitting application...")
+        sys.exit("Exiting application...")
     except Exception as e:
         print(e)
         sys.exit(1)

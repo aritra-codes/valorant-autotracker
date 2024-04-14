@@ -4,10 +4,12 @@ from customtkinter import (set_appearance_mode, set_default_color_theme,
                            CTkSlider, CTkComboBox, CTkOptionMenu, CTkScrollableFrame)
 from PIL import Image
 import os
-from tkinter import Toplevel, Label, messagebox
-#from main import main # Uncomment here for testing!
+from tkinter import Toplevel, Label, messagebox, scrolledtext
+from main import main # Uncomment here for testing!
 import helpers as h
 import constants as c
+import sys
+from io import StringIO
 
 set_appearance_mode("light")
 set_default_color_theme("dark-blue")
@@ -51,18 +53,28 @@ class App(CTk):
         self.run = CTkButton(self.frame, text="Run", width=140, 
                              height=40, image=run_image,
                              font=default_font, command=self.run)
-        self.run.grid(row=0, column=0, pady=(80,10))
+        self.run.grid(row=0, column=0, pady=(20,10))
 
         self.settings_button = CTkButton(self.frame, text="Settings", width=140, 
                                          height=40, image=settings_image,
                                          font=default_font, command=self.open_settings)
         self.settings_button.grid(row=1, column=0)
 
-    def run(self):
-        # Main function below (**remove comment when you want to test**)
-        #main()
-        print("Main function will be executed here!")
+        self.output_label = CTkLabel(self.frame, text="Output:", font=default_font)
+        self.output_label.grid(row=2, column=0, padx=10, pady=(10,0))
 
+        self.output_entry = scrolledtext.ScrolledText(self.frame, bd=1,
+                                                      font=("Cascadia Code", 9),
+                                                      height=8)
+        self.output_entry.grid(row=3, column=0, padx=10, pady=(5,0),
+                               sticky="ew")
+
+    def run(self):
+        try:
+            main()
+        except Exception as e:
+            self.output_entry.insert(END, e)
+        
     def open_settings(self):
         settings_window = SettingsWindow()
         settings_window.mainloop()
@@ -695,8 +707,14 @@ class SettingsWindow(Toplevel):
                                  message=f"Please enter a valid filename format.")
             return
         
-        # ADD INTEGER TESTING HERE!
         if self.slider_value.get():
+            try:
+                integer_value = int(self.slider_value.get())
+            except ValueError:
+                messagebox.showerror(title="Invalid Input", 
+                                 message=f"Please enter a valid recording delay (must be an integer).")
+                return
+
             if self.slider_value.get() != c.RECORDING_START_DELAY_SETTING_LOCATOR:
                 h.edit_setting(*c.RECORDING_START_DELAY_SETTING_LOCATOR, self.slider_value.get())
         else:
@@ -704,8 +722,29 @@ class SettingsWindow(Toplevel):
                                  message=f"Please enter a valid recording delay (must be an integer).")
             return
 
-        # **MORE SAVE FUNCTIONS COMING BELOW**
+        if not self.puuid_entry.get():
+            messagebox.showerror(title="Invalid Input", 
+                                 message=f"Please enter a valid PUUID.")
+            return
+        else:
+            puuid_setting = h.get_setting(*c.PUUID_SETTING_LOCATOR)
+            if self.puuid_entry.get() != puuid_setting:
+                h.edit_setting(*c.PUUID_SETTING_LOCATOR, self.puuid_entry.get())
+            
+        region_setting = h.get_setting(*c.AFFINITY_SETTING_LOCATOR)
+        translated_region = h.get_key_from_value(c.REGION_OPTIONS, self.region_dropdown.get())
+        if translated_region != region_setting:
+            h.edit_setting(*c.AFFINITY_SETTING_LOCATOR, translated_region)
 
+        r2_setting = self.insert_r2_switch.get()
+
+        if r2_setting == "off":
+            if h.get_setting(*c.INSERT_TO_ROW_2_LOCATOR, boolean=True) is True:
+                h.edit_setting(*c.INSERT_TO_ROW_2_LOCATOR, "False")
+        elif r2_setting == "on":
+            if h.get_setting(*c.INSERT_TO_ROW_2_LOCATOR, boolean=True) is not True:
+                h.edit_setting(*c.INSERT_TO_ROW_2_LOCATOR, "True")
+   
     def donate_function(self):
         pass
 

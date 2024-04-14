@@ -85,7 +85,7 @@ def manage_henrikdev_api_errors(status_code: int) -> Literal[True]:
         case 403:
             raise c.APIError("Forbidden to connect to the Riot API (most likely due to maintenance reasons). Please try again later.")
         case 404:
-            raise c.APIError("Player not found, invalid puuid. Please make sure you have set a valid PUUID and region in the settings.")
+            raise c.APIError("Player not found, invalid PUUID. Please make sure you have set a valid PUUID and region in the settings.")
         case 408:
             raise c.APIError("Timeout while fetching riot data. Please try again.")
         case 410:

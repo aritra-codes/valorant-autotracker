@@ -3,7 +3,10 @@ import sys
 import constants as c
 import helpers as h
 
+from ui import Output
+
 def main() -> None:
+    Output().write_to_entry("Hello World!")
     puuid = h.get_setting(*c.PUUID_SETTING_LOCATOR)
     affinity = h.get_setting(*c.AFFINITY_SETTING_LOCATOR)
 

@@ -70,7 +70,7 @@ class App(CTk):
 
         self.run = CTkButton(self.frame, text="Run", width=140, 
                              height=40, image=self.run_image,
-                             font=default_font, command=threading.Thread(target=self.run_main).start)
+                             font=default_font, command=self.thread_main)
         self.run.grid(row=0, column=0, pady=(20,10))
 
         self.settings_button = CTkButton(self.frame, text="Settings", width=140, 
@@ -88,11 +88,15 @@ class App(CTk):
                                sticky="ew")
         PrintLogger(self.output_entry)
         
-    def run_main(self):
-        try:
-            main()
-        except Exception as e:
-            print(e)
+    def thread_main(self):
+        def run_main():
+            try:
+                main()
+            except Exception as e:
+                print(e)
+
+        thread = threading.Thread(target=run_main)
+        thread.start()
 
     def open_settings(self):
         settings_window = SettingsWindow()

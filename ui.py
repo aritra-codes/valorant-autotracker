@@ -771,6 +771,13 @@ class SettingsWindow(Toplevel):
             visibility_new = h.get_key_from_value(c.VIDEO_VISIBILITY_OPTIONS, self.visibility_dropdown.get())
             h.edit_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR, visibility_new)
 
+        if self.background_process_var == "off":
+            if h.get_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, boolean=True) is True:
+                h.edit_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, "False")
+            elif r2_setting == "on":
+                if h.get_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, boolean=True) is not True:
+                    h.edit_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, "True")
+
         if self.val2 == "on":
             if h.get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, boolean=True) is not True:
                 h.edit_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, "True")

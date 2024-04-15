@@ -49,13 +49,20 @@ def main() -> None:
             print(f"Added entry '{h.format_video_title(match_info)}' to the spreadsheet(s).")
 
             h.update_latest_match_id(match_info["match_id"])
+
+        # Waits for all uploads to finish
+        h.wait_until_number_of_threads_is(0, c.UPLOAD_POLL_FREQUENCY)
+
+        print("All tasks done.")
     else:
         print("No new matches.")
+
+    print("Closing app...")
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        sys.exit("Exiting application...")
+        sys.exit("Exiting app...")
     except Exception as e:
         print(e)

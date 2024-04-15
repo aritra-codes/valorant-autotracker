@@ -168,8 +168,8 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
                             "average_damage_per_round": average_damage_per_round}
 
     if get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True):
-        while (threading.active_count() - 1) >= get_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR, integer=True):
-            sleep(c.UPLOAD_POLL_FREQUENCY)
+        max_videos_simultaneously = get_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR, integer=True)
+        wait_until_number_of_threads_is(max_videos_simultaneously - 1, c.UPLOAD_POLL_FREQUENCY)
 
         try:
             formatted_match_info["video_link"] = upload_video(formatted_match_info, date_started_datetime)
@@ -177,6 +177,10 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
             print(e, "Skipping upload...")
 
     return formatted_match_info
+
+def wait_until_number_of_threads_is(threads: int, polling_frequency: float):
+    while (threading.active_count() - 1) > threads:
+        sleep(polling_frequency)
 
 def upload_video(match_info: dict[str, str | int], date_started_datetime: datetime) -> str:
     firefox_profile_path = get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
@@ -271,9 +275,14 @@ def format_video_title(formatted_match_info: dict) -> str:
 
 def get_setting(section: str, name: str, integer: bool=False, floatp: bool=False, boolean: bool=False) -> str | int | float | bool:
     config = RawConfigParser()
-    config.read(c.SETTINGS_FILE_PATH)
+    files = config.read(c.SETTINGS_FILE_PATH)
+    
+    if files == []:
+        make_default_settings_file(c.DEFAULT_SETTINGS)
 
-    c_kwargs = {"section": section, "option": name, "fallback": None}
+        raise c.InvalidSettingsError("Settings file not found. A new settings file with the default settings has been created.")
+
+    c_kwargs = {"section": section, "option": name}
     
     try:
         if integer:
@@ -289,11 +298,26 @@ def get_setting(section: str, name: str, integer: bool=False, floatp: bool=False
     
 def edit_setting(section: str, name: str, value: str | int | float | bool):
     config = RawConfigParser()
-    config.read(c.SETTINGS_FILE_PATH)
+    files = config.read(c.SETTINGS_FILE_PATH)
+
+    if files == []:
+        make_default_settings_file(c.DEFAULT_SETTINGS)
+
+        raise c.InvalidSettingsError("Settings file not found. A new settings file with the default settings has been created.")
 
     config.set(section, name, value)
 
     with open(c.SETTINGS_FILE_PATH, "w") as file:
+        config.write(file)
+
+def make_default_settings_file(settings: dict[str, dict[str, str | int | float | bool]]) -> None:
+    config = RawConfigParser()
+
+    for section in settings.keys():
+        for setting in settings[section]:
+            config[section] = setting
+
+    with open(c.SETTINGS_FILE_NAME, "w") as file:
         config.write(file)
 
 def get_key_from_value(dictionary: dict, value):

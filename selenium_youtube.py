@@ -74,7 +74,7 @@ def upload_video(firefox_profile_path: str, path: str, title: str, description: 
                 print(f"An error has occured, your upload for the video '{title}' may have been affected.")
             finally:
                 driver.quit()
-        threading.Thread(target=finish).start()
+        thread = threading.Thread(target=finish).start()
 
         return link
     except Exception:

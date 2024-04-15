@@ -631,8 +631,7 @@ class SettingsWindow(Toplevel):
             self.filename_format_entry.delete(0,END)
             self.filename_format_entry.insert(END, filename_format)
             self.filename_format_entry.configure(state="disabled")
-        
-    
+         
     def firefoxprofile_change_function(self):
         self.file2 = filedialog.askdirectory(title="Open")
         self.firefox_entry.delete(0, END)
@@ -749,12 +748,28 @@ class SettingsWindow(Toplevel):
             visibility_new = h.get_key_from_value(c.VIDEO_VISIBILITY_OPTIONS, self.visibility_dropdown.get())
             h.edit_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR, visibility_new)
 
-        if self.background_process_var == "off":
+        self.background_process_setting = self.background_process_switch.get()
+        if self.background_process_setting == "off":
             if h.get_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, boolean=True) is True:
                 h.edit_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, "False")
-            elif r2_setting == "on":
+            elif self.background_process_setting == "on":
                 if h.get_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, boolean=True) is not True:
                     h.edit_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, "True")
+                
+        if self.maxvids_sim_entry.get():
+            try:
+                integer_value = int(self.maxvids_sim_entry.get())
+            except ValueError:
+                messagebox.showerror(title="Invalid Input", 
+                                 message=f"Max. Vids Simultaneously: Please enter a valid integer.")
+                return
+
+            if self.maxvids_sim_entry.get() != c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR:
+                h.edit_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR, self.maxvids_sim_entry.get())
+        else:
+            messagebox.showerror(title="Invalid Input", 
+                                 message=f"Max. Vids Simultaneously: Please enter a valid integer.")
+            return
 
         if self.val2 == "on":
             if h.get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, boolean=True) is not True:
@@ -819,6 +834,14 @@ class SettingsWindow(Toplevel):
         if translated_region != region_setting:
             h.edit_setting(*c.AFFINITY_SETTING_LOCATOR, translated_region)
 
+        if self.latest_matchid_entry.get():
+            if self.latest_matchid_entry.get() != h.get_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR):
+                h.edit_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR, self.latest_matchid_entry.get())
+        else:
+            messagebox.showerror(title="Invalid Input", 
+                                 message=f"Please enter a valid latest match ID.")
+            return
+
         r2_setting = self.insert_r2_switch.get()
 
         if r2_setting == "off":
@@ -827,6 +850,62 @@ class SettingsWindow(Toplevel):
         elif r2_setting == "on":
             if h.get_setting(*c.INSERT_TO_ROW_2_LOCATOR, boolean=True) is not True:
                 h.edit_setting(*c.INSERT_TO_ROW_2_LOCATOR, "True")
+
+        self.googlesheets_setting = self.switch_googlesheet.get()
+        
+        if self.googlesheets_setting == "off":
+            if h.get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, boolean=True) is True:
+                h.edit_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, "False")
+        elif self.googlesheets_setting == "on":
+            if h.get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, boolean=True) is not True:
+                h.edit_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, "True")
+
+            if self.spreadsheet_name_entry.get():
+                if self.spreadsheet_name_entry.get() != h.get_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR):
+                    h.edit_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR, self.spreadsheet_name_entry.get())
+            else:
+               messagebox.showerror(title="Invalid Input", 
+                                 message=f"Please enter a valid spreadsheet name (Google Sheets).")
+            
+            if self.google_service_key_entry.get():      
+                if os.path.exists(self.google_service_key_entry.get()):
+                    if self.google_service_key_entry.get() != h.get_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR):
+                        h.edit_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR, self.google_service_key_entry.get())
+                else:
+                    keydir = messagebox.askokcancel(title="Invalid File", 
+                    message=f"JSON File Directory: This directory was not found.\nPlease select a valid directory.",
+                    icon="error")
+                    if keydir is True:
+                        self.google_key_dirchange_function()
+                    else:
+                        pass
+            else:
+               messagebox.showerror(title="Invalid Input", 
+                                 message=f"Please enter a path to a valid JSON file.")
+
+            self.excel_setting = self.switch_excel.get()
+            if self.excel_setting == "off":
+                if h.get_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, boolean=True) is True:
+                    h.edit_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, "False")
+            elif self.excel_setting == "on":
+                if h.get_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, boolean=True) is not True:
+                    h.edit_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, "True")
+            
+                if self.excel_file_path_dir.get():      
+                    if os.path.exists(self.excel_file_path_dir.get()):
+                        if self.excel_file_path_dir.get() != h.get_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR):
+                            h.edit_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR, self.excel_file_path_dir.get())
+                    else:
+                        exceldir = messagebox.askokcancel(title="Invalid File", 
+                        message=f"Excel File Directory: This directory was not found.\nPlease select a valid directory.",
+                        icon="error")
+                        if exceldir is True:
+                            self.excel_dir_change()
+                        else:
+                            pass
+                else:
+                    messagebox.showerror(title="Invalid Input", 
+                                        message=f"Please enter a path to a valid Excel file.")
    
     def donate_function(self):
         pass

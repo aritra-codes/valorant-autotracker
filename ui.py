@@ -5,11 +5,12 @@ from customtkinter import (set_appearance_mode, set_default_color_theme,
 from PIL import Image
 import os
 from tkinter import Toplevel, Label, messagebox, scrolledtext
-import main # Uncomment here for testing!
+import sys
+import threading
+
+from main import main
 import helpers as h
 import constants as c
-import contextlib
-import subprocess
 
 set_appearance_mode("light")
 set_default_color_theme("dark-blue")
@@ -32,6 +33,22 @@ save_image = CTkImage(light_image=Image.open(os.path.join(image_path, "save_file
 donate_image = CTkImage(light_image=Image.open(os.path.join(image_path, "paypal.png")),
                       dark_image=Image.open(os.path.join(image_path, "paypal.png")))
 
+class PrintLogger():  # Create file like object
+    def __init__(self, textbox):  # Pass reference to text widget
+        sys.stdout = self
+        sys.stderr = self
+        self.textbox = textbox  # Keep ref
+        
+
+    def write(self, text):
+        self.textbox.configure(state="normal")  # Make field editable
+        self.textbox.insert(END, f"{text}\n")  # Write text to textbox
+        self.textbox.see(END)  # Scroll to end
+        self.textbox.configure(state="disabled")  # Make field readonly
+
+    def flush(self):  # Needed for file like object
+        pass
+
 class App(CTk):
     def __init__(self):
         super().__init__()
@@ -53,7 +70,7 @@ class App(CTk):
 
         self.run = CTkButton(self.frame, text="Run", width=140, 
                              height=40, image=self.run_image,
-                             font=default_font, command=self.run)
+                             font=default_font, command=threading.Thread(target=self.run_main).start)
         self.run.grid(row=0, column=0, pady=(20,10))
 
         self.settings_button = CTkButton(self.frame, text="Settings", width=140, 
@@ -61,68 +78,25 @@ class App(CTk):
                                          font=default_font, command=self.open_settings)
         self.settings_button.grid(row=1, column=0)
 
+        # Entry box displays console output
         self.output_label = CTkLabel(self.frame, text="Output:", font=default_font)
         self.output_label.grid(row=2, column=0, padx=10, pady=(10,0))
-
         self.output_entry = scrolledtext.ScrolledText(self.frame, bd=1,
                                                       font=("Cascadia Code", 9),
                                                       height=8)
         self.output_entry.grid(row=3, column=0, padx=10, pady=(5,0),
                                sticky="ew")
+        PrintLogger(self.output_entry)
         
-    def run(self):
-        # FIRST ATTEMPT
-        """try:
-            with open("log.txt", "w") as f:
-                with contextlib.redirect_stdout(f):
-                    main.main()
-                    f.close()
-            
-            with open("log.txt", "r") as f:
-                contents = f.read()
-                self.output_entry.insert(END, f"{contents}\n")
-
+    def run_main(self):
+        try:
+            main()
         except Exception as e:
-            self.output_entry.insert(END, f"{e}\n")"""
-        # SECOND ATTEMPT :(
-        """try:
-            main.main()
-        except Exception as e:
-            self.output_entry.insert(END, f"{e}\n")"""
-        
-        # THIRD ATTEMPT
-        output = Output()
-        output.mainloop()      
+            print(e)
 
     def open_settings(self):
         settings_window = SettingsWindow()
         settings_window.mainloop()
-    
-    """def write_to_entry(self, message: str) -> None:
-            self.output_entry.insert(END, f"{message}\n")"""
-
-class Output(Toplevel):
-    def __init__(self):
-        super().__init__()
-        self.geometry("400x400")
-        self.title("Output")
-        self.iconbitmap("logo.ico")
-
-        self.scrolled_text = scrolledtext.ScrolledText(self, bd=1,
-                                                      font=("Cascadia Code", 9),
-                                                      height=8)
-        self.scrolled_text.pack(pady=10, padx=10)
-
-        self.output()
-    
-    def output(self):
-        try:
-            main.main()
-        except Exception as e:
-            self.scrolled_text.insert(END, f"{e}\n")
-
-    def write_to_entry(self, message: str) -> None:
-            self.scrolled_text.insert(END, f"{message}\n") 
 
 class HoverButton(CTkButton):
     def __init__(self, master, text, tooltip_text, image, width, fg_color,

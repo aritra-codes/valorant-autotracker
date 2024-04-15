@@ -3,10 +3,9 @@ import sys
 import constants as c
 import helpers as h
 
-from ui import Output
-
 def main() -> None:
-    Output().write_to_entry("Hello World!")
+    print("Starting app...")
+
     puuid = h.get_setting(*c.PUUID_SETTING_LOCATOR)
     affinity = h.get_setting(*c.AFFINITY_SETTING_LOCATOR)
 
@@ -47,6 +46,8 @@ def main() -> None:
                 else:
                     h.append_row_to_excel_sheet(values=formatted_match, **excel_kwargs)
 
+            print(f"Added entry '{h.format_video_title(match_info)}' to the spreadsheet(s).")
+
             h.update_latest_match_id(match_info["match_id"])
     else:
         print("No new matches.")
@@ -58,4 +59,3 @@ if __name__ == "__main__":
         sys.exit("Exiting application...")
     except Exception as e:
         print(e)
-        sys.exit(1)

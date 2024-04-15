@@ -173,9 +173,7 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
 
         try:
             formatted_match_info["video_link"] = upload_video(formatted_match_info, date_started_datetime)
-        except FileNotFoundError as e:
-            print(e, "Skipping upload...")
-        except c.VideoUploadError as e:
+        except (FileNotFoundError, c.VideoUploadError) as e:
             print(e, "Skipping upload...")
 
     return formatted_match_info

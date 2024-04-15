@@ -16,6 +16,8 @@ def input_to_field(field: WebElement, text: str) -> None:
     field.send_keys(text)
 
 def upload_video(firefox_profile_path: str, path: str, title: str, description: str="", visibility: str="private", background: bool=False) -> str:
+    print(f"Starting upload of video '{title}'...")
+
     options = Options()
     options.profile = FirefoxProfile(firefox_profile_path)
 
@@ -66,6 +68,8 @@ def upload_video(firefox_profile_path: str, path: str, title: str, description: 
 
                 # Waits for the save button to disappear (and as a result the rest of the page), so all changes are saved
                 WebDriverWait(driver, c.TIMEOUT).until(EC.invisibility_of_element_located(c.SAVE_BUTTON_LOCATOR))
+
+                print(f"Finished uploading video '{title}'.")
             except Exception:
                 print(f"An error has occured, your upload for the video '{title}' may have been affected.")
             finally:

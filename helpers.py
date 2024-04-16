@@ -99,7 +99,7 @@ def manage_henrikdev_api_errors(status_code: int) -> Literal[True]:
         case 503:
             raise c.APIError("Riot API seems to be down, API unable to connect. Please try again later.")
         case _:
-            raise c.APIError("An error has occured. Please try again.")
+            raise c.APIError(f"An error ({status_code}) has occured. Please try again.")
 
 def find_puuid(name: str, tag: str) -> str:
     request = requests.get(c.ACCOUNT_BY_NAME_URL(name, tag)).json()
@@ -108,14 +108,14 @@ def find_puuid(name: str, tag: str) -> str:
 
     return request["data"]["puuid"]
 
-def get_matches(puuid: str, affinity: str, size: int=10) -> list:
+def get_matches(puuid: str, affinity: c.Affinity, size: int=10) -> list:
     request = requests.get(c.MATCHES_URL(puuid, affinity), {"mode": "competitive", "size": size}, timeout=c.TIMEOUT).json()
 
     manage_henrikdev_api_errors(request["status"])
 
     return request["data"]
 
-def get_new_matches(puuid: str, affinity: str, latest_match_id: str) -> list:
+def get_new_matches(puuid: str, affinity: c.Affinity, latest_match_id: str) -> list:
     index = 0
 
     for index, match in enumerate(matches := get_matches(puuid, affinity)):
@@ -128,7 +128,7 @@ def get_new_matches(puuid: str, affinity: str, latest_match_id: str) -> list:
     matches.reverse()
     return matches
 
-def get_mmr_changes(puuid: str, affinity: str, size: int) -> list:
+def get_mmr_changes(puuid: str, affinity: c.Affinity, size: int) -> list:
     request = requests.get(c.MMR_HISTORY_URL(puuid, affinity), {"size": size}, timeout=c.TIMEOUT).json()
 
     manage_henrikdev_api_errors(request["status"])
@@ -168,25 +168,35 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
                             "average_damage_per_round": average_damage_per_round}
 
     if get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True):
+        default_number_of_threads = get_setting(*c.DEFAULT_NUMBER_OF_THREADS, integer=True)
         max_videos_simultaneously = get_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR, integer=True)
-        wait_until_number_of_threads_is(max_videos_simultaneously - 1, c.UPLOAD_POLL_FREQUENCY)
+
+        wait_until_number_of_threads_is(default_number_of_threads + (max_videos_simultaneously - 1), c.UPLOAD_POLL_FREQUENCY)
 
         try:
             formatted_match_info["video_link"] = upload_video(formatted_match_info, date_started_datetime)
         except (FileNotFoundError, c.VideoUploadError) as e:
-            print(e, "Skipping upload...")
+            print(f"{e} Skipping upload...")
+
+            formatted_match_info["video_link"] = ""
+    else:
+        formatted_match_info["video_link"] = ""
 
     return formatted_match_info
 
 def wait_until_number_of_threads_is(threads: int, polling_frequency: float):
-    while (threading.active_count() - 1) > threads:
+    while (threading.active_count()) > threads:
         sleep(polling_frequency)
 
 def upload_video(match_info: dict[str, str | int], date_started_datetime: datetime) -> str:
     firefox_profile_path = get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
     title = format_video_title(match_info)
-    visibility = get_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR)
     background = get_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, boolean=True)
+
+    try:
+        visibility = c.Visibility[get_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR)]
+    except KeyError as e:
+        raise c.InvalidSettingsError("'visibility' setting is not valid. Please check and save your settings.") from e
 
     if get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, boolean=True):
         try:
@@ -198,7 +208,9 @@ def upload_video(match_info: dict[str, str | int], date_started_datetime: dateti
     
     
     if video_path:
-        tries = 3
+        print(f"Starting upload of video '{title}'...")
+
+        attempts = 3
 
         while True:
             try:                
@@ -224,7 +236,7 @@ def upload_video(match_info: dict[str, str | int], date_started_datetime: dateti
                 tries -= 1
 
                 if tries > 0:
-                    print(f"Video '{title}' failed to upload. Retrying ({tries} tries left)...")
+                    print(f"Video '{title}' failed to upload. Retrying ({attempts} attempts left)...")
                 else:
                     raise c.VideoUploadError(f"Video '{title}' failed to upload.")
             else:
@@ -294,7 +306,9 @@ def get_setting(section: str, name: str, integer: bool=False, floatp: bool=False
         else:
             return config.get(**c_kwargs)
     except (NoSectionError, NoOptionError) as e:
-        raise c.InvalidSettingsError(f"'{name}' setting not found. Please check and save your settings settings.") from e
+        raise c.InvalidSettingsError(f"'{name}' setting not found. Please check and save your settings.") from e
+    except ValueError as e:
+        raise c.InvalidSettingsError(f"'{name}' setting is not valid. Please check and save your settings.") from e
     
 def edit_setting(section: str, name: str, value: str | int | float | bool):
     config = RawConfigParser()
@@ -312,12 +326,14 @@ def edit_setting(section: str, name: str, value: str | int | float | bool):
 
 def make_default_settings_file(settings: dict[str, dict[str, str | int | float | bool]]) -> None:
     config = RawConfigParser()
+    print(settings)
 
-    for section in settings.keys():
-        for setting in settings[section]:
-            config[section] = setting
+    for section, section_settings in settings.items():
+            print(section)
+            print(section_settings)
+            config[section] = section_settings
 
-    with open(c.SETTINGS_FILE_NAME, "w") as file:
+    with open(c.SETTINGS_FILE_PATH, "w") as file:
         config.write(file)
 
 def get_key_from_value(dictionary: dict, value):

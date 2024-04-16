@@ -1,4 +1,5 @@
 from selenium.webdriver.common.by import By
+from enum import Enum
 
 # Custom errors
 class APIError(Exception):
@@ -14,16 +15,25 @@ class VideoDirectoryNotFoundError(Exception):
 class InvalidSettingsError(Exception):
     pass
 
+# Valorant
+class Affinity(Enum):
+    eu = "eu"
+    na = "na"
+    latam = "latam"
+    br = "br"
+    ap = "ap"
+    kr = "kr"
+
 # HenrikDev-API
 VALORANT_API_DOMAIN = "https://api.henrikdev.xyz/valorant"
 def ACCOUNT_BY_NAME_URL(name: str, tag: str) -> str:
     return f"{VALORANT_API_DOMAIN}/v1/account/{"%20".join(name.split())}/{tag}"
 def ACCOUNT_BY_PUUID_URL(puuid: str) -> str:
     return f"/valorant/v1/by-puuid/account/{puuid}"
-def MATCHES_URL(puuid: str, affinity: str) -> str:
-    return f"{VALORANT_API_DOMAIN}/v3/by-puuid/matches/{affinity}/{puuid}"
-def MMR_HISTORY_URL(puuid: str, affinity: str) -> str:
-    return f"{VALORANT_API_DOMAIN}/v1/by-puuid/lifetime/mmr-history/{affinity}/{puuid}"
+def MATCHES_URL(puuid: str, affinity: Affinity) -> str:
+    return f"{VALORANT_API_DOMAIN}/v3/by-puuid/matches/{affinity.value}/{puuid}"
+def MMR_HISTORY_URL(puuid: str, affinity: Affinity) -> str:
+    return f"{VALORANT_API_DOMAIN}/v1/by-puuid/lifetime/mmr-history/{affinity.value}/{puuid}"
 VALORANT_DATE_FORMAT = r"%A, %B %d, %Y %I:%M %p"
 MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
           'August', 'September', 'October', 'November', 'December']
@@ -43,13 +53,20 @@ NOT_FOR_KIDS_RADIO_LOCATOR = (By.XPATH, '//tp-yt-paper-radio-button[@name="VIDEO
 NEXT_BUTTON_LOCATOR = (By.ID, "next-button")
 SAVE_BUTTON_LOCATOR = (By.ID, "done-button")
 CLOSE_BUTTON_LOCATOR = (By.ID, "close-button")
-def VISIBILITY_RADIO_LOCATOR(visibility: str) -> tuple[str, str]:
-    return (By.XPATH, f'//tp-yt-paper-radio-button[@name="{visibility.upper()}"]')
+class Visibility(Enum):
+    public = "PUBLIC"
+    private = "PRIVATE"
+    unlisted = "UNLISTED"
+def VISIBILITY_RADIO_LOCATOR(visibility: Visibility) -> tuple[str, str]:
+    return (By.XPATH, f'//tp-yt-paper-radio-button[@name="{visibility.value}"]')
 UPLOAD_PROGRESS_LOCATOR = (By.XPATH, '//span[@class="progress-label style-scope ytcp-video-upload-progress"]')
 LINK_ANCHOR_LOCATOR = (By.XPATH, '//a[@class="style-scope ytcp-video-info"]')
 
 # Settings
 SETTINGS_FILE_PATH = "settings.ini"
+
+GENERAL_SETTING_SECTION_NAME = "GENERAL"
+DEFAULT_NUMBER_OF_THREADS = (GENERAL_SETTING_SECTION_NAME, "default_number_of_threads")
 
 VIDEO_SETTING_SECTION_NAME = "VIDEO"
 AUTOUPLOAD_VIDEOS_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "autoupload_videos")
@@ -77,37 +94,35 @@ WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "wri
 GOOGLE_SHEETS_NAME_SETTING_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "google_sheets_sheet_name")
 GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR = (SPREADSHEET_SETTING_SECTION_NAME, "google_service_account_key_json_path")
 
-SETTING_SECTIONS = [
-    VIDEO_SETTING_SECTION_NAME,
-    VALORANT_SETTING_SECTION_NAME,
-    SPREADSHEET_SETTING_SECTION_NAME
-]
 DEFAULT_SETTINGS = {
+    GENERAL_SETTING_SECTION_NAME: {
+        DEFAULT_NUMBER_OF_THREADS[1]: 2
+    },
     VIDEO_SETTING_SECTION_NAME: {
-        AUTOUPLOAD_VIDEOS_SETTING_LOCATOR[0]: False,
-        FIREFOX_PROFILE_SETTING_LOCATOR[0]: "",
-        BACKGROUND_PROCESS_SETTING_LOCATOR[0]: True,
-        MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR[0]: 2,
-        VIDEO_VISIBILITY_SETTING_LOCATOR[0]: "private",
-        AUTOSELECT_VIDEOS_SETTING_LOCATOR[0]: False,
-        VIDEO_DIRECTORY_SETTING_LOCATOR[0]: "",
-        RECORDING_CLIENT_SETTING_LOCATOR[0]: "",
-        FILENAME_FORMAT_SETTING_LOCATOR[0]: "",
-        RECORDING_START_DELAY_SETTING_LOCATOR[0]: 0
+        AUTOUPLOAD_VIDEOS_SETTING_LOCATOR[1]: False,
+        FIREFOX_PROFILE_SETTING_LOCATOR[1]: "",
+        BACKGROUND_PROCESS_SETTING_LOCATOR[1]: True,
+        MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR[1]: 2,
+        VIDEO_VISIBILITY_SETTING_LOCATOR[1]: "private",
+        AUTOSELECT_VIDEOS_SETTING_LOCATOR[1]: False,
+        VIDEO_DIRECTORY_SETTING_LOCATOR[1]: "",
+        RECORDING_CLIENT_SETTING_LOCATOR[1]: "",
+        FILENAME_FORMAT_SETTING_LOCATOR[1]: "",
+        RECORDING_START_DELAY_SETTING_LOCATOR[1]: 0
     },
     VALORANT_SETTING_SECTION_NAME: {
-        PUUID_SETTING_LOCATOR[0]: "",
-        AFFINITY_SETTING_LOCATOR[0]: "",
-        LATEST_MATCH_ID_SETTING_LOCATOR[0]: ""
+        PUUID_SETTING_LOCATOR[1]: "",
+        AFFINITY_SETTING_LOCATOR[1]: "",
+        LATEST_MATCH_ID_SETTING_LOCATOR[1]: ""
     },
     SPREADSHEET_SETTING_SECTION_NAME: {
-        SPREADSHEET_FORMAT_LOCATOR[0]: "match_id,date_started,rank,mmr_change,rounds_won,rounds_lost,tracker_link,video_link,map,agent,kills,deaths,assists,headshot_percentage,average_damage_per_round",
-        INSERT_TO_ROW_2_LOCATOR[0]: False,
-        WRITE_TO_EXCEL_FILE_SETTING_LOCATOR[0]: False,
-        EXCEL_FILE_PATH_SETTING_LOCATOR[0]: "",
-        WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR[0]: False,
-        GOOGLE_SHEETS_NAME_SETTING_LOCATOR[0]: "",
-        GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR[0]: ""
+        SPREADSHEET_FORMAT_LOCATOR[1]: "match_id,date_started,rank,mmr_change,rounds_won,rounds_lost,tracker_link,video_link,map,agent,kills,deaths,assists,headshot_percentage,average_damage_per_round",
+        INSERT_TO_ROW_2_LOCATOR[1]: False,
+        WRITE_TO_EXCEL_FILE_SETTING_LOCATOR[1]: False,
+        EXCEL_FILE_PATH_SETTING_LOCATOR[1]: "",
+        WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR[1]: False,
+        GOOGLE_SHEETS_NAME_SETTING_LOCATOR[1]: "",
+        GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR[1]: ""
     }
 }
 
@@ -124,17 +139,17 @@ RECORDING_CLIENT_OPTIONS = {
     "outplayed": "Outplayed"
 }
 VIDEO_VISIBILITY_OPTIONS = {
-    "public": "Public",
-    "private": "Private",
-    "unlisted": "Unlisted"
+    Visibility.public.name: "Public",
+    Visibility.private.name: "Private",
+    Visibility.unlisted.name: "Unlisted"
 }
 REGION_OPTIONS = {
-    "eu": "Europe (EU)",
-    "na": "North America (NA)",
-    "latam": "Latin America (LATAM)",
-    "br": "Brazil (BR)",
-    "ap": "Southeast Asia/Asia-Pacific (AP)",
-    "kr": "Korea (KR)"
+    Affinity.eu.name: "Europe (EU)",
+    Affinity.na.name: "North America (NA)",
+    Affinity.latam.name: "Latin America (LATAM)",
+    Affinity.br.name: "Brazil (BR)",
+    Affinity.ap.name: "Southeast Asia/Asia-Pacific (AP)",
+    Affinity.kr.name: "Korea (KR)"
 }
 SPREADSHEET_FORMAT_OPTIONS = {
     "": "-",

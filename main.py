@@ -1,4 +1,5 @@
 import sys
+import threading
 
 import constants as c
 import helpers as h
@@ -6,8 +7,14 @@ import helpers as h
 def main() -> None:
     print("Starting app...")
 
+    h.edit_setting(*c.DEFAULT_NUMBER_OF_THREADS, threading.active_count())
+
     puuid = h.get_setting(*c.PUUID_SETTING_LOCATOR)
-    affinity = h.get_setting(*c.AFFINITY_SETTING_LOCATOR)
+
+    try:
+        affinity = c.Affinity[h.get_setting(*c.AFFINITY_SETTING_LOCATOR)]
+    except KeyError as e:
+        raise c.InvalidSettingsError("'region' setting is not valid. Please check and save your settings.") from e
 
     matches = h.get_new_matches(puuid, affinity, h.get_latest_match_id())
 
@@ -33,7 +40,11 @@ def main() -> None:
 
         for index, match in enumerate(matches):
             match_info = h.format_match_info(match, puuid, mmr_changes[index])
-            formatted_match = [match_info.get(row_heading, "") for row_heading in spreadsheet_format]
+
+            try:
+                formatted_match = [match_info.get[column_heading] for column_heading in spreadsheet_format]
+            except KeyError as e:
+                raise c.InvalidSettingsError("'spreadsheet_format' setting is not valid. Please check and save your settings.") from e
 
             if write_to_google_sheets:
                 if insert_to_row_2:
@@ -51,7 +62,8 @@ def main() -> None:
             h.update_latest_match_id(match_info["match_id"])
 
         # Waits for all uploads to finish
-        h.wait_until_number_of_threads_is(0, c.UPLOAD_POLL_FREQUENCY)
+        default_number_of_threads = h.get_setting(*c.DEFAULT_NUMBER_OF_THREADS, integer=True)
+        h.wait_until_number_of_threads_is(default_number_of_threads, c.UPLOAD_POLL_FREQUENCY)
 
         print("All tasks done.")
     else:

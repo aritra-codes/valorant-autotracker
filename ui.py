@@ -30,7 +30,10 @@ find_image = CTkImage(light_image=Image.open(os.path.join(image_path, "find_dark
 save_image = CTkImage(light_image=Image.open(os.path.join(image_path, "save_file.png")),
                       dark_image=Image.open(os.path.join(image_path, "save_file.png")))
 
-donate_image = CTkImage(light_image=Image.open(os.path.join(image_path, "paypal.png")),
+reset_image = CTkImage(light_image=Image.open(os.path.join(image_path, "reset.png")),
+                      dark_image=Image.open(os.path.join(image_path, "reset.png")))
+
+paypal_image = CTkImage(light_image=Image.open(os.path.join(image_path, "paypal.png")),
                       dark_image=Image.open(os.path.join(image_path, "paypal.png")))
 
 class PrintLogger():  # Create file like object
@@ -382,9 +385,9 @@ class SettingsWindow(Toplevel):
                                        offvalue="off")
         self.switch_excel.grid(row=23, column=1, pady=(10,0), sticky="w")
 
-        self.excel_file_path = CTkLabel(self.frame, text="Excel File Path",
+        self.excel_file_path_label = CTkLabel(self.frame, text="Excel File Path",
                                         font=default_font)
-        self.excel_file_path.grid(row=24, column=0, padx=10, pady=(10,0),
+        self.excel_file_path_label.grid(row=24, column=0, padx=10, pady=(10,0),
                                   sticky="w")
 
         self.excel_file_path_dir = CTkEntry(self.frame, font=default_font,
@@ -401,147 +404,152 @@ class SettingsWindow(Toplevel):
                                      width=100, image=save_image, command=self.save_settings)
         self.save_button.grid(row=25, column=0, padx=10, pady=(20,0), sticky="w")
 
-        self.donation_button = CTkButton(self.frame, text="Why not consider donating?",
-                                         font=default_font, image=donate_image,
-                                         command=self.donate_function)
-        self.donation_button.grid(row=25, column=1, pady=(20,0), sticky="w")
+        self.reset = CTkButton(self.frame, text="Reset to Default",
+                                         font=default_font, image=reset_image,
+                                         command=self.reset_function)
+        self.reset.grid(row=25, column=1, pady=(20,0), sticky="w")
+
+        self.paypal = CTkButton(self.frame, text="Why not consider donating?",
+                                         font=default_font, image=paypal_image,
+                                         command=self.paypal_donate)
+        self.paypal.grid(row=25, column=2, pady=(20,0), sticky="w")
 
         self.check_info()
 
     def check_info(self):
-        autoupload_video = h.get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True)
-        firefox_profile_dir = h.get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
-        bg_process = h.get_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, boolean=True)
-        max_vids = h.get_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR)
-        visibility = h.get_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR)
-        autoselect_video = h.get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, boolean=True)
-        video_directory = h.get_setting(*c.VIDEO_DIRECTORY_SETTING_LOCATOR)
-        recording_client = h.get_setting(*c.RECORDING_CLIENT_SETTING_LOCATOR)
-        filename_format = h.get_setting(*c.FILENAME_FORMAT_SETTING_LOCATOR)
-        recording_delay = h.get_setting(*c.RECORDING_START_DELAY_SETTING_LOCATOR)
-        puuid_setting_locator = h.get_setting(*c.PUUID_SETTING_LOCATOR)
-        region_setting = h.get_setting(*c.AFFINITY_SETTING_LOCATOR)
-        latest_match = h.get_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR)
-        spreadsheet_name = h.get_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR)
-        service_account_json = h.get_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR)
-        spreadsheet_row2 = h.get_setting(*c.INSERT_TO_ROW_2_LOCATOR, boolean=True)
-        write_to_excel = h.get_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, boolean=True)
-        excel_file_path = h.get_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR)
-        write_to_googlesheets = h.get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, boolean=True)
+        self.autoupload_video = h.get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True)
+        self.firefox_profile_dir = h.get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
+        self.bg_process = h.get_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, boolean=True)
+        self.max_vids = h.get_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR)
+        self.visibility = h.get_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR)
+        self.autoselect_video = h.get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, boolean=True)
+        self.video_directory = h.get_setting(*c.VIDEO_DIRECTORY_SETTING_LOCATOR)
+        self.recording_client = h.get_setting(*c.RECORDING_CLIENT_SETTING_LOCATOR)
+        self.filename_format = h.get_setting(*c.FILENAME_FORMAT_SETTING_LOCATOR)
+        self.recording_delay = h.get_setting(*c.RECORDING_START_DELAY_SETTING_LOCATOR)
+        self.puuid_setting_locator = h.get_setting(*c.PUUID_SETTING_LOCATOR)
+        self.region_setting = h.get_setting(*c.AFFINITY_SETTING_LOCATOR)
+        self.latest_match = h.get_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR)
+        self.spreadsheet_name = h.get_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR)
+        self.service_account_json = h.get_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR)
+        self.spreadsheet_row2 = h.get_setting(*c.INSERT_TO_ROW_2_LOCATOR, boolean=True)
+        self.write_to_excel = h.get_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, boolean=True)
+        self.excel_file_path = h.get_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR)
+        self.write_to_googlesheets = h.get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, boolean=True)
         
-        if autoupload_video is True:
+        if self.autoupload_video is True:
             self.switch_var.set("on")
             self.switch1()
         else:
             self.switch_var.set("off")
             self.switch1()
 
-        if firefox_profile_dir: 
+        if self.firefox_profile_dir: 
             self.firefox_entry.delete(0,END)
-            self.firefox_entry.insert(END, firefox_profile_dir)
+            self.firefox_entry.insert(END, self.firefox_profile_dir)
         else:
             pass
 
-        if bg_process is True:
+        if self.bg_process is True:
             self.background_process_var.set("on")
             self.background_process_function()
         else:
             self.background_process_var.set("off")
             self.background_process_function()
 
-        if max_vids:
+        if self.max_vids:
             self.maxvids_sim_entry.delete(0,END)
-            self.maxvids_sim_entry.insert(END, max_vids)
+            self.maxvids_sim_entry.insert(END, self.max_vids)
         else:
             pass
         
-        if visibility:
-            self.visibility_dropdown.set(c.VIDEO_VISIBILITY_OPTIONS[visibility])
+        if self.visibility:
+            self.visibility_dropdown.set(c.VIDEO_VISIBILITY_OPTIONS[self.visibility])
         else:
             pass        
 
-        if autoselect_video is True:
+        if self.autoselect_video is True:
             self.switch_var2.set("on")
             self.switch2()
         else:
             self.switch_var2.set("off")
             self.switch2()
 
-        if video_directory:
+        if self.video_directory:
             self.viddir_entry.delete(0,END)
-            self.viddir_entry.insert(END, video_directory)
+            self.viddir_entry.insert(END, self.video_directory)
         else:
             pass
 
-        if recording_client:
-            self.filename_format_optionmenu.set(c.RECORDING_CLIENT_OPTIONS[recording_client])
+        if self.recording_client:
+            self.filename_format_optionmenu.set(c.RECORDING_CLIENT_OPTIONS[self.recording_client])
             self.filename_format_entry.delete(0,END)
-            self.filename_format_entry.insert(END, (c.RECORDING_CLIENT_FILENAME_FORMATS[recording_client]))
+            self.filename_format_entry.insert(END, (c.RECORDING_CLIENT_FILENAME_FORMATS[self.recording_client]))
             self.filename_format_entry.configure(state="disabled")
         else:
-            self.filename_format_optionmenu.set(c.RECORDING_CLIENT_OPTIONS[recording_client])
+            self.filename_format_optionmenu.set(c.RECORDING_CLIENT_OPTIONS[self.recording_client])
             self.filename_format_entry.configure(state="normal")
-            if filename_format:
+            if self.filename_format:
                 self.filename_format_entry.delete(0,END)
-                self.filename_format_entry.insert(END, filename_format)
+                self.filename_format_entry.insert(END, self.filename_format)
 
-        if recording_delay:
+        if self.recording_delay:
             self.slider_value.delete(0,END)
-            self.slider_value.insert(END, recording_delay)
-            self.recording_delay_slider.set(int(recording_delay))
+            self.slider_value.insert(END, self.recording_delay)
+            self.recording_delay_slider.set(int(self.recording_delay))
         else:
             pass
 
-        if puuid_setting_locator:
+        if self.puuid_setting_locator:
             self.puuid_entry.delete(0,END)
-            self.puuid_entry.insert(END,puuid_setting_locator)
+            self.puuid_entry.insert(END, self.puuid_setting_locator)
         else:
             pass
 
-        if region_setting:
-            self.region_dropdown.set(c.REGION_OPTIONS[region_setting])
+        if self.region_setting:
+            self.region_dropdown.set(c.REGION_OPTIONS[self.region_setting])
         else:
             pass
 
-        if latest_match:
+        if self.latest_match:
             self.latest_matchid_entry.delete(0,END)
-            self.latest_matchid_entry.insert(END, latest_match)
+            self.latest_matchid_entry.insert(END, self.latest_match)
         else:
             pass
 
-        if spreadsheet_name:
+        if self.spreadsheet_name:
             self.spreadsheet_name_entry.delete(0,END)
-            self.spreadsheet_name_entry.insert(END,spreadsheet_name)
+            self.spreadsheet_name_entry.insert(END, self.spreadsheet_name)
         else:
             pass
 
-        if service_account_json:
+        if self.service_account_json:
             self.google_service_key_entry.delete(0,END)
-            self.google_service_key_entry.insert(END,service_account_json)
+            self.google_service_key_entry.insert(END, self.service_account_json)
         else:
             pass
 
-        if spreadsheet_row2 is True:
+        if self.spreadsheet_row2 is True:
             self.insert_r2_switch_var.set("on")
             self.insert_row2_function()
         else:
             self.insert_r2_switch_var.set("off")
             self.insert_row2_function()
 
-        if write_to_excel is True:
+        if self.write_to_excel is True:
             self.excel_switch_var.set("on")
             self.excel_switch()
         else:
             self.excel_switch_var.set("off")
             self.excel_switch()
         
-        if excel_file_path:
+        if self.excel_file_path:
             self.excel_file_path_dir.delete(0,END)
-            self.excel_file_path_dir.insert(END, excel_file_path)
+            self.excel_file_path_dir.insert(END, self.excel_file_path)
         else:
             pass
 
-        if write_to_googlesheets is True:
+        if self.write_to_googlesheets is True:
             self.switch_var_spreadsheet.set("on")
             self.googlesheet_switch()
         else:
@@ -557,6 +565,11 @@ class SettingsWindow(Toplevel):
             self.firefox_profile_label.configure(text_color = "grey")
             self.firefox_entry.configure(placeholder_text_color="#c9c9c9",
                                          text_color="grey")
+            self.background_process_label.configure(text_color = "grey")
+            self.background_process_switch.configure(state="disabled")
+            self.maxvids_sim_label.configure(text_color = "grey")
+            self.maxvids_sim_entry.configure(state="disabled",
+                                             text_color="grey")
             self.visibility_label.configure(text_color = "grey")
             self.visibility_dropdown.configure(state="disabled")
         elif self.val == "on":
@@ -565,6 +578,11 @@ class SettingsWindow(Toplevel):
             self.firefox_profile_label.configure(text_color = "black")
             self.firefox_entry.configure(placeholder_text_color="grey",
                                          text_color="black")
+            self.background_process_label.configure(text_color = "black")
+            self.background_process_switch.configure(state="normal")
+            self.maxvids_sim_label.configure(text_color = "black")
+            self.maxvids_sim_entry.configure(state="normal",
+                                             text_color="black")
             self.visibility_label.configure(text_color = "black")
             self.visibility_dropdown.configure(state="normal")
 
@@ -699,13 +717,13 @@ class SettingsWindow(Toplevel):
     def excel_switch(self):
         self.excel_val = self.excel_switch_var.get()
         if self.excel_val == "off":
-            self.excel_file_path.configure(text_color="grey")
+            self.excel_file_path_label.configure(text_color="grey")
             self.excel_file_path_dir.configure(state="disabled",
                                                  placeholder_text_color="#c9c9c9",
                                                  text_color="grey")
             self.excel_change.configure(state="disabled")
         elif self.excel_val == "on":
-            self.excel_file_path.configure(text_color="black")
+            self.excel_file_path_label.configure(text_color="black")
             self.excel_file_path_dir.configure(state="normal",
                                                  placeholder_text_color="grey",
                                                  text_color="black")
@@ -723,14 +741,14 @@ class SettingsWindow(Toplevel):
 
     def save_settings(self):
         if self.val == "on":
-            if h.get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True) is not True:
+            if self.autoupload_video is not True:
                 h.edit_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, "True")
             elif not self.firefox_entry.get():
                 messagebox.showerror(title="Invalid Input", 
                                  message=f"Please enter a valid Firefox Profile Path.")
                 return
             elif os.path.exists(self.firefox_entry.get()):
-                if self.firefox_entry.get() != h.get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR):
+                if self.firefox_entry.get() != self.firefox_profile_dir:
                     h.edit_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR, self.firefox_entry.get())
             else:
                 firefox_retry = messagebox.askokcancel(title="Invalid File", 
@@ -741,7 +759,7 @@ class SettingsWindow(Toplevel):
                 else:
                     return 
         if self.val == "off":
-            if h.get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True) is True:
+            if self.autoupload_video is True:
                 h.edit_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, "False")        
         
         if self.visibility_dropdown.get() != c.VIDEO_VISIBILITY_SETTING_LOCATOR:
@@ -750,36 +768,36 @@ class SettingsWindow(Toplevel):
 
         self.background_process_setting = self.background_process_switch.get()
         if self.background_process_setting == "off":
-            if h.get_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, boolean=True) is True:
+            if self.bg_process is True:
                 h.edit_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, "False")
             elif self.background_process_setting == "on":
-                if h.get_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, boolean=True) is not True:
+                if self.bg_process is not True:
                     h.edit_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, "True")
                 
-        if self.maxvids_sim_entry.get():
-            try:
-                integer_value = int(self.maxvids_sim_entry.get())
-            except ValueError:
-                messagebox.showerror(title="Invalid Input", 
-                                 message=f"Max. Vids Simultaneously: Please enter a valid integer.")
-                return
+                if self.maxvids_sim_entry.get():
+                    try:
+                        int(self.maxvids_sim_entry.get())
+                    except ValueError:
+                        messagebox.showerror(title="Invalid Input", 
+                                        message=f"Max. Vids Simultaneously: Please enter a valid integer.")
+                        return
 
-            if self.maxvids_sim_entry.get() != c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR:
-                h.edit_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR, self.maxvids_sim_entry.get())
-        else:
-            messagebox.showerror(title="Invalid Input", 
-                                 message=f"Max. Vids Simultaneously: Please enter a valid integer.")
-            return
+                    if self.maxvids_sim_entry.get() != c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR:
+                        h.edit_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR, self.maxvids_sim_entry.get())
+                else:
+                    messagebox.showerror(title="Invalid Input", 
+                                        message=f"Max. Vids Simultaneously: Please enter a valid integer.")
+                    return
 
         if self.val2 == "on":
-            if h.get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, boolean=True) is not True:
+            if self.autoselect_video is not True:
                 h.edit_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, "True")
             elif not self.viddir_entry.get():
                 messagebox.showerror(title="Invalid Input", 
                                  message=f"Please enter a valid video directory.")
                 return
             elif os.path.exists(self.viddir_entry.get()):
-                if self.viddir_entry.get() != h.get_setting(*c.VIDEO_DIRECTORY_SETTING_LOCATOR):
+                if self.viddir_entry.get() != self.video_directory:
                     h.edit_setting(*c.VIDEO_DIRECTORY_SETTING_LOCATOR, self.viddir_entry.get())
             else:
                 viddir_retry = messagebox.askokcancel(title="Invalid File", 
@@ -790,11 +808,11 @@ class SettingsWindow(Toplevel):
                 else:
                     pass
         if self.val2 == "off":
-            if h.get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, boolean=True) is True:
+            if self.autoselect_video is True:
                 h.edit_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, "False")
 
         recording_client_new = h.get_key_from_value(c.RECORDING_CLIENT_OPTIONS, self.filename_format_optionmenu.get())
-        if recording_client_new != c.RECORDING_CLIENT_SETTING_LOCATOR:
+        if recording_client_new != self.recording_client:
             h.edit_setting(*c.RECORDING_CLIENT_SETTING_LOCATOR, recording_client_new)
         
         if self.filename_format_entry.get():
@@ -807,13 +825,13 @@ class SettingsWindow(Toplevel):
         
         if self.slider_value.get():
             try:
-                integer_value = int(self.slider_value.get())
+                int(self.slider_value.get())
             except ValueError:
                 messagebox.showerror(title="Invalid Input", 
                                  message=f"Please enter a valid recording delay (must be an integer).")
                 return
 
-            if self.slider_value.get() != c.RECORDING_START_DELAY_SETTING_LOCATOR:
+            if self.slider_value.get() != self.recording_delay:
                 h.edit_setting(*c.RECORDING_START_DELAY_SETTING_LOCATOR, self.slider_value.get())
         else:
             messagebox.showerror(title="Invalid Input", 
@@ -829,13 +847,12 @@ class SettingsWindow(Toplevel):
             if self.puuid_entry.get() != puuid_setting:
                 h.edit_setting(*c.PUUID_SETTING_LOCATOR, self.puuid_entry.get())
             
-        region_setting = h.get_setting(*c.AFFINITY_SETTING_LOCATOR)
         translated_region = h.get_key_from_value(c.REGION_OPTIONS, self.region_dropdown.get())
-        if translated_region != region_setting:
+        if translated_region != self.region_setting:
             h.edit_setting(*c.AFFINITY_SETTING_LOCATOR, translated_region)
 
         if self.latest_matchid_entry.get():
-            if self.latest_matchid_entry.get() != h.get_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR):
+            if self.latest_matchid_entry.get() != self.latest_match:
                 h.edit_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR, self.latest_matchid_entry.get())
         else:
             messagebox.showerror(title="Invalid Input", 
@@ -845,23 +862,23 @@ class SettingsWindow(Toplevel):
         r2_setting = self.insert_r2_switch.get()
 
         if r2_setting == "off":
-            if h.get_setting(*c.INSERT_TO_ROW_2_LOCATOR, boolean=True) is True:
+            if self.spreadsheet_row2 is True:
                 h.edit_setting(*c.INSERT_TO_ROW_2_LOCATOR, "False")
         elif r2_setting == "on":
-            if h.get_setting(*c.INSERT_TO_ROW_2_LOCATOR, boolean=True) is not True:
+            if self.spreadsheet_row2 is not True:
                 h.edit_setting(*c.INSERT_TO_ROW_2_LOCATOR, "True")
 
         self.googlesheets_setting = self.switch_googlesheet.get()
         
         if self.googlesheets_setting == "off":
-            if h.get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, boolean=True) is True:
+            if self.write_to_googlesheets is True:
                 h.edit_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, "False")
         elif self.googlesheets_setting == "on":
-            if h.get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, boolean=True) is not True:
+            if self.write_to_googlesheets is not True:
                 h.edit_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, "True")
 
             if self.spreadsheet_name_entry.get():
-                if self.spreadsheet_name_entry.get() != h.get_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR):
+                if self.spreadsheet_name_entry.get() != self.spreadsheet_name:
                     h.edit_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR, self.spreadsheet_name_entry.get())
             else:
                messagebox.showerror(title="Invalid Input", 
@@ -869,7 +886,7 @@ class SettingsWindow(Toplevel):
             
             if self.google_service_key_entry.get():      
                 if os.path.exists(self.google_service_key_entry.get()):
-                    if self.google_service_key_entry.get() != h.get_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR):
+                    if self.google_service_key_entry.get() != self.service_account_json:
                         h.edit_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR, self.google_service_key_entry.get())
                 else:
                     keydir = messagebox.askokcancel(title="Invalid File", 
@@ -883,32 +900,43 @@ class SettingsWindow(Toplevel):
                messagebox.showerror(title="Invalid Input", 
                                  message=f"Please enter a path to a valid JSON file.")
 
-            self.excel_setting = self.switch_excel.get()
-            if self.excel_setting == "off":
-                if h.get_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, boolean=True) is True:
-                    h.edit_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, "False")
-            elif self.excel_setting == "on":
-                if h.get_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, boolean=True) is not True:
-                    h.edit_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, "True")
-            
-                if self.excel_file_path_dir.get():      
-                    if os.path.exists(self.excel_file_path_dir.get()):
-                        if self.excel_file_path_dir.get() != h.get_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR):
-                            h.edit_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR, self.excel_file_path_dir.get())
-                    else:
-                        exceldir = messagebox.askokcancel(title="Invalid File", 
-                        message=f"Excel File Directory: This directory was not found.\nPlease select a valid directory.",
-                        icon="error")
-                        if exceldir is True:
-                            self.excel_dir_change()
-                        else:
-                            pass
+        self.excel_setting = self.switch_excel.get()
+        print(f"Excel: {self.excel_setting}")
+        if self.excel_setting == "off":
+            if self.write_to_excel is True:
+                h.edit_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, "False")
+        elif self.excel_setting == "on":
+            if self.write_to_excel is not True:
+                h.edit_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, "True")
+        
+            elif self.excel_file_path_dir.get():      
+                if os.path.exists(self.excel_file_path_dir.get()):
+                    print(self.excel_file_path_dir.get())
+                    if self.excel_file_path_dir.get() != self.excel_file_path:
+                        h.edit_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR, self.excel_file_path_dir.get())
                 else:
-                    messagebox.showerror(title="Invalid Input", 
-                                        message=f"Please enter a path to a valid Excel file.")
-   
-    def donate_function(self):
-        pass
+                    exceldir = messagebox.askokcancel(title="Invalid File", 
+                    message=f"Excel File Directory: This directory was not found.\nPlease select a valid directory.",
+                    icon="error")
+                    if exceldir is True:
+                        self.excel_dir_change()
+                    else:
+                        pass
+            else:
+                messagebox.showerror(title="Invalid Input", 
+                                    message=f"Please enter a path to a valid Excel file.")
+
+    def reset_function(self):
+        self.reset_confirmation = messagebox.askquestion(title="Confirmation", 
+                                                      message="Are you sure you would like to reset to default settings?\nAll current settings will be wiped.",
+                                                      icon="warning")
+        if self.reset_confirmation == "yes":
+            h.make_default_settings_file(c.DEFAULT_SETTINGS)
+        else:
+            messagebox.showinfo(title="Info", message="This operation has been cancelled.")
+
+    def paypal_donate(self):
+        pass # ADD FUNCTION HERE
 
 class SpreadsheetFormat(Toplevel):
     def __init__(self):
@@ -1009,7 +1037,11 @@ class SpreadsheetFormat(Toplevel):
         #print(self.format_settings_list)
 
     def save_format_changes(self):
-        print("Saved")
+        self.format_settings_change = ",".join(self.format_settings_list)
+        self.format_setting_locator = h.get_setting(*c.SPREADSHEET_FORMAT_LOCATOR)
+
+        if self.format_settings_change != self.format_setting_locator:
+            h.edit_setting(*c.SPREADSHEET_FORMAT_LOCATOR, self.format_settings_change)
 
 if __name__ == "__main__":
     app = App()

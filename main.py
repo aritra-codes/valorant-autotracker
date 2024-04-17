@@ -5,7 +5,7 @@ import constants as c
 import helpers as h
 
 def main() -> None:
-    print("Starting app...")
+    print("Starting script...")
 
     h.edit_setting(*c.DEFAULT_NUMBER_OF_THREADS, threading.active_count())
 
@@ -57,7 +57,7 @@ def main() -> None:
                 else:
                     h.append_row_to_excel_sheet(values=formatted_match, **excel_kwargs)
 
-            print(f"Added entry '{h.format_video_title(match_info)}' to the spreadsheet(s).")
+            print(f"Added match '{h.format_video_title(match_info)}' to spreadsheet(s).")
 
             h.update_latest_match_id(match_info["match_id"])
 
@@ -69,12 +69,12 @@ def main() -> None:
     else:
         print("No new matches.")
 
-    print("Closing app...")
+    print("Closing script...")
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        sys.exit("Exiting app...")
+        sys.exit("Exiting script...")
     except Exception as e:
         print(e)

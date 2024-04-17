@@ -962,7 +962,7 @@ class SpreadsheetFormat(Toplevel):
         self.frame.pack(pady=20, padx=20, fill="both", expand=True)
 
         self.dropdown_menus_list = []
-        self.format_settings_list = []
+        self.format_columns_list = []
 
         self.row_count = -1
         self.spreadsheet_format_label = CTkLabel(self.frame, text="Spreadsheet Format\n(Columns)",
@@ -982,7 +982,6 @@ class SpreadsheetFormat(Toplevel):
         self.save_button = CTkButton(self.frame, text="Save", font=default_font,
                                      width=100, image=save_image, command=self.save_format_changes)
         self.save_button.grid(row=1, column=0, padx=10, pady=(20,0), sticky="w")
-        self.count = 0
         spreadsheet_format = h.get_setting(*c.SPREADSHEET_FORMAT_LOCATOR)
 
         if spreadsheet_format:
@@ -993,53 +992,52 @@ class SpreadsheetFormat(Toplevel):
                 self.add_boxes(current_setting, True if index == 0 else False)
 
 
-    def add_boxes(self, value="-", disabled: bool=False):
-        self.count += 1
-        self.final_count = self.row_count + self.count
-        
-        index = self.count - 1
+    def add_boxes(self, value: str="-", disabled: bool=False) -> None:
+        count = len(self.dropdown_menus_list) + 1
+        self.final_count = self.row_count + count
+        index = count - 1
 
-        count_number = CTkLabel(self.frame, text=f"{self.count}.", font=default_font)
+        count_number = CTkLabel(self.frame, text=f"{count}.", font=default_font)
         count_number.grid(row=self.final_count, column=1, pady=(10,0),
                                 padx=10, sticky="w")
         dropdown_menu = CTkOptionMenu(self.frame, 
                                 values=self.spreadsheet_format_list,
-                                command=lambda value: self.spreadsheet_format_function(index, value),
+                                command=lambda new_value: self.edit_column(index, new_value),
                                 font=default_font, button_color="grey",
                                 button_hover_color="dark grey",
                                 fg_color="white", text_color="black")
         dropdown_menu.configure(state="normal")
         
         dropdown_menu.set(value)
+        self.edit_column(index, value)
         dropdown_menu.grid(row=self.final_count, column=2, pady=(10,0),
                                 sticky="ew")
-        self.dropdown_menus_list.append(dropdown_menu)
-        self.spreadsheet_format_function(self.count - 1, value)
+        self.dropdown_menus_list.append((count_number, dropdown_menu))
 
-    def subtract_boxes(self):
-        #print(len(self.dropdown_menus_list))
-        self.minus_button.configure(state="normal")
-        if self.count > 1:
-            self.count -= 1
-            self.final_count = self.row_count + self.count
+    def subtract_boxes(self) -> None:
+        count = len(self.dropdown_menus_list) + 1
+
+        if count > 1:
+            self.final_count = self.row_count + count
             last_dropdown_menu = self.dropdown_menus_list.pop()
-            last_dropdown_menu.grid_forget()
-            last_dropdown_menu.destroy()
 
-            self.format_settings_list.pop()
+            for element in last_dropdown_menu:
+                element.grid_forget()
+                element.destroy()
 
-    def spreadsheet_format_function(self, index, setting):
+            self.format_columns_list.pop()
+
+    def edit_column(self, index: int, value: str) -> None:
         # Looks in the SPREADSHEET_FORMAT_OPTIONS dict for the value and returns the corresponding key (e.g. "Match ID" returns "match_id")
-        options_dict = c.SPREADSHEET_FORMAT_OPTIONS
-        formatted_setting = h.get_key_from_value(options_dict, setting)
+        formatted_value = h.get_key_from_value(c.SPREADSHEET_FORMAT_OPTIONS, value)
 
         try:
-            self.format_settings_list[index] = formatted_setting
+            self.format_columns_list[index] = formatted_value
         except IndexError:
-            self.format_settings_list.append(formatted_setting)
+            self.format_columns_list.append(formatted_value)
 
     def save_format_changes(self):
-        self.format_settings_change = ",".join(self.format_settings_list)
+        self.format_settings_change = ",".join(self.format_columns_list)
         self.format_setting_locator = h.get_setting(*c.SPREADSHEET_FORMAT_LOCATOR)
 
         if self.format_settings_change != self.format_setting_locator:

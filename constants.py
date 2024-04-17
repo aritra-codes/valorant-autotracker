@@ -128,12 +128,14 @@ DEFAULT_SETTINGS = {
 
 # UI
 RECORDING_CLIENT_FILENAME_FORMATS = {
+    "": "-",
     "insights_capture": r"VALORANT %m-%d-%Y_%H-%M-%S-%f.mp4",
     "medal": r"placeholder.mp4",
     "outplayed": r"placeholder.mp4"
 }
 RECORDING_CLIENT_OPTIONS = {
-    "": "Custom",
+    "": "-",
+    "custom": "Custom",
     "insights_capture": "Insights Capture",
     "medal": "Medal",
     "outplayed": "Outplayed"
@@ -144,6 +146,7 @@ VIDEO_VISIBILITY_OPTIONS = {
     Visibility.unlisted.name: "Unlisted"
 }
 REGION_OPTIONS = {
+    "": "-",
     Affinity.eu.name: "Europe (EU)",
     Affinity.na.name: "North America (NA)",
     Affinity.latam.name: "Latin America (LATAM)",

@@ -92,7 +92,7 @@ class App(CTk):
         self.output_entry = scrolledtext.ScrolledText(self.frame, bd=1,
                                                       font=("Cascadia Code", 9),
                                                       height=8)
-        self.output_entry.pack(expand=True, fill="both", pady=10, padx=10)
+        self.output_entry.pack(expand=True, fill="both", pady=20, padx=20)
         self.output_entry.configure(state="disabled")
 
         PrintLogger(self.output_entry)
@@ -193,7 +193,7 @@ class SettingsWindow(Toplevel):
                                                    command=self.background_process_function)
         self.background_process_switch.grid(row=4, column=1, pady=(10,0), sticky="w")
         self.background_process_hoverbutton = HoverButton(self.frame, text="", image=question_image,
-                                                 tooltip_text="Background process is...",
+                                                 tooltip_text="When turned on, Firefox will open in the background when\nuploading videos and not appear on your screen.",
                                                  width=15, fg_color="transparent",
                                                  hover_color="grey")
         self.background_process_hoverbutton.grid(row=4, column=1, padx=40, pady=(10,0), sticky="w")
@@ -209,7 +209,7 @@ class SettingsWindow(Toplevel):
         self.maxvids_sim_entry.grid(row=5, column=1, pady=(10,0), sticky="w")
 
         self.maxvids_hoverbutton = HoverButton(self.frame, text="", image=question_image,
-                                                 tooltip_text="Max. vids simultaneously means...",
+                                                 tooltip_text="The number of videos that can be uploaded at the same time.",
                                                  width=15, fg_color="transparent",
                                                  hover_color="grey")
         self.maxvids_hoverbutton.grid(row=5, column=1, padx=70, pady=(10,0), sticky="w")
@@ -271,7 +271,7 @@ class SettingsWindow(Toplevel):
         self.filename_format_entry.grid(row=10, column=1, pady=(10,0), sticky="ew",
                                         columnspan=3)
         self.filename_hover_button = HoverButton(self.frame, text="", image=question_image,
-                                                 tooltip_text="Filename format should be...",
+                                                 tooltip_text="The format in which the recorded video files are named by the\nrecording client (written in python datetime format codes).",
                                                  width=15, fg_color="transparent",
                                                  hover_color="grey")
         self.filename_hover_button.grid(row=10, column=4, pady=(10,0), sticky="w")
@@ -286,12 +286,19 @@ class SettingsWindow(Toplevel):
         self.recording_delay_slider.grid(row=11, column=1, pady=(10,0), sticky="ew")
         self.recording_delay_slider.set(0)
         self.slider_value = CTkEntry(self.frame, font=default_font,
-                                     width=5, justify="center")
+                                     width=40, justify="center")
         self.slider_value.insert(END, "0")
         self.slider_value.grid(row=11, column=2, pady=(10,0), padx=(10,10), sticky="ew")
         self.secs_label = CTkLabel(self.frame, text="secs",
                                    font=default_font)
-        self.secs_label.grid(row=11, column=3, pady=(10,0), sticky="w")
+        self.secs_label.grid(row=11, column=4, pady=(10,0), sticky="w")
+
+        self.slider_hoverbutton = HoverButton(self.frame, text="", image=question_image,
+                                                 tooltip_text="How long it takes for the recording to start after the start of the match.",
+                                                 width=15, fg_color="transparent",
+                                                 hover_color="grey")
+        self.slider_hoverbutton.grid(row=11, column=4, padx=25, pady=(10,0), sticky="w")
+        self.slider_hoverbutton.configure(state="disabled")
 
         self.valorant_header = CTkLabel(self.frame, text="Valorant", 
                                      font=("Calibri Bold",18))
@@ -355,6 +362,13 @@ class SettingsWindow(Toplevel):
                                                    command=self.spreadsheet_format_function)
         self.spreadsheet_format_button.grid(row=19, column=1, pady=(10,0), sticky="w")
 
+        self.spreadsheet_format_hoverbutton = HoverButton(self.frame, text="", image=question_image,
+                                                 tooltip_text="What information will be in each column of your spreadsheet(s).",
+                                                 width=15, fg_color="transparent",
+                                                 hover_color="grey")
+        self.spreadsheet_format_hoverbutton.grid(row=19, column=1, padx=140, pady=(10,0), sticky="w")
+        self.spreadsheet_format_hoverbutton.configure(state="disabled")
+
         self.insert_r2_label = CTkLabel(self.frame, text="Insert at Row 2",
                                         font=default_font)
         self.insert_r2_label.grid(row=20, column=0, padx=10, pady=(10,0),
@@ -368,9 +382,9 @@ class SettingsWindow(Toplevel):
                                    sticky="w")
         
         self.insert_r2_hoverbutton = HoverButton(self.frame, text="", image=question_image,
-                                                 tooltip_text="Insert at row 2 will mean...",
-                                                 width=15, fg_color="transparent",
-                                                 hover_color="grey")
+                                            tooltip_text="When turned on, new matches will be inserted at the 2nd row of your\nspreadsheet instead of being appended to the bottom.",
+                                            width=15, fg_color="transparent",
+                                            hover_color="grey")
         self.insert_r2_hoverbutton.grid(row=20, column=1, padx=40, pady=(10,0),
                                         sticky="w")
         self.insert_r2_hoverbutton.configure(state="disabled")

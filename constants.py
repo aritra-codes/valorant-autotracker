@@ -128,7 +128,8 @@ DEFAULT_SETTINGS = {
 
 # UI
 RECORDING_CLIENT_FILENAME_FORMATS = {
-    "": "-",
+    "": "",
+    "custom": "",
     "insights_capture": r"VALORANT %m-%d-%Y_%H-%M-%S-%f.mp4",
     "medal": r"placeholder.mp4",
     "outplayed": r"placeholder.mp4"

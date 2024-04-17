@@ -326,11 +326,8 @@ def edit_setting(section: str, name: str, value: str | int | float | bool):
 
 def make_default_settings_file(settings: dict[str, dict[str, str | int | float | bool]]) -> None:
     config = RawConfigParser()
-    print(settings)
 
     for section, section_settings in settings.items():
-            print(section)
-            print(section_settings)
             config[section] = section_settings
 
     with open(c.SETTINGS_FILE_PATH, "w") as file:

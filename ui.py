@@ -1,37 +1,38 @@
 from customtkinter import (set_appearance_mode, set_default_color_theme, 
                            CTk, CTkLabel, CTkEntry, CTkButton, CTkFrame, 
                            CTkImage, filedialog, END, CTkSwitch, StringVar, 
-                           CTkSlider, CTkComboBox, CTkOptionMenu, CTkScrollableFrame)
+                           CTkSlider, CTkOptionMenu, CTkScrollableFrame)
 from PIL import Image
 import os
 from tkinter import Toplevel, Label, messagebox, scrolledtext
 import sys
 import threading
 
+# Import local packages
 from main import main
 import helpers as h
 import constants as c
 
-set_appearance_mode("light")
-set_default_color_theme("dark-blue")
-default_font = ("Calibri", 14)
+set_appearance_mode("light") # Set theme to light
+set_default_color_theme("dark-blue") # Set colour theme to dark blue (for buttons etc.)
+default_font = ("Calibri", 14) # Default font to be used throughout program
 
 image_path = os.path.join(os.path.dirname
-                                  (os.path.realpath(__file__)), "images")
+                                  (os.path.realpath(__file__)), "images") # Define the image path for all images used
 question_image = CTkImage(light_image=Image.open(os.path.join(image_path, "question_mark_dark.png")),
-                          dark_image=Image.open(os.path.join(image_path, "question_mark.png")))
+                          dark_image=Image.open(os.path.join(image_path, "question_mark.png"))) # Question image for Hoverbuttons
 
 change_dir = CTkImage(light_image=Image.open(os.path.join(image_path, "folder.png")),
-                      dark_image=Image.open(os.path.join(image_path, "folder.png")))
+                      dark_image=Image.open(os.path.join(image_path, "folder.png"))) # Change directory/file image (folder)
         
 find_image = CTkImage(light_image=Image.open(os.path.join(image_path, "find_dark.png")),
-                      dark_image=Image.open(os.path.join(image_path, "find.png")))
+                      dark_image=Image.open(os.path.join(image_path, "find.png"))) # Find image (find PUUID)
 
 save_image = CTkImage(light_image=Image.open(os.path.join(image_path, "save_file.png")),
-                      dark_image=Image.open(os.path.join(image_path, "save_file.png")))
+                      dark_image=Image.open(os.path.join(image_path, "save_file.png"))) # Save image
 
 reset_image = CTkImage(light_image=Image.open(os.path.join(image_path, "reset.png")),
-                      dark_image=Image.open(os.path.join(image_path, "reset.png")))
+                      dark_image=Image.open(os.path.join(image_path, "reset.png"))) # Reset (settings) image
 
 class PrintLogger():  # Create file like object
     def __init__(self, textbox):  # Pass reference to text widget
@@ -48,38 +49,42 @@ class PrintLogger():  # Create file like object
     def flush(self):  # Needed for file like object
         pass
 
-class App(CTk):
+class App(CTk): # Main application class
     def __init__(self):
         super().__init__()
         self.image_path = os.path.join(os.path.dirname
-                                  (os.path.realpath(__file__)), "images")
+                                  (os.path.realpath(__file__)), "images") # Image path
         self.run_image = CTkImage(light_image=Image.open(os.path.join(self.image_path, "run_dark.png")),
-                                        dark_image=Image.open(os.path.join(self.image_path, "run.png"))) 
+                                        dark_image=Image.open(os.path.join(self.image_path, "run.png"))) # Run image 
 
         self.settings_image = CTkImage(light_image=Image.open(os.path.join(self.image_path, "settings_dark.png")),
-                                dark_image=Image.open(os.path.join(self.image_path, "settings.png")))
+                                dark_image=Image.open(os.path.join(self.image_path, "settings.png"))) # Settings image
 
         self.paypal_image = CTkImage(light_image=Image.open(os.path.join(image_path, "paypal.png")),
-                      dark_image=Image.open(os.path.join(image_path, "paypal.png")))
+                      dark_image=Image.open(os.path.join(image_path, "paypal.png"))) # Donation button image
 
-        self.geometry("1000x700")
-        self.iconbitmap("logo.ico")
-        self.title("Valorant Match Tracker")
-                     
+        self.geometry("1000x700") # Set the window size (can be resizable)
+        self.iconbitmap("logo.ico") # Set logo (Valorant)
+        self.title("Valorant Match Tracker") # Set title
+        
+        # Create a frame
         self.frame = CTkFrame(self)
         self.frame.pack(pady=20, padx=20, fill="both", expand=True)
         self.frame.columnconfigure(0, weight=1)
 
+        # Create a button to run the main script
         self.run = CTkButton(self.frame, text="Run", width=200, 
                              height=40, image=self.run_image,
                              font=default_font, command=self.thread_main)
         self.run.pack(pady=(20,0))
 
+        # Create a button to open settings window (class)
         self.settings_button = CTkButton(self.frame, text="Settings", width=200, 
                                          height=40, image=self.settings_image,
                                          font=default_font, command=self.open_settings)
         self.settings_button.pack(pady=(10,0))
 
+        # Create a donation button
         self.paypal_donate = CTkButton(self.frame, text="Why not consider donating?", width=200, 
                                          height=40, image=self.paypal_image,
                                          font=default_font, command=self.donate_function)
@@ -92,11 +97,11 @@ class App(CTk):
         self.output_entry = scrolledtext.ScrolledText(self.frame, bd=1,
                                                       font=("Cascadia Code", 9),
                                                       height=8)
-        self.output_entry.pack(expand=True, fill="both", pady=20, padx=20)
+        self.output_entry.pack(expand=True, fill="both", pady=(10,20), padx=20)
         self.output_entry.configure(state="disabled")
 
-        PrintLogger(self.output_entry)
-        
+        PrintLogger(self.output_entry) # Ref to entry box for console output
+
     def thread_main(self):
         def run_main():
             try:
@@ -107,6 +112,7 @@ class App(CTk):
         thread = threading.Thread(target=run_main)
         thread.start()
 
+    # Opens the settings window
     def open_settings(self):
         settings_window = SettingsWindow()
         settings_window.mainloop()
@@ -114,7 +120,7 @@ class App(CTk):
     def donate_function(self):
         pass # ADD FUNCTION HERE
 
-class HoverButton(CTkButton):
+class HoverButton(CTkButton): # Creates a class for hover button (question mark)
     def __init__(self, master, text, tooltip_text, image, width, fg_color,
                  hover_color, **kw):
         CTkButton.__init__(self, master, text=text, image=image, width=width, 
@@ -134,21 +140,25 @@ class HoverButton(CTkButton):
         label = Label(self.tooltip, text=self.tooltip_text, bg="white", relief="solid", borderwidth=0.5)
         label.pack()
 
+    # Destroys hoverbutton
     def on_leave(self, event=None):
         if self.tooltip:
             self.tooltip.destroy()
             self.tooltip = None
 
-class SettingsWindow(Toplevel):
+class SettingsWindow(Toplevel): # Settings window (Toplevel)
     def __init__(self):
         super().__init__()
+        # Window attributes
         self.geometry("820x660")
         self.title("Settings")
         self.iconbitmap("logo.ico")
-                
+
+        # Create a frame for settings     
         self.frame = CTkScrollableFrame(self)
         self.frame.pack(pady=20, padx=20, fill="both", expand=True)
 
+        # Create and place all the objects of settings window
         self.save_button = CTkButton(self.frame, text="Save", font=default_font,
                                      width=100, image=save_image, command=self.save_settings)
         self.save_button.grid(row=0, column=0, padx=10, pady=(10,0), sticky="ew")
@@ -189,8 +199,7 @@ class SettingsWindow(Toplevel):
         self.background_process_var = StringVar(value="off")
         self.background_process_switch = CTkSwitch(self.frame, text="", 
                                                    variable=self.background_process_var,
-                                                   onvalue="on", offvalue="off",
-                                                   command=self.background_process_function)
+                                                   onvalue="on", offvalue="off")
         self.background_process_switch.grid(row=4, column=1, pady=(10,0), sticky="w")
         self.background_process_hoverbutton = HoverButton(self.frame, text="", image=question_image,
                                                  tooltip_text="When turned on, Firefox will open in the background when\nuploading videos and not appear on your screen.",
@@ -204,7 +213,7 @@ class SettingsWindow(Toplevel):
         self.maxvids_sim_label.grid(row=5, column=0, padx=10, pady=(10,0),
                                     sticky="w")
         self.maxvids_sim_entry = CTkEntry(self.frame, font=default_font,
-                                          width=70, justify="center",
+                                          width=40, justify="center",
                                           placeholder_text="Enter int.")
         self.maxvids_sim_entry.grid(row=5, column=1, pady=(10,0), sticky="w")
 
@@ -212,7 +221,7 @@ class SettingsWindow(Toplevel):
                                                  tooltip_text="The number of videos that can be uploaded at the same time.",
                                                  width=15, fg_color="transparent",
                                                  hover_color="grey")
-        self.maxvids_hoverbutton.grid(row=5, column=1, padx=70, pady=(10,0), sticky="w")
+        self.maxvids_hoverbutton.grid(row=5, column=1, padx=40, pady=(10,0), sticky="w")
         self.maxvids_hoverbutton.configure(state="disabled")
 
         self.visibility_label = CTkLabel(self.frame, text="Visibility",
@@ -222,7 +231,6 @@ class SettingsWindow(Toplevel):
         self.visibility_list = list(c.VIDEO_VISIBILITY_OPTIONS.values())
 
         self.visibility_dropdown = CTkOptionMenu(self.frame, values=self.visibility_list,
-                                               command=self.visibility_function, 
                                                font=default_font, button_color="grey",
                                                button_hover_color="dark grey",
                                                fg_color="white", text_color="black")
@@ -271,9 +279,9 @@ class SettingsWindow(Toplevel):
         self.filename_format_entry.grid(row=10, column=1, pady=(10,0), sticky="ew",
                                         columnspan=3)
         self.filename_hover_button = HoverButton(self.frame, text="", image=question_image,
-                                                 tooltip_text="The format in which the recorded video files are named by the\nrecording client (written in python datetime format codes).",
-                                                 width=15, fg_color="transparent",
-                                                 hover_color="grey")
+                                        tooltip_text="The format in which the recorded video files are named by the\nrecording client (written in Python datetime format codes).",
+                                        width=15, fg_color="transparent",
+                                        hover_color="grey")
         self.filename_hover_button.grid(row=10, column=4, pady=(10,0), sticky="w")
 
         self.recording_delay_label = CTkLabel(self.frame, text="Recording Delay",
@@ -331,8 +339,7 @@ class SettingsWindow(Toplevel):
         self.region_label = CTkLabel(self.frame, text="Region", font=default_font)
         self.region_label.grid(row=16, column=0, padx=10, pady=(10,0), sticky="w")
         self.region_list = list(c.REGION_OPTIONS.values())
-        self.region_dropdown = CTkOptionMenu(self.frame, values=self.region_list,
-                                               command=self.region_function, 
+        self.region_dropdown = CTkOptionMenu(self.frame, values=self.region_list, 
                                                font=default_font, button_color="grey",
                                                button_hover_color="dark grey",
                                                fg_color="white", text_color="black",
@@ -375,7 +382,6 @@ class SettingsWindow(Toplevel):
                                   sticky="w")
         self.insert_r2_switch_var = StringVar(value="off")
         self.insert_r2_switch  = CTkSwitch(self.frame, text="",
-                                           command=self.insert_row2_function,
                                            variable=self.insert_r2_switch_var, onvalue="on",
                                            offvalue="off")
         self.insert_r2_switch.grid(row=20, column=1, pady=(10,0),
@@ -443,9 +449,10 @@ class SettingsWindow(Toplevel):
                                 image=change_dir)
         self.excel_change.grid(row=25, column=5, pady=10, padx=5)
 
-        self.check_info()
+        self.check_info() # When settings window set up, check_info function to input current settings
 
     def check_info(self):
+        # Collect all settings
         self.autoupload_video = h.get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True)
         self.firefox_profile_dir = h.get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
         self.bg_process = h.get_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, boolean=True)
@@ -466,6 +473,7 @@ class SettingsWindow(Toplevel):
         self.excel_file_path = h.get_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR)
         self.write_to_googlesheets = h.get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, boolean=True)
         
+        # Insert vals into all entries, dropdowns etc.
         if self.max_vids:
             self.maxvids_sim_entry.delete(0,END)
             self.maxvids_sim_entry.insert(END, self.max_vids)
@@ -486,10 +494,8 @@ class SettingsWindow(Toplevel):
 
         if self.bg_process is True:
             self.background_process_var.set("on")
-            self.background_process_function()
         else:
             self.background_process_var.set("off")
-            self.background_process_function()
         
         if self.visibility:
             self.visibility_dropdown.set(c.VIDEO_VISIBILITY_OPTIONS[self.visibility])
@@ -559,10 +565,8 @@ class SettingsWindow(Toplevel):
 
         if self.spreadsheet_row2 is True:
             self.insert_r2_switch_var.set("on")
-            self.insert_row2_function()
         else:
             self.insert_r2_switch_var.set("off")
-            self.insert_row2_function()
 
         if self.write_to_excel is True:
             self.excel_switch_var.set("on")
@@ -584,10 +588,10 @@ class SettingsWindow(Toplevel):
             self.switch_var_spreadsheet.set("off")
             self.googlesheet_switch()
 
-            
-    def switch1(self):
-        self.val = self.switch_onoff.get()
-        if self.val == "off":
+    
+    def switch1(self): # Auto-upload setting switch
+        self.val = self.switch_onoff.get() # Get switch val
+        if self.val == "off": # If switch is off, disable all objects under auto-upload
             self.firefox_entry.configure(state="disabled")
             self.firefox_change.configure(state="disabled")
             self.firefox_profile_label.configure(text_color = "grey")
@@ -600,7 +604,7 @@ class SettingsWindow(Toplevel):
                                              text_color="grey")
             self.visibility_label.configure(text_color = "grey")
             self.visibility_dropdown.configure(state="disabled")
-        elif self.val == "on":
+        elif self.val == "on": # If switch is on, enable all objects
             self.firefox_entry.configure(state="normal")
             self.firefox_change.configure(state="normal")
             self.firefox_profile_label.configure(text_color = "black")
@@ -614,9 +618,9 @@ class SettingsWindow(Toplevel):
             self.visibility_label.configure(text_color = "black")
             self.visibility_dropdown.configure(state="normal")
 
-    def switch2(self):
-        self.val2 = self.switch_onoff2.get()
-        if self.val2 == "off":
+    def switch2(self): # Auto-select vids setting switch
+        self.val2 = self.switch_onoff2.get() # Get switch val
+        if self.val2 == "off": # If switch is off, disable all objects under auto-select
             self.viddir_label.configure(text_color="grey")
             self.viddir_entry.configure(state="disabled", 
                                         placeholder_text_color="#c9c9c9",
@@ -634,8 +638,7 @@ class SettingsWindow(Toplevel):
             self.filename_hover_button.configure(state="disabled")
             self.recording_client_label.configure(text_color="grey")
             self.filename_format_optionmenu.configure(state="disabled")
-
-        elif self.val2 == "on":
+        elif self.val2 == "on": # If switch is on, enable all objects
             self.viddir_label.configure(text_color="black")
             self.viddir_entry.configure(state="normal",
                                         placeholder_text_color="grey",
@@ -654,23 +657,16 @@ class SettingsWindow(Toplevel):
             self.recording_client_label.configure(text_color="black")
             self.filename_format_optionmenu.configure(state="normal")
 
-    def background_process_function(self):
-        pass
-
-    def visibility_function(self, visibility):
-        # Insert functions here
-        pass
-
-    def viddir_change_function(self):
+    def viddir_change_function(self): # Change the video directory
         self.file = filedialog.askdirectory(title="Open")
         self.viddir_entry.delete(0,END)
         self.viddir_entry.insert(END, self.file)
 
     def filename_format_options(self, recording_client):
-        if recording_client == "Custom":
+        if recording_client == "Custom": # If the recording_client is set to custom, clear the format entry box
             self.filename_format_entry.configure(state="normal")
             self.filename_format_entry.delete(0,END)
-        else:
+        else: # All others, disable format entry box and insert default format for that recording client
             self.filename_format_entry.configure(state="normal")
             recording_client_new = h.get_key_from_value(c.RECORDING_CLIENT_OPTIONS, recording_client)
             filename_format = c.RECORDING_CLIENT_FILENAME_FORMATS[recording_client_new]
@@ -678,21 +674,17 @@ class SettingsWindow(Toplevel):
             self.filename_format_entry.insert(END, filename_format)
             self.filename_format_entry.configure(state="disabled")
          
-    def firefoxprofile_change_function(self):
+    def firefoxprofile_change_function(self): # Change firefox profile directory
         self.file2 = filedialog.askdirectory(title="Open")
         self.firefox_entry.delete(0, END)
         self.firefox_entry.insert(END, self.file2)
 
-    def slider(self, value):
+    def slider(self, value): # Changes the value of the slider entry box
         intvalue = int(value)
         self.slider_value.delete(0, END)
         self.slider_value.insert(END, intvalue)
     
-    def region_function(self, region):
-        # Insert functions here
-        pass
-
-    def find_puuid_function(self):
+    def find_puuid_function(self): # Finds user PUUID based on username and tag
         name_entry = self.username_entry.get()
         tag_entry = self.tag_entry.get()
         if not name_entry:
@@ -707,21 +699,18 @@ class SettingsWindow(Toplevel):
         self.puuid_entry.delete(0, END)
         self.puuid_entry.insert(END, self.puuid)
     
-    def google_key_dirchange_function(self):
+    def google_key_dirchange_function(self): # Change the path to Google key (.json files)
         self.jsonfile = filedialog.askopenfilename(title="Open", filetypes=[("JSON Files (*.json)", "*.json")])
         self.google_service_key_entry.delete(0, END)
         self.google_service_key_entry.insert(END, self.jsonfile)
 
-    def spreadsheet_format_function(self):
+    def spreadsheet_format_function(self): # Opens the spreadsheet format window
         edit_app = SpreadsheetFormat()
         edit_app.mainloop()
-
-    def insert_row2_function(self):
-        pass
     
-    def googlesheet_switch(self):
+    def googlesheet_switch(self): # Write to Google Sheets switch
         self.googlesheet_val = self.switch_var_spreadsheet.get()
-        if self.googlesheet_val == "off":
+        if self.googlesheet_val == "off": # If switch is off, disable all objects under G.Sheets
             self.spreadsheet_name_label.configure(text_color="grey")
             self.spreadsheet_name_entry.configure(state="disabled",
                                                  placeholder_text_color="#c9c9c9",
@@ -731,7 +720,7 @@ class SettingsWindow(Toplevel):
                                                  placeholder_text_color="#c9c9c9",
                                                  text_color="grey")
             self.google_key_dirchange.configure(state="disabled")
-        elif self.googlesheet_val == "on":
+        elif self.googlesheet_val == "on": # If switch is on, enable all objects
             self.spreadsheet_name_label.configure(text_color="black")
             self.spreadsheet_name_entry.configure(state="normal",
                                                  placeholder_text_color="grey",
@@ -742,22 +731,22 @@ class SettingsWindow(Toplevel):
                                                  text_color="black")
             self.google_key_dirchange.configure(state="normal")
 
-    def excel_switch(self):
+    def excel_switch(self): # Write to Excel switch
         self.excel_val = self.excel_switch_var.get()
-        if self.excel_val == "off":
+        if self.excel_val == "off": # If switch is off, disable all objects under Excel
             self.excel_file_path_label.configure(text_color="grey")
             self.excel_file_path_dir.configure(state="disabled",
                                                  placeholder_text_color="#c9c9c9",
                                                  text_color="grey")
             self.excel_change.configure(state="disabled")
-        elif self.excel_val == "on":
+        elif self.excel_val == "on": # If switch is on, enable all objects
             self.excel_file_path_label.configure(text_color="black")
             self.excel_file_path_dir.configure(state="normal",
                                                  placeholder_text_color="grey",
                                                  text_color="black")
             self.excel_change.configure(state="normal")
 
-    def excel_dir_change(self):
+    def excel_dir_change(self): # Change file path for Excel Spreadsheet
         self.excelfile = filedialog.askopenfilename(title="Open", filetypes=[
             ("Excel Workbook (*.xlsx)", "*.xlsx"),
             ("Excel Macro-Enabled Workbook (*.xlsm)", "*.xlsm"),
@@ -767,16 +756,16 @@ class SettingsWindow(Toplevel):
         self.excel_file_path_dir.delete(0, END)
         self.excel_file_path_dir.insert(END, self.excelfile)
 
-    def save_settings(self):
+    def save_settings(self): # Saves all new settings
         if self.val == "on":
-            if self.autoupload_video is not True:
+            if self.autoupload_video is not True: # Changes auto-upload vid switch val
                 h.edit_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, "True")
             if not self.firefox_entry.get():
                 messagebox.showerror(title="Invalid Input", 
                                  message=f"Please enter a valid Firefox Profile Path.")
                 return
             if os.path.exists(self.firefox_entry.get()):
-                if self.firefox_entry.get() != self.firefox_profile_dir:
+                if self.firefox_entry.get() != self.firefox_profile_dir: # Changes Firefox profile directory
                     h.edit_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR, self.firefox_entry.get())
             else:
                 firefox_retry = messagebox.askokcancel(title="Invalid File", 
@@ -787,12 +776,12 @@ class SettingsWindow(Toplevel):
                 else:
                     return 
                 
-        if self.visibility_dropdown.get() != c.VIDEO_VISIBILITY_SETTING_LOCATOR:
+        if self.visibility_dropdown.get() != c.VIDEO_VISIBILITY_SETTING_LOCATOR: # Changes visibility dropdown val
             visibility_new = h.get_key_from_value(c.VIDEO_VISIBILITY_OPTIONS, self.visibility_dropdown.get())
             h.edit_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR, visibility_new)
 
         self.background_process_setting = self.background_process_switch.get()
-        if self.background_process_setting == "off":
+        if self.background_process_setting == "off": # Changes background process switch val
             if self.bg_process is True:
                 h.edit_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, "False")
             elif self.background_process_setting == "on":
@@ -800,7 +789,7 @@ class SettingsWindow(Toplevel):
                     h.edit_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, "True")
                 
         if self.maxvids_sim_entry.get():
-            try:
+            try: # Integer testing for max. vids entry box
                 max_vids = int(self.maxvids_sim_entry.get())
             except ValueError:
                 messagebox.showerror(title="Invalid Input", message="Max. Vids Simultaneously: Please enter a valid integer.")
@@ -809,13 +798,13 @@ class SettingsWindow(Toplevel):
             messagebox.showerror(title="Invalid Input", message="Max. Vids Simultaneously: Please enter a valid integer.")
             return
 
-        if max_vids != c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR:
+        if max_vids != c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR: # Changes max. vids setting
             h.edit_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR, max_vids)
 
-        if self.val == "off":
+        if self.val == "off": # Changes auto-upload vid switch val
             if self.autoupload_video is True:
-                h.edit_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, "False")        
-        
+                h.edit_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, "False")
+
         if self.val2 == "on":
             if self.autoselect_video is not True:
                 h.edit_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, "True")
@@ -824,7 +813,7 @@ class SettingsWindow(Toplevel):
                                  message=f"Please enter a valid video directory.")
                 return
             if os.path.exists(self.viddir_entry.get()):
-                if self.viddir_entry.get() != self.video_directory:
+                if self.viddir_entry.get() != self.video_directory: # Changes video directory
                     h.edit_setting(*c.VIDEO_DIRECTORY_SETTING_LOCATOR, self.viddir_entry.get())
             else:
                 viddir_retry = messagebox.askokcancel(title="Invalid File", 
@@ -839,10 +828,10 @@ class SettingsWindow(Toplevel):
                 h.edit_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, "False")
 
         recording_client_new = h.get_key_from_value(c.RECORDING_CLIENT_OPTIONS, self.filename_format_optionmenu.get())
-        if recording_client_new != self.recording_client:
+        if recording_client_new != self.recording_client: # Changes recording client
             h.edit_setting(*c.RECORDING_CLIENT_SETTING_LOCATOR, recording_client_new)
         
-        if self.filename_format_entry.get():
+        if self.filename_format_entry.get(): # Changes filename format
             if self.filename_format_entry.get() != c.FILENAME_FORMAT_SETTING_LOCATOR:
                 h.edit_setting(*c.FILENAME_FORMAT_SETTING_LOCATOR, self.filename_format_entry.get())
         else:
@@ -851,14 +840,14 @@ class SettingsWindow(Toplevel):
             return
         
         if self.slider_value.get():
-            try:
-                int(self.slider_value.get())
+            try: # Integer testing for slider val entry box
+                integer_slider = int(self.slider_value.get())
             except ValueError:
                 messagebox.showerror(title="Invalid Input", 
                                  message=f"Please enter a valid recording delay (must be an integer).")
                 return
 
-            if self.slider_value.get() != self.recording_delay:
+            if self.slider_value.get() != self.recording_delay: # Changes recording delay
                 h.edit_setting(*c.RECORDING_START_DELAY_SETTING_LOCATOR, self.slider_value.get())
         else:
             messagebox.showerror(title="Invalid Input", 
@@ -871,14 +860,14 @@ class SettingsWindow(Toplevel):
             return
         else:
             puuid_setting = h.get_setting(*c.PUUID_SETTING_LOCATOR)
-            if self.puuid_entry.get() != puuid_setting:
+            if self.puuid_entry.get() != puuid_setting: # Changes PUUID
                 h.edit_setting(*c.PUUID_SETTING_LOCATOR, self.puuid_entry.get())
             
         translated_region = h.get_key_from_value(c.REGION_OPTIONS, self.region_dropdown.get())
-        if translated_region != self.region_setting:
+        if translated_region != self.region_setting: # Changes region
             h.edit_setting(*c.AFFINITY_SETTING_LOCATOR, translated_region)
 
-        if self.latest_matchid_entry.get():
+        if self.latest_matchid_entry.get(): # Changes latest Match ID
             if self.latest_matchid_entry.get() != self.latest_match:
                 h.edit_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR, self.latest_matchid_entry.get())
         else:
@@ -887,17 +876,15 @@ class SettingsWindow(Toplevel):
             return
 
         r2_setting = self.insert_r2_switch.get()
-
-        if r2_setting == "off":
+        if r2_setting == "off": # Changes insert at row 2 setting
             if self.spreadsheet_row2 is True:
                 h.edit_setting(*c.INSERT_TO_ROW_2_LOCATOR, "False")
         elif r2_setting == "on":
             if self.spreadsheet_row2 is not True:
                 h.edit_setting(*c.INSERT_TO_ROW_2_LOCATOR, "True")
 
-        self.googlesheets_setting = self.switch_googlesheet.get()
-        
-        if self.googlesheets_setting == "off":
+        self.googlesheets_setting = self.switch_googlesheet.get()    
+        if self.googlesheets_setting == "off": # Changes write to Google Sheets setting
             if self.write_to_googlesheets is True:
                 h.edit_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, "False")
         elif self.googlesheets_setting == "on":
@@ -905,7 +892,7 @@ class SettingsWindow(Toplevel):
                 h.edit_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, "True")
 
             if self.spreadsheet_name_entry.get():
-                if self.spreadsheet_name_entry.get() != self.spreadsheet_name:
+                if self.spreadsheet_name_entry.get() != self.spreadsheet_name: # Changes sheet name
                     h.edit_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR, self.spreadsheet_name_entry.get())
             else:
                messagebox.showerror(title="Invalid Input", 
@@ -913,7 +900,7 @@ class SettingsWindow(Toplevel):
             
             if self.google_service_key_entry.get():      
                 if os.path.exists(self.google_service_key_entry.get()):
-                    if self.google_service_key_entry.get() != self.service_account_json:
+                    if self.google_service_key_entry.get() != self.service_account_json: # Changes Google key
                         h.edit_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR, self.google_service_key_entry.get())
                 else:
                     keydir = messagebox.askokcancel(title="Invalid File", 
@@ -928,18 +915,16 @@ class SettingsWindow(Toplevel):
                                  message=f"Please enter a path to a valid JSON file.")
 
         self.excel_setting = self.switch_excel.get()
-        print(f"Excel: {self.excel_setting}")
-        if self.excel_setting == "off":
+        if self.excel_setting == "off": # Changes write to Excel setting
             if self.write_to_excel is True:
                 h.edit_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, "False")
         elif self.excel_setting == "on":
             if self.write_to_excel is not True:
                 h.edit_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, "True")
         
-            if self.excel_file_path_dir.get():      
+            if self.excel_file_path_dir.get():    
                 if os.path.exists(self.excel_file_path_dir.get()):
-                    print(self.excel_file_path_dir.get())
-                    if self.excel_file_path_dir.get() != self.excel_file_path:
+                    if self.excel_file_path_dir.get() != self.excel_file_path: # Changes Excel path
                         h.edit_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR, self.excel_file_path_dir.get())
                 else:
                     exceldir = messagebox.askokcancel(title="Invalid File", 
@@ -953,19 +938,21 @@ class SettingsWindow(Toplevel):
                 messagebox.showerror(title="Invalid Input", 
                                     message=f"Please enter a path to a valid Excel file.")
 
-    def reset_function(self):
+        messagebox.showinfo(title="Success", message="Settings have been saved.") # Success message
+
+    def reset_function(self): # Resets settings to default
         self.reset_confirmation = messagebox.askquestion(title="Confirmation", 
                                                       message="Are you sure you would like to reset to default settings?\nAll current settings will be wiped.",
                                                       icon="warning")
         if self.reset_confirmation == "yes":
             h.make_default_settings_file(c.DEFAULT_SETTINGS)
-            SettingsWindow.destroy(self)
+            SettingsWindow.destroy(self) # Reloads the window
             settings = SettingsWindow()
             settings.mainloop()
         else:
             messagebox.showinfo(title="Info", message="This operation has been cancelled.")
 
-class SpreadsheetFormat(Toplevel):
+class SpreadsheetFormat(Toplevel): # Spreadsheet format window (Toplevel)
     def __init__(self):
         super().__init__()
         self.geometry("500x680")
@@ -975,10 +962,13 @@ class SpreadsheetFormat(Toplevel):
         self.frame = CTkScrollableFrame(self)
         self.frame.pack(pady=20, padx=20, fill="both", expand=True)
 
+        # Sets up lists
         self.dropdown_menus_list = []
         self.format_columns_list = []
 
         self.row_count = -1
+
+        # Configures objects in window
         self.spreadsheet_format_label = CTkLabel(self.frame, text="Spreadsheet Format\n(Columns)",
                                                     font=default_font)
         self.spreadsheet_format_label.grid(row=0, column=0, padx=(10,20), pady=(10,0),
@@ -998,12 +988,12 @@ class SpreadsheetFormat(Toplevel):
         self.save_button.grid(row=1, column=0, padx=10, pady=(20,0), sticky="w")
         spreadsheet_format = h.get_setting(*c.SPREADSHEET_FORMAT_LOCATOR)
 
-        if spreadsheet_format:
+        if spreadsheet_format: # If there is data in the spreadsheet format setting, add rows in window
             items = spreadsheet_format.split(",")
             for index, item in enumerate(items):
                 current_setting = c.SPREADSHEET_FORMAT_OPTIONS[item]
                 
-                self.add_boxes(current_setting, True if index == 0 else False)
+                self.add_boxes(current_setting, True if index == 0 else False) # Adds dropdown menus
 
 
     def add_boxes(self, value: str="-", disabled: bool=False) -> None:
@@ -1050,7 +1040,7 @@ class SpreadsheetFormat(Toplevel):
         except IndexError:
             self.format_columns_list.append(formatted_value)
 
-    def save_format_changes(self):
+    def save_format_changes(self): # Saves changes to spreadsheet format
         self.format_settings_change = ",".join(self.format_columns_list)
         self.format_setting_locator = h.get_setting(*c.SPREADSHEET_FORMAT_LOCATOR)
 

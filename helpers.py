@@ -148,7 +148,7 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
     headshot_percentage = round((stats["headshots"] / (stats["headshots"] + stats["bodyshots"] + stats["legshots"])) * 100)
     average_damage_per_round = round(player["damage_made"] / meta["rounds_played"])
 
-    formatted_match_info = {"match_id": meta["matchid"], 
+    formatted_match_info = {"match_id": meta["matchid"],
                             "date_started": date_started_datetime.strftime(r"%d/%m/%Y"),
                             "rank": player["currenttier_patched"],
                             "mmr_change": mmr_change,
@@ -162,7 +162,7 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
                             "assists": stats["assists"],
                             "headshot_percentage": headshot_percentage,
                             "average_damage_per_round": average_damage_per_round}
-    
+
     link = ""
 
     if get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True):
@@ -210,7 +210,7 @@ def upload_video(match_info: dict[str, str | int], date_started_datetime: dateti
         attempts = 3
 
         while attempts > 0:
-            try:                
+            try:
                 video_link = selenium_youtube.upload_video(firefox_profile_path,
                                                 video_path,
                                                 title,
@@ -235,7 +235,7 @@ def upload_video(match_info: dict[str, str | int], date_started_datetime: dateti
                 print(f"Video '{title}' failed to upload. Retrying ({attempts} attempts left)...")
             else:
                 return video_link
-            
+
         raise c.VideoUploadError(f"Video '{title}' failed to upload.") from e
 
     raise FileNotFoundError(f"No video path found for '{title}'.")
@@ -269,7 +269,7 @@ def autofind_video_path(match_start_datetime: datetime) -> str:
                 video_datetime = datetime.strptime(filename, filename_format)
             except ValueError:
                 continue
-            
+
             # Checks if datetime from filename matches
             if compare_datetimes_lazily(video_datetime, match_start_datetime) or compare_datetimes_lazily(video_datetime, (match_start_datetime - timedelta(minutes=1))):
                 return f"{directory}/{filename}"

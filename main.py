@@ -45,7 +45,7 @@ def main() -> None:
             match_info = h.format_match_info(match, puuid, mmr_changes[index])
 
             try:
-                formatted_match = [match_info[column_heading] 
+                formatted_match = [match_info[column_heading]
                                    for column_heading in spreadsheet_format]
             except KeyError as e:
                 raise c.InvalidSettingsError("'spreadsheet_format' setting is not valid. Please check and save your settings.") from e

@@ -3,9 +3,9 @@ import sys
 import threading
 from tkinter import Toplevel, Label, messagebox, scrolledtext
 
-from customtkinter import (set_appearance_mode, set_default_color_theme, 
-                           CTk, CTkLabel, CTkEntry, CTkButton, CTkFrame, 
-                           CTkImage, filedialog, END, CTkSwitch, StringVar, 
+from customtkinter import (set_appearance_mode, set_default_color_theme,
+                           CTk, CTkLabel, CTkEntry, CTkButton, CTkFrame,
+                           CTkImage, filedialog, END, CTkSwitch, StringVar,
                            CTkSlider, CTkOptionMenu, CTkScrollableFrame)
 from PIL import Image
 
@@ -27,13 +27,13 @@ change_dir = CTkImage(light_image=Image.open(c.FOLDER_IMAGE_PATH),
                       dark_image=Image.open(c.FOLDER_IMAGE_PATH))
 # Find image (find PUUID)
 find_image = CTkImage(light_image=Image.open(c.FIND_IMAGE_PATH["dark"]),
-                      dark_image=Image.open(c.FIND_IMAGE_PATH["light"])) 
+                      dark_image=Image.open(c.FIND_IMAGE_PATH["light"]))
 # Save (settings) image
 save_image = CTkImage(light_image=Image.open(c.SAVE_IMAGE_PATH),
-                      dark_image=Image.open(c.SAVE_IMAGE_PATH)) 
+                      dark_image=Image.open(c.SAVE_IMAGE_PATH))
 # Reset (settings) image
 reset_image = CTkImage(light_image=Image.open(c.RESET_IMAGE_PATH),
-                       dark_image=Image.open(c.RESET_IMAGE_PATH)) 
+                       dark_image=Image.open(c.RESET_IMAGE_PATH))
 
 class PrintLogger():
     """File like object"""
@@ -76,19 +76,19 @@ class App(CTk):
         self.frame.columnconfigure(0, weight=1)
 
         # Create a button to run the main script
-        self.run = CTkButton(self.frame, text="Run", width=200, 
+        self.run = CTkButton(self.frame, text="Run", width=200,
                              height=40, image=self.run_image,
                              font=default_font, command=self.thread_main)
         self.run.pack(pady=(20,0))
 
         # Create a button to open settings window (class)
-        self.settings_button = CTkButton(self.frame, text="Settings", width=200, 
+        self.settings_button = CTkButton(self.frame, text="Settings", width=200,
                                          height=40, image=self.settings_image,
                                          font=default_font, command=self.open_settings)
         self.settings_button.pack(pady=(10,0))
 
         # Create a donation button
-        self.paypal_donate = CTkButton(self.frame, text="Why not consider donating?", width=200, 
+        self.paypal_donate = CTkButton(self.frame, text="Why not consider donating?", width=200,
                                          height=40, image=self.paypal_image,
                                          font=default_font, command=self.donate_function)
         self.paypal_donate.pack(pady=(10,0))
@@ -126,7 +126,7 @@ class HoverButton(CTkButton):
     """Class for hover button (question mark)"""
     def __init__(self, master, text, tooltip_text, image, width, fg_color,
                  hover_color, **kw):
-        CTkButton.__init__(self, master, text=text, image=image, width=width, 
+        CTkButton.__init__(self, master, text=text, image=image, width=width,
                            fg_color=fg_color, hover_color=hover_color, **kw)
         self.tooltip = None
         self.tooltip_text = tooltip_text
@@ -141,8 +141,8 @@ class HoverButton(CTkButton):
         y += self.winfo_rooty() + 25
         self.tooltip.wm_overrideredirect(True)
         self.tooltip.wm_geometry(f"+{x}+{y}")
-        label = Label(self.tooltip, text=self.tooltip_text, 
-                      bg="white", relief="solid", 
+        label = Label(self.tooltip, text=self.tooltip_text,
+                      bg="white", relief="solid",
                       borderwidth=0.5)
         label.pack()
 
@@ -155,7 +155,7 @@ class HoverButton(CTkButton):
 class SettingsWindow(Toplevel):
     def __init__(self):
         super().__init__()
-        
+
         # Window attributes
         self.geometry(c.SETTINGS_WINDOW_RESOLUTION)
         self.title(c.SETTINGS_TITLE)
@@ -205,7 +205,7 @@ class SettingsWindow(Toplevel):
         self.background_process_label.grid(row=4, column=0, padx=10, pady=(10,0),
                                            sticky="w")
         self.background_process_var = StringVar(value="off")
-        self.background_process_switch = CTkSwitch(self.frame, text="", 
+        self.background_process_switch = CTkSwitch(self.frame, text="",
                                                    variable=self.background_process_var,
                                                    onvalue="on", offvalue="off")
         self.background_process_switch.grid(row=4, column=1, pady=(10,0), sticky="w")
@@ -282,7 +282,7 @@ class SettingsWindow(Toplevel):
         self.filename_format_label = CTkLabel(self.frame, text="Filename Format",
                                               font=default_font)
         self.filename_format_label.grid(row=10, column=0, padx=10, pady=(10,0), sticky="w")
-        self.filename_format_entry = CTkEntry(self.frame, font=default_font, 
+        self.filename_format_entry = CTkEntry(self.frame, font=default_font,
                                               placeholder_text="Enter filename format",
                                               width=200)
         self.filename_format_entry.grid(row=10, column=1, pady=(10,0), sticky="ew",
@@ -317,7 +317,7 @@ class SettingsWindow(Toplevel):
         self.slider_hoverbutton.grid(row=11, column=4, padx=25, pady=(10,0), sticky="w")
         self.slider_hoverbutton.configure(state="disabled")
 
-        self.valorant_header = CTkLabel(self.frame, text="Valorant", 
+        self.valorant_header = CTkLabel(self.frame, text="Valorant",
                                         font=("Calibri Bold",18))
         self.valorant_header.grid(row=12, column=0, padx=10, pady=(15,0), sticky="w")
 
@@ -340,7 +340,7 @@ class SettingsWindow(Toplevel):
                                     placeholder_text="Enter/Find PUUID")
         self.puuid_entry.grid(row=15, column=1, pady=(10,0), sticky="ew",
                               columnspan=3)
-        self.puuid_find = CTkButton(self.frame, text="Find PUUID", 
+        self.puuid_find = CTkButton(self.frame, text="Find PUUID",
                                     font=default_font, image=find_image,
                                     command=self.find_puuid_function, width=110)
         self.puuid_find.grid(row=15, column=4, pady=(10,0), padx=5, sticky="w")
@@ -348,7 +348,7 @@ class SettingsWindow(Toplevel):
         self.region_label = CTkLabel(self.frame, text="Region", font=default_font)
         self.region_label.grid(row=16, column=0, padx=10, pady=(10,0), sticky="w")
         self.region_list = list(c.REGION_OPTIONS.values())
-        self.region_dropdown = CTkOptionMenu(self.frame, values=self.region_list, 
+        self.region_dropdown = CTkOptionMenu(self.frame, values=self.region_list,
                                              font=default_font, button_color="grey",
                                              button_hover_color="dark grey",
                                              fg_color="white", text_color="black",
@@ -364,7 +364,7 @@ class SettingsWindow(Toplevel):
         self.latest_matchid_entry.grid(row=17, column=1, pady=(10,0), sticky="ew",
                                        columnspan=3)
 
-        self.spreadsheet_header = CTkLabel(self.frame, text="Spreadsheet", 
+        self.spreadsheet_header = CTkLabel(self.frame, text="Spreadsheet",
                                      font=("Calibri Bold",18))
         self.spreadsheet_header.grid(row=18, column=0, padx=10, pady=(15,0), sticky="w")
 
@@ -372,9 +372,9 @@ class SettingsWindow(Toplevel):
                                                  font=default_font)
         self.spreadsheet_format_label.grid(row=19, column=0, padx=10, pady=(10,0),
                                            sticky="w")
-        
+
         self.spreadsheet_format_button = CTkButton(self.frame, text="Edit",
-                                                   font=default_font, 
+                                                   font=default_font,
                                                    command=self.spreadsheet_format_function)
         self.spreadsheet_format_button.grid(row=19, column=1, pady=(10,0), sticky="w")
 
@@ -458,7 +458,8 @@ class SettingsWindow(Toplevel):
                                       image=change_dir)
         self.excel_change.grid(row=25, column=5, pady=10, padx=5)
 
-        self.check_info() # When settings window set up, check_info function to input current settings
+        self.update_info()
+        self.insert_info() # When settings window set up, insert current settings
 
     def update_info(self):
         """Updates the interal class variables that contain the setting values"""
@@ -482,10 +483,8 @@ class SettingsWindow(Toplevel):
         self.excel_file_path = h.get_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR)
         self.write_to_googlesheets = h.get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, boolean=True)
 
-    def check_info(self):
+    def insert_info(self):
         """Collect all settings"""
-        self.update_info()
-
         # Insert vals into all entries, dropdowns etc.
         if self.firefox_profile_dir:
             self.firefox_entry.delete(0,END)
@@ -638,7 +637,7 @@ class SettingsWindow(Toplevel):
             self.filename_format_optionmenu.configure(state="normal")
         else:
             self.viddir_label.configure(text_color="grey")
-            self.viddir_entry.configure(state="disabled", 
+            self.viddir_entry.configure(state="disabled",
                                         placeholder_text_color="#c9c9c9",
                                         text_color="grey")
             self.viddir_change.configure(state="disabled")
@@ -673,7 +672,7 @@ class SettingsWindow(Toplevel):
             self.filename_format_entry.delete(0,END)
             self.filename_format_entry.insert(END, filename_format)
             self.filename_format_entry.configure(state="disabled")
-         
+
     def firefoxprofile_change_function(self):
         """Change firefox profile directory"""
         file2 = filedialog.askdirectory(title="Open")
@@ -684,7 +683,7 @@ class SettingsWindow(Toplevel):
         """Changes the value of the slider entry box"""
         self.slider_value.delete(0, END)
         self.slider_value.insert(END, int(value))
-    
+
     def find_puuid_function(self):
         """Finds user PUUID based on username and tag"""
         name_entry = self.username_entry.get()
@@ -796,7 +795,7 @@ class SettingsWindow(Toplevel):
                     h.edit_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, True)
             elif self.bg_process:
                 h.edit_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, False)
-                
+
             if not (max_vids := self.maxvids_sim_entry.get()):
                 messagebox.showerror(title="Invalid Input", message="Max. Vids Simultaneously: Please enter a valid integer.")
                 return
@@ -826,7 +825,7 @@ class SettingsWindow(Toplevel):
             if viddir != self.video_directory:
                 h.edit_setting(*c.VIDEO_DIRECTORY_SETTING_LOCATOR, viddir)
 
-            recording_client = h.get_key_from_value(c.RECORDING_CLIENT_OPTIONS, 
+            recording_client = h.get_key_from_value(c.RECORDING_CLIENT_OPTIONS,
                                                     self.filename_format_optionmenu.get())
             if recording_client != self.recording_client:
                 h.edit_setting(*c.RECORDING_CLIENT_SETTING_LOCATOR, recording_client)
@@ -858,11 +857,11 @@ class SettingsWindow(Toplevel):
             messagebox.showerror(title="Invalid Input",
                                  message="Please enter a valid PUUID.")
             return
-        if puuid != self.puuid: 
+        if puuid != self.puuid:
             h.edit_setting(*c.PUUID_SETTING_LOCATOR, puuid)
 
         translated_region = h.get_key_from_value(c.REGION_OPTIONS, self.region_dropdown.get())
-        if translated_region != self.region: 
+        if translated_region != self.region:
             h.edit_setting(*c.AFFINITY_SETTING_LOCATOR, translated_region)
 
         if not self.latest_matchid_entry.get():
@@ -1024,5 +1023,4 @@ class SpreadsheetFormat(Toplevel):
             h.edit_setting(*c.SPREADSHEET_FORMAT_LOCATOR, format_settings_change)
 
 if __name__ == "__main__":
-    app = App()
-    app.mainloop()
+    App().mainloop()

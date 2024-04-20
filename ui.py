@@ -107,10 +107,12 @@ class App(CTk):
 
     def thread_main(self):
         def run_main():
+            self.run.configure(text="Running...", fg_color="#325882", state="disabled")
             try:
                 main()
             except Exception as e:
                 print(e)
+            self.run.configure(text="Run", fg_color="#3A7EBF",state="normal")
 
         thread = threading.Thread(target=run_main)
         thread.start()

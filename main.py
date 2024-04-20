@@ -16,11 +16,14 @@ def main() -> None:
     except KeyError as e:
         raise c.InvalidSettingsError("'region' setting is not valid. Please check and save your settings.") from e
 
-    matches = h.get_new_matches(puuid, affinity, h.get_latest_match_id())
+    latest_match_id = h.get_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR)
+    matches = h.get_new_matches(puuid, affinity, latest_match_id)
 
     if matches:
-        write_to_google_sheets = h.get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, boolean=True)
-        write_to_excel_file = h.get_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, boolean=True)
+        write_to_google_sheets = h.get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR,
+                                               boolean=True)
+        write_to_excel_file = h.get_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR,
+                                            boolean=True)
 
         if write_to_google_sheets:
             google_sheets_sheet_name = h.get_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR)
@@ -42,15 +45,21 @@ def main() -> None:
             match_info = h.format_match_info(match, puuid, mmr_changes[index])
 
             try:
-                formatted_match = [match_info.get[column_heading] for column_heading in spreadsheet_format]
+                formatted_match = [match_info[column_heading] 
+                                   for column_heading in spreadsheet_format]
             except KeyError as e:
                 raise c.InvalidSettingsError("'spreadsheet_format' setting is not valid. Please check and save your settings.") from e
 
             if write_to_google_sheets:
                 if insert_to_row_2:
-                    google_sheets_sheet.insert_row(formatted_match, 2, **google_sheets_kwargs)
+                    google_sheets_sheet.insert_row(formatted_match,
+                                                   2,
+                                                   **google_sheets_kwargs)
                 else:
-                    google_sheets_sheet.append_row(formatted_match, insert_data_option="INSERT_ROWS", table_range="A1", **google_sheets_kwargs)
+                    google_sheets_sheet.append_row(formatted_match,
+                                                   insert_data_option="INSERT_ROWS",
+                                                   table_range="A1",
+                                                   **google_sheets_kwargs)
             if write_to_excel_file:
                 if insert_to_row_2:
                     h.insert_row_to_excel_sheet(values=formatted_match, row=2, **excel_kwargs)
@@ -59,7 +68,7 @@ def main() -> None:
 
             print(f"Added match '{h.format_video_title(match_info)}' to spreadsheet(s).")
 
-            h.update_latest_match_id(match_info["match_id"])
+            h.edit_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR, match_info["match_id"])
 
         # Waits for all uploads to finish
         default_number_of_threads = h.get_setting(*c.DEFAULT_NUMBER_OF_THREADS, integer=True)
@@ -76,5 +85,5 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         sys.exit("Exiting script...")
-    except Exception as e:
-        print(e)
+    except Exception as exc:
+        print(exc)

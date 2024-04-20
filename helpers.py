@@ -1,19 +1,19 @@
-from os import listdir
+from configparser import RawConfigParser, NoSectionError, NoOptionError
 from datetime import datetime, timedelta
-from typing import Literal
+from os import listdir
 import threading
 from time import sleep
+from tkinter import filedialog, messagebox
+from typing import Literal, Any
 
 import gspread
-from gspread.spreadsheet import Spreadsheet
 from gspread.exceptions import SpreadsheetNotFound
+from gspread.spreadsheet import Spreadsheet
 from oauth2client.service_account import ServiceAccountCredentials
 from openpyxl import Workbook, load_workbook
-from openpyxl.worksheet.worksheet import Worksheet as ExcelWorksheet
 from openpyxl.utils.exceptions import InvalidFileException
+from openpyxl.worksheet.worksheet import Worksheet as ExcelWorksheet
 import requests
-from configparser import RawConfigParser, NoSectionError, NoOptionError
-from tkinter import filedialog, messagebox
 
 import constants as c
 import selenium_youtube
@@ -24,19 +24,19 @@ def get_excel_workbook(path: str) -> Workbook:
     except InvalidFileException as e:
         raise InvalidFileException("Invalid file extension. Please make sure you your excel file has one of the supported extensions (.xlsx, .xlsm, .xltx, or .xltm) in the settings.") from e
     except FileNotFoundError as e:
-        raise FileNotFoundError("Excel file not found. Please make sure you have set a valid excel file path in the settings.")
+        raise FileNotFoundError("Excel file not found. Please make sure you have set a valid excel file path in the settings.") from e
 
     return workbook
 
 def insert_row_to_excel_sheet(workbook: Workbook, path: str, row: int, values: list) -> None:
     sheet: ExcelWorksheet = workbook.active
-    
+
     if sheet is None:
         raise FileNotFoundError("Excel sheet not found. Please make sure your excel workbook contains atleast 1 sheet.")
 
-    sheet.insert_rows(row)
+    sheet.insert_rows(row) # Inserts empty row
 
-    sheet._current_row = row - 1
+    sheet._current_row = row - 1 # Sets writer's final row to row above, so appended values ago to row
     sheet.append(values)
 
     workbook.save(path)
@@ -46,7 +46,7 @@ def append_row_to_excel_sheet(workbook: Workbook, path: str, values: list) -> No
 
     if sheet is None:
         raise FileNotFoundError("Excel sheet not found. Please make sure your excel workbook contains atleast 1 sheet.")
-    
+
     sheet.append(values)
 
     workbook.save(path)
@@ -69,12 +69,6 @@ def get_google_sheet(name: str) -> Spreadsheet:
         raise SpreadsheetNotFound("Spreadsheet not found. Please make sure you have set a valid spreadsheet name in the settings.") from e
 
     return sheet
-
-def get_latest_match_id() -> str:
-    return get_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR)
-    
-def update_latest_match_id(match_id: str) -> None:
-    edit_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR, match_id)
 
 def manage_henrikdev_api_errors(status_code: int) -> Literal[True]:
     match status_code:
@@ -102,7 +96,7 @@ def manage_henrikdev_api_errors(status_code: int) -> Literal[True]:
             raise c.APIError(f"An error ({status_code}) has occured. Please try again.")
 
 def find_puuid(name: str, tag: str) -> str:
-    request = requests.get(c.ACCOUNT_BY_NAME_URL(name, tag)).json()
+    request = requests.get(c.ACCOUNT_BY_NAME_URL(name, tag), timeout=c.TIMEOUT).json()
 
     manage_henrikdev_api_errors(request["status"])
 
@@ -113,20 +107,22 @@ def get_matches(puuid: str, affinity: c.Affinity, size: int=10) -> list:
 
     manage_henrikdev_api_errors(request["status"])
 
-    return request["data"]
+    matches = request["data"]
+    matches.reverse() # Reverses from descending to ascending
+
+    return matches
 
 def get_new_matches(puuid: str, affinity: c.Affinity, latest_match_id: str) -> list:
-    index = 0
+    new_matches = []
 
-    for index, match in enumerate(matches := get_matches(puuid, affinity)):
+    for match in reversed(get_matches(puuid, affinity)):
         if match["metadata"]["matchid"] == latest_match_id:
-            new_matches = matches[:index]
-            new_matches.reverse()
+            break
 
-            return new_matches
+        new_matches.append(match)
 
-    matches.reverse()
-    return matches
+    new_matches.reverse() # Reverses from descending to ascending
+    return new_matches
 
 def get_mmr_changes(puuid: str, affinity: c.Affinity, size: int) -> list:
     request = requests.get(c.MMR_HISTORY_URL(puuid, affinity), {"size": size}, timeout=c.TIMEOUT).json()
@@ -134,13 +130,13 @@ def get_mmr_changes(puuid: str, affinity: c.Affinity, size: int) -> list:
     manage_henrikdev_api_errors(request["status"])
 
     mmr_changes = [match["last_mmr_change"] for match in request["data"]]
-    mmr_changes.reverse()
+    mmr_changes.reverse() # Reverses from descending to ascending
 
     return mmr_changes
 
 def convert_valorant_date(unformatted_date: str) -> datetime:
     datetime_obj = datetime.strptime(unformatted_date, c.VALORANT_DATE_FORMAT)
-    return datetime_obj - timedelta(minutes=57)
+    return datetime_obj - timedelta(minutes=57) # Takes away delay time (≈57 min)
 
 def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str, str | int]:
     meta = match_info["metadata"]
@@ -166,21 +162,22 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
                             "assists": stats["assists"],
                             "headshot_percentage": headshot_percentage,
                             "average_damage_per_round": average_damage_per_round}
+    
+    link = ""
 
     if get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True):
         default_number_of_threads = get_setting(*c.DEFAULT_NUMBER_OF_THREADS, integer=True)
         max_videos_simultaneously = get_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR, integer=True)
 
+        # Waits for number of videos uploading to reach setting
         wait_until_number_of_threads_is(default_number_of_threads + (max_videos_simultaneously - 1), c.UPLOAD_POLL_FREQUENCY)
 
         try:
-            formatted_match_info["video_link"] = upload_video(formatted_match_info, date_started_datetime)
+            link = upload_video(formatted_match_info, date_started_datetime)
         except (FileNotFoundError, c.VideoUploadError) as e:
             print(f"{e} Skipping upload...")
 
-            formatted_match_info["video_link"] = ""
-    else:
-        formatted_match_info["video_link"] = ""
+    formatted_match_info["video_link"] = link
 
     return formatted_match_info
 
@@ -202,17 +199,17 @@ def upload_video(match_info: dict[str, str | int], date_started_datetime: dateti
         try:
             video_path = autofind_video_path(date_started_datetime)
         except FileNotFoundError:
-            video_path = input_file_path(f"Auto-find could not find the video, open video for '{title}'")
+            video_path = input_file_path(f"Autofind could not find the video, open video for '{title}'")
     else:
         video_path = input_file_path(f"Open video for '{title}'")
-    
-    
+
+
     if video_path:
         print(f"Starting upload of video '{title}'...")
 
         attempts = 3
 
-        while True:
+        while attempts > 0:
             try:                
                 video_link = selenium_youtube.upload_video(firefox_profile_path,
                                                 video_path,
@@ -220,8 +217,8 @@ def upload_video(match_info: dict[str, str | int], date_started_datetime: dateti
                                                 visibility=visibility,
                                                 background=background)
             except FileNotFoundError as e:
-                raise c.FirefoxProfileNotFoundError("Firefox profile not found. Please make sure you have set a valid firefox profile path in the settings.")
-            except Exception:
+                raise c.FirefoxProfileNotFoundError("Firefox profile not found. Please make sure you have set a valid firefox profile path in the settings.") from e
+            except Exception as e:
                 """
                 WIP: Allow user to decide whether to reupload video.
 
@@ -232,19 +229,16 @@ def upload_video(match_info: dict[str, str | int], date_started_datetime: dateti
 
                     break
                 """
-                
-                tries -= 1
 
-                if tries > 0:
-                    print(f"Video '{title}' failed to upload. Retrying ({attempts} attempts left)...")
-                else:
-                    raise c.VideoUploadError(f"Video '{title}' failed to upload.")
+                attempts -= 1
+
+                print(f"Video '{title}' failed to upload. Retrying ({attempts} attempts left)...")
             else:
-                break
-    else:
-        raise FileNotFoundError(f"No video path found for '{title}'.")
-    
-    return video_link
+                return video_link
+            
+        raise c.VideoUploadError(f"Video '{title}' failed to upload.") from e
+
+    raise FileNotFoundError(f"No video path found for '{title}'.")
 
 def input_messagebox_yes_or_no(title: str, message: str) -> bool:
     msgbox = messagebox.askquestion(title, message)
@@ -261,24 +255,26 @@ def compare_datetimes_lazily(a: datetime, b: datetime) -> bool:
 
     return a.replace(**t_kwargs) == b.replace(**t_kwargs)
 
-def autofind_video_path(match_datetime: datetime) -> str:
+def autofind_video_path(match_start_datetime: datetime) -> str:
     recording_start_delay = get_setting(*c.RECORDING_START_DELAY_SETTING_LOCATOR, floatp=True)
-    match_datetime += timedelta(seconds=recording_start_delay)
+    match_start_datetime += timedelta(seconds=recording_start_delay)
 
     directory = get_setting(*c.VIDEO_DIRECTORY_SETTING_LOCATOR)
     filename_format = get_setting(*c.FILENAME_FORMAT_SETTING_LOCATOR)
 
     try:
         for filename in reversed(listdir(directory)):
+            # Checks if filename follows format setting
             try:
                 video_datetime = datetime.strptime(filename, filename_format)
             except ValueError:
                 continue
-
-            if compare_datetimes_lazily(video_datetime, match_datetime) or compare_datetimes_lazily(video_datetime, (match_datetime - timedelta(minutes=1))):
+            
+            # Checks if datetime from filename matches
+            if compare_datetimes_lazily(video_datetime, match_start_datetime) or compare_datetimes_lazily(video_datetime, (match_start_datetime - timedelta(minutes=1))):
                 return f"{directory}/{filename}"
-    except FileNotFoundError:
-        raise c.VideoDirectoryNotFoundError("Video directory not found. Please make sure you have set a valid video directory in the settings.")
+    except FileNotFoundError as e:
+        raise c.VideoDirectoryNotFoundError("Video directory not found. Please make sure you have set a valid video directory in the settings.") from e
 
     raise FileNotFoundError
 
@@ -288,50 +284,50 @@ def format_video_title(formatted_match_info: dict) -> str:
 def get_setting(section: str, name: str, integer: bool=False, floatp: bool=False, boolean: bool=False) -> str | int | float | bool:
     config = RawConfigParser()
     files = config.read(c.SETTINGS_FILE_PATH)
-    
-    if files == []:
+
+    if not files:
         make_default_settings_file(c.DEFAULT_SETTINGS)
 
         raise c.InvalidSettingsError("Settings file not found. A new settings file with the default settings has been created.")
 
     c_kwargs = {"section": section, "option": name}
-    
+
     try:
         if integer:
             return config.getint(**c_kwargs)
-        elif floatp:
+        if floatp:
             return config.getfloat(**c_kwargs)
-        elif boolean:
+        if boolean:
             return config.getboolean(**c_kwargs)
-        else:
-            return config.get(**c_kwargs)
+
+        return config.get(**c_kwargs)
     except (NoSectionError, NoOptionError) as e:
         raise c.InvalidSettingsError(f"'{name}' setting not found. Please check and save your settings.") from e
     except ValueError as e:
         raise c.InvalidSettingsError(f"'{name}' setting is not valid. Please check and save your settings.") from e
-    
-def edit_setting(section: str, name: str, value: str | int | float | bool):
+
+def edit_setting(section: str, name: str, value: str | int | float | bool) -> None:
     config = RawConfigParser()
     files = config.read(c.SETTINGS_FILE_PATH)
 
-    if files == []:
+    if not files:
         make_default_settings_file(c.DEFAULT_SETTINGS)
 
         raise c.InvalidSettingsError("Settings file not found. A new settings file with the default settings has been created.")
 
     config.set(section, name, value)
 
-    with open(c.SETTINGS_FILE_PATH, "w") as file:
+    with open(c.SETTINGS_FILE_PATH, "w", encoding="utf-8") as file:
         config.write(file)
 
 def make_default_settings_file(settings: dict[str, dict[str, str | int | float | bool]]) -> None:
     config = RawConfigParser()
 
     for section, section_settings in settings.items():
-            config[section] = section_settings
+        config[section] = section_settings
 
-    with open(c.SETTINGS_FILE_PATH, "w") as file:
+    with open(c.SETTINGS_FILE_PATH, "w", encoding="utf-8") as file:
         config.write(file)
 
-def get_key_from_value(dictionary: dict, value):
+def get_key_from_value(dictionary: dict, value: Any) -> Any:
     return list(dictionary.keys())[list(dictionary.values()).index(value)]

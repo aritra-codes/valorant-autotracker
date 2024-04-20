@@ -1,5 +1,6 @@
-from selenium.webdriver.common.by import By
 from enum import Enum
+
+from selenium.webdriver.common.by import By
 
 # Custom errors
 class APIError(Exception):
@@ -15,6 +16,7 @@ class VideoDirectoryNotFoundError(Exception):
 class InvalidSettingsError(Exception):
     pass
 
+
 # Valorant
 class Affinity(Enum):
     eu = "eu"
@@ -23,6 +25,7 @@ class Affinity(Enum):
     br = "br"
     ap = "ap"
     kr = "kr"
+
 
 # HenrikDev-API
 VALORANT_API_DOMAIN = "https://api.henrikdev.xyz/valorant"
@@ -38,10 +41,12 @@ VALORANT_DATE_FORMAT = r"%A, %B %d, %Y %I:%M %p"
 MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
           'August', 'September', 'October', 'November', 'December']
 
+
 # Google Sheets
 SCOPE = scope = ['https://www.googleapis.com/auth/spreadsheets',
                  "https://www.googleapis.com/auth/drive.file",
                  "https://www.googleapis.com/auth/drive"]
+
 
 # Selenium
 TIMEOUT = 60
@@ -61,6 +66,7 @@ def VISIBILITY_RADIO_LOCATOR(visibility: Visibility) -> tuple[str, str]:
     return (By.XPATH, f'//tp-yt-paper-radio-button[@name="{visibility.value}"]')
 UPLOAD_PROGRESS_LOCATOR = (By.XPATH, '//span[@class="progress-label style-scope ytcp-video-upload-progress"]')
 LINK_ANCHOR_LOCATOR = (By.XPATH, '//a[@class="style-scope ytcp-video-info"]')
+
 
 # Settings
 SETTINGS_FILE_PATH = "settings.ini"
@@ -126,7 +132,35 @@ DEFAULT_SETTINGS = {
     }
 }
 
+
 # UI
+DEFAULT_COLOR_THEME = "dark-blue"
+DEFAULT_FONT = ("Calibri", 14)
+
+APP_TITLE = "Valorant AutoTracker"
+SETTINGS_TITLE = "Settings"
+SPREADSHEET_FORMAT_SETTINGS_TITLE = "Settings (Spreadsheet Format)"
+
+MAIN_WINDOW_RESOLUTION = "1000x700"
+SETTINGS_WINDOW_RESOLUTION = "820x660"
+SPREADSHEET_FORMAT_SETTINGS_WINDOW_RESOLUTION = "500x680"
+
+LOGO_IMAGE_PATH = "logo.ico"
+IMAGES_FOLDER_PATH = "images"
+QUESTION_IMAGE_PATH = {"light": f"{IMAGES_FOLDER_PATH}/question_mark.png",
+                       "dark": f"{IMAGES_FOLDER_PATH}/question_mark_dark.png"}
+FOLDER_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/folder.png"
+FIND_IMAGE_PATH = {"light": f"{IMAGES_FOLDER_PATH}/find.png",
+                   "dark": f"{IMAGES_FOLDER_PATH}/find_dark.png"}
+SAVE_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/save_file.png"
+RESET_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/reset.png"
+RUN_IMAGE_PATH = {"light": f"{IMAGES_FOLDER_PATH}/run.png",
+                  "dark": f"{IMAGES_FOLDER_PATH}/run_dark.png"}
+SETTINGS_IMAGE_PATH = {"light": f"{IMAGES_FOLDER_PATH}/settings.png",
+                       "dark": f"{IMAGES_FOLDER_PATH}/settings_dark.png"}
+PAYPAL_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/paypal.png"
+
+
 RECORDING_CLIENT_FILENAME_FORMATS = {
     "": "",
     "custom": "",

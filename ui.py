@@ -460,8 +460,8 @@ class SettingsWindow(Toplevel):
 
         self.check_info() # When settings window set up, check_info function to input current settings
 
-    def check_info(self):
-        """Collect all settings"""
+    def update_info(self):
+        """Updates the interal class variables that contain the setting values"""
         self.autoupload_video = h.get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True)
         self.firefox_profile_dir = h.get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
         self.bg_process = h.get_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, boolean=True)
@@ -482,18 +482,11 @@ class SettingsWindow(Toplevel):
         self.excel_file_path = h.get_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR)
         self.write_to_googlesheets = h.get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, boolean=True)
 
+    def check_info(self):
+        """Collect all settings"""
+        self.update_info()
+
         # Insert vals into all entries, dropdowns etc.
-        if self.max_vids:
-            self.maxvids_sim_entry.delete(0,END)
-            self.maxvids_sim_entry.insert(END, self.max_vids)
-
-        if self.autoupload_video:
-            self.switch_var.set("on")
-            self.switch1()
-        else:
-            self.switch_var.set("off")
-            self.switch1()
-
         if self.firefox_profile_dir:
             self.firefox_entry.delete(0,END)
             self.firefox_entry.insert(END, self.firefox_profile_dir)
@@ -503,15 +496,19 @@ class SettingsWindow(Toplevel):
         else:
             self.background_process_var.set("off")
 
+        if self.max_vids:
+            self.maxvids_sim_entry.delete(0,END)
+            self.maxvids_sim_entry.insert(END, self.max_vids)
+
         if self.visibility:
             self.visibility_dropdown.set(c.VIDEO_VISIBILITY_OPTIONS[self.visibility])
 
-        if self.autoselect_video:
-            self.switch_var2.set("on")
-            self.switch2()
+        # The switch is done after as if it is off it will disable all objects under it and not info to be inserted
+        if self.autoupload_video:
+            self.switch_var.set("on")
         else:
-            self.switch_var2.set("off")
-            self.switch2()
+            self.switch_var.set("off")
+        self.switch1()
 
         if self.video_directory:
             self.viddir_entry.delete(0,END)
@@ -534,6 +531,13 @@ class SettingsWindow(Toplevel):
             self.slider_value.insert(END, self.recording_delay)
             self.recording_delay_slider.set(int(self.recording_delay))
 
+        # The switch is done after as if it is off it will disable all objects under it and not info to be inserted
+        if self.autoselect_video:
+            self.switch_var2.set("on")
+        else:
+            self.switch_var2.set("off")
+        self.switch2()
+
         if self.puuid:
             self.puuid_entry.delete(0,END)
             self.puuid_entry.insert(END, self.puuid)
@@ -545,6 +549,11 @@ class SettingsWindow(Toplevel):
             self.latest_matchid_entry.delete(0,END)
             self.latest_matchid_entry.insert(END, self.latest_match)
 
+        if self.spreadsheet_row2:
+            self.insert_r2_switch_var.set("on")
+        else:
+            self.insert_r2_switch_var.set("off")
+
         if self.spreadsheet_name:
             self.spreadsheet_name_entry.delete(0,END)
             self.spreadsheet_name_entry.insert(END, self.spreadsheet_name)
@@ -553,28 +562,21 @@ class SettingsWindow(Toplevel):
             self.google_service_key_entry.delete(0,END)
             self.google_service_key_entry.insert(END, self.service_account_json)
 
-        if self.spreadsheet_row2:
-            self.insert_r2_switch_var.set("on")
+        if self.write_to_googlesheets:
+            self.switch_var_spreadsheet.set("on")
         else:
-            self.insert_r2_switch_var.set("off")
-
-        if self.write_to_excel:
-            self.excel_switch_var.set("on")
-            self.excel_switch()
-        else:
-            self.excel_switch_var.set("off")
-            self.excel_switch()
+            self.switch_var_spreadsheet.set("off")
+        self.googlesheet_switch()
 
         if self.excel_file_path:
             self.excel_file_path_dir.delete(0,END)
             self.excel_file_path_dir.insert(END, self.excel_file_path)
 
-        if self.write_to_googlesheets:
-            self.switch_var_spreadsheet.set("on")
-            self.googlesheet_switch()
+        if self.write_to_excel:
+            self.excel_switch_var.set("on")
         else:
-            self.switch_var_spreadsheet.set("off")
-            self.googlesheet_switch()
+            self.excel_switch_var.set("off")
+        self.excel_switch()
 
     def switch1(self):
         """Auto-upload setting switch"""
@@ -912,6 +914,7 @@ class SettingsWindow(Toplevel):
         elif self.write_to_excel:
             h.edit_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, False)
 
+        self.update_info()
         messagebox.showinfo(title="Success", message="Settings have been saved.")
 
     def reset_function(self):

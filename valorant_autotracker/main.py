@@ -3,7 +3,7 @@ import threading
 
 from selenium_youtube.constants import UPLOAD_POLL_FREQUENCY
 from utils.threads import wait_until_number_of_threads_is
-from utils.settings import get_setting, edit_setting
+from utils.settings import get_setting, edit_setting, delete_setting
 import valorant_autotracker.constants as c
 import valorant_autotracker.helpers as h
 
@@ -76,12 +76,12 @@ def main() -> None:
         # Waits for all uploads to finish
         default_number_of_threads = get_setting(*c.DEFAULT_NUMBER_OF_THREADS, integer=True)
         wait_until_number_of_threads_is(default_number_of_threads, UPLOAD_POLL_FREQUENCY)
-                                          
-        edit_setting(*c.DEFAULT_NUMBER_OF_THREADS, None) # Deletes temporary setting
 
         print("All tasks done.")
     else:
         print("No new matches.")
+
+    delete_setting(*c.DEFAULT_NUMBER_OF_THREADS) # Deletes temporary setting
 
     print("Closing script...")
 

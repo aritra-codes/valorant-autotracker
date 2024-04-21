@@ -7,7 +7,7 @@ SETTINGS_FILE_PATH = "settings.ini"
 class InvalidSettingsError(Exception):
     pass
 
-def get_setting(section: str, name: str, integer: bool=False, floatp: bool=False, boolean: bool=False) -> str | int | float | bool:
+def init_config() -> RawConfigParser:
     config = RawConfigParser()
     files = config.read(SETTINGS_FILE_PATH)
 
@@ -15,6 +15,11 @@ def get_setting(section: str, name: str, integer: bool=False, floatp: bool=False
         make_default_settings_file(DEFAULT_SETTINGS)
 
         raise InvalidSettingsError("Settings file not found. A new settings file with the default settings has been created.")
+    
+    return config
+
+def get_setting(section: str, name: str, integer: bool=False, floatp: bool=False, boolean: bool=False) -> str | int | float | bool:
+    config = init_config()
 
     c_kwargs = {"section": section, "option": name}
 
@@ -32,16 +37,18 @@ def get_setting(section: str, name: str, integer: bool=False, floatp: bool=False
     except ValueError as e:
         raise InvalidSettingsError(f"'{name}' setting is not valid. Please check and save your settings.") from e
 
-def edit_setting(section: str, name: str, value: str | int | float | bool | None) -> None:
-    config = RawConfigParser()
-    files = config.read(SETTINGS_FILE_PATH)
-
-    if not files:
-        make_default_settings_file(DEFAULT_SETTINGS)
-
-        raise InvalidSettingsError("Settings file not found. A new settings file with the default settings has been created.")
+def edit_setting(section: str, name: str, value: str | int | float | bool) -> None:
+    config = init_config()
 
     config.set(section, name, value)
+
+    with open(SETTINGS_FILE_PATH, "w", encoding="utf-8") as file:
+        config.write(file)
+
+def delete_setting(section: str, name: str) -> None:
+    config = init_config()
+    
+    config.remove_option(section, name)
 
     with open(SETTINGS_FILE_PATH, "w", encoding="utf-8") as file:
         config.write(file)

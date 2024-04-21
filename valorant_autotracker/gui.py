@@ -14,7 +14,7 @@ from utils.misc import get_key_from_value
 from utils.settings import get_setting, edit_setting
 import valorant_autotracker.constants as c
 import valorant_autotracker.helpers as h
-from valorant_autotracker.main import main
+from valorant_autotracker.main import main as script
 
 set_appearance_mode("light") # Set theme
 set_default_color_theme(c.DEFAULT_COLOR_THEME) # Set colour theme for buttons etc.
@@ -81,7 +81,7 @@ class App(CTk):
         # Create a button to run the main script
         self.run = CTkButton(self.frame, text="Run", width=200,
                              height=40, image=self.run_image,
-                             font=default_font, command=self.thread_main)
+                             font=default_font, command=self.thread_script)
         self.run.pack(pady=(20,0))
 
         # Create a button to open settings window (class)
@@ -108,16 +108,16 @@ class App(CTk):
 
         PrintLogger(self.output_entry) # Ref to entry box for console output
 
-    def thread_main(self):
-        def run_main():
+    def thread_script(self):
+        def run_script():
             self.run.configure(text="Running...", fg_color="#325882", state="disabled")
             try:
-                main()
+                script()
             except Exception as e:
                 print(e)
             self.run.configure(text="Run", fg_color="#3A7EBF",state="normal")
 
-        thread = threading.Thread(target=run_main)
+        thread = threading.Thread(target=run_script)
         thread.start()
 
     def open_settings(self):
@@ -1028,5 +1028,8 @@ class SpreadsheetFormat(Toplevel):
         if format_settings_change != format_setting:
             edit_setting(*c.SPREADSHEET_FORMAT_LOCATOR, format_settings_change)
 
-if __name__ == "__main__":
+def main():
     App().mainloop()
+
+if __name__ == "__main__":
+    main()

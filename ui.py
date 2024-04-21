@@ -2,6 +2,7 @@ import os
 import sys
 import threading
 from tkinter import Toplevel, Label, messagebox, scrolledtext
+import webbrowser
 
 from customtkinter import (set_appearance_mode, set_default_color_theme,
                            CTk, CTkLabel, CTkEntry, CTkButton, CTkFrame,
@@ -90,7 +91,7 @@ class App(CTk):
         # Create a Github follow button
         self.github = CTkButton(self.frame, text="Follow us on Github", width=200,
                                          height=40, image=self.github_image,
-                                         font=default_font, command=self.github_function)
+                                         font=default_font, command=self.open_github_profiles)
         self.github.pack(pady=(10,0))
 
         # Entry box displays console output
@@ -121,8 +122,9 @@ class App(CTk):
         settings_window = SettingsWindow()
         settings_window.mainloop()
 
-    def github_function(self):
-        pass # ADD FUNCTION HERE
+    def open_github_profiles(self):
+        webbrowser.open("https://github.com/lmdrums")
+        webbrowser.open("https://github.com/Aritra587")
 
 class HoverButton(CTkButton):
     """Class for hover button (question mark)"""
@@ -889,9 +891,7 @@ class SettingsWindow(Toplevel):
                 messagebox.showerror(title="Invalid Input",
                                         message="Please enter a valid spreadsheet name (Google Sheets).")
                 return
-            print(spreadsheet_name)
             if spreadsheet_name != self.spreadsheet_name:
-                print(spreadsheet_name)
                 h.edit_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR, spreadsheet_name)
 
             if not os.path.exists(service_account_key := self.google_service_key_entry.get()):

@@ -1,7 +1,10 @@
-<div style="text-align: center;">
-    <img src="doc_images/logo.png" alt="drawing" height="200"/>
-    <h1>Valorant AutoTracker</h1>
-</div>
+<h1 align="center">
+  <br>
+  <img src="doc_images/logo.png" alt="Valorant AutoTracker logo" width="200">
+  <br>
+  Valorant AutoTracker
+  <br>
+</h1>
 
 `Valorant AutoTracker` uploads all your Valorant matches to YouTube and puts them on a spreadsheet in the click of a button! 🔘👆
 

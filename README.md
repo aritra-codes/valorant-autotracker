@@ -14,11 +14,11 @@
 
 Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported (as Valorant does not support other OSes).
 
-You must have [python 3.12 or higher](https://www.python.org/downloads/windows/) installed.
+You must have [Python 3.12 or higher](https://www.python.org/downloads/windows/) installed.
 
 ## Command Prompt Installation
 
-You must have [git](https://git-scm.com/download/win) installed.
+You must have [Git](https://git-scm.com/download/win) installed.
 
 Firstly, clone the repository (alternatively you can download and extract the repo):
 

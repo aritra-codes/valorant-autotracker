@@ -1,6 +1,7 @@
 from enum import Enum
 
-from selenium.webdriver.common.by import By
+from selenium_youtube.constants import Visibility
+
 
 # Custom errors
 class APIError(Exception):
@@ -12,8 +13,6 @@ class VideoUploadError(Exception):
 class InvalidGoogleServiceAccountKeyError(Exception):
     pass
 class VideoDirectoryNotFoundError(Exception):
-    pass
-class InvalidSettingsError(Exception):
     pass
 
 
@@ -29,6 +28,7 @@ class Affinity(Enum):
 
 # HenrikDev-API
 VALORANT_API_DOMAIN = "https://api.henrikdev.xyz/valorant"
+API_REQUEST_TIMEOUT = 60
 def ACCOUNT_BY_NAME_URL(name: str, tag: str) -> str:
     return f"{VALORANT_API_DOMAIN}/v1/account/{"%20".join(name.split())}/{tag}"
 def ACCOUNT_BY_PUUID_URL(puuid: str) -> str:
@@ -47,30 +47,7 @@ SCOPE = scope = ['https://www.googleapis.com/auth/spreadsheets',
                  "https://www.googleapis.com/auth/drive.file",
                  "https://www.googleapis.com/auth/drive"]
 
-
-# Selenium
-TIMEOUT = 60
-UPLOAD_POLL_FREQUENCY = 60
-VIDEO_UPLOAD_LOCATOR = (By.XPATH, '//*[@id="content"]/input')
-TITLE_FIELD_LOCATOR = (By.XPATH, '//ytcp-video-title//div[@id="textbox"]')
-DESCRIPTION_FIELD_LOCATOR = (By.XPATH, '//ytcp-video-description//div[@id="textbox"]')
-NOT_FOR_KIDS_RADIO_LOCATOR = (By.XPATH, '//tp-yt-paper-radio-button[@name="VIDEO_MADE_FOR_KIDS_NOT_MFK"]')
-NEXT_BUTTON_LOCATOR = (By.ID, "next-button")
-SAVE_BUTTON_LOCATOR = (By.ID, "done-button")
-CLOSE_BUTTON_LOCATOR = (By.ID, "close-button")
-class Visibility(Enum):
-    public = "PUBLIC"
-    private = "PRIVATE"
-    unlisted = "UNLISTED"
-def VISIBILITY_RADIO_LOCATOR(visibility: Visibility) -> tuple[str, str]:
-    return (By.XPATH, f'//tp-yt-paper-radio-button[@name="{visibility.value}"]')
-UPLOAD_PROGRESS_LOCATOR = (By.XPATH, '//span[@class="progress-label style-scope ytcp-video-upload-progress"]')
-LINK_ANCHOR_LOCATOR = (By.XPATH, '//a[@class="style-scope ytcp-video-info"]')
-
-
 # Settings
-SETTINGS_FILE_PATH = "settings.ini"
-
 GENERAL_SETTING_SECTION_NAME = "GENERAL"
 DEFAULT_NUMBER_OF_THREADS = (GENERAL_SETTING_SECTION_NAME, "default_number_of_threads")
 
@@ -145,8 +122,8 @@ MAIN_WINDOW_RESOLUTION = "1000x700"
 SETTINGS_WINDOW_RESOLUTION = "820x660"
 SPREADSHEET_FORMAT_SETTINGS_WINDOW_RESOLUTION = "500x680"
 
-LOGO_IMAGE_PATH = "logo.ico"
-IMAGES_FOLDER_PATH = "images"
+IMAGES_FOLDER_PATH = "valorant_autotracker/images"
+LOGO_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/logo.ico"
 QUESTION_IMAGE_PATH = {"light": f"{IMAGES_FOLDER_PATH}/question_mark.png",
                        "dark": f"{IMAGES_FOLDER_PATH}/question_mark_dark.png"}
 FOLDER_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/folder.png"

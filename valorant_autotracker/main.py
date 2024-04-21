@@ -1,43 +1,46 @@
 import sys
 import threading
 
-import constants as c
-import helpers as h
+from selenium_youtube.constants import UPLOAD_POLL_FREQUENCY
+from utils.threads import wait_until_number_of_threads_is
+from utils.settings import get_setting, edit_setting
+import valorant_autotracker.constants as c
+import valorant_autotracker.helpers as h
 
 def main() -> None:
     print("Starting script...")
 
-    h.edit_setting(*c.DEFAULT_NUMBER_OF_THREADS, threading.active_count())
+    edit_setting(*c.DEFAULT_NUMBER_OF_THREADS, threading.active_count()) # Creates temporary setting
 
-    puuid = h.get_setting(*c.PUUID_SETTING_LOCATOR)
+    puuid = get_setting(*c.PUUID_SETTING_LOCATOR)
 
     try:
-        affinity = c.Affinity[h.get_setting(*c.AFFINITY_SETTING_LOCATOR)]
+        affinity = c.Affinity[get_setting(*c.AFFINITY_SETTING_LOCATOR)]
     except KeyError as e:
         raise c.InvalidSettingsError("'region' setting is not valid. Please check and save your settings.") from e
 
-    latest_match_id = h.get_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR)
+    latest_match_id = get_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR)
     matches = h.get_new_matches(puuid, affinity, latest_match_id)
 
     if matches:
-        write_to_google_sheets = h.get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR,
+        write_to_google_sheets = get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR,
                                                boolean=True)
-        write_to_excel_file = h.get_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR,
+        write_to_excel_file = get_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR,
                                             boolean=True)
 
         if write_to_google_sheets:
-            google_sheets_sheet_name = h.get_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR)
+            google_sheets_sheet_name = get_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR)
             google_sheets_sheet = h.get_google_sheet(google_sheets_sheet_name).sheet1
 
             google_sheets_kwargs = {"value_input_option": 'USER_ENTERED'}
         if write_to_excel_file:
-            excel_file_path = h.get_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR)
+            excel_file_path = get_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR)
             excel_workbook = h.get_excel_workbook(excel_file_path)
 
             excel_kwargs = {"workbook": excel_workbook, "path": excel_file_path}
 
-        insert_to_row_2 = h.get_setting(*c.INSERT_TO_ROW_2_LOCATOR, boolean=True)
-        spreadsheet_format = h.get_setting(*c.SPREADSHEET_FORMAT_LOCATOR).split(",")
+        insert_to_row_2 = get_setting(*c.INSERT_TO_ROW_2_LOCATOR, boolean=True)
+        spreadsheet_format = get_setting(*c.SPREADSHEET_FORMAT_LOCATOR).split(",")
 
         mmr_changes = h.get_mmr_changes(puuid, affinity, len(matches))
 
@@ -68,11 +71,13 @@ def main() -> None:
 
             print(f"Added match '{h.format_video_title(match_info)}' to spreadsheet(s).")
 
-            h.edit_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR, match_info["match_id"])
+            edit_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR, match_info["match_id"])
 
         # Waits for all uploads to finish
-        default_number_of_threads = h.get_setting(*c.DEFAULT_NUMBER_OF_THREADS, integer=True)
-        h.wait_until_number_of_threads_is(default_number_of_threads, c.UPLOAD_POLL_FREQUENCY)
+        default_number_of_threads = get_setting(*c.DEFAULT_NUMBER_OF_THREADS, integer=True)
+        wait_until_number_of_threads_is(default_number_of_threads, UPLOAD_POLL_FREQUENCY)
+                                          
+        edit_setting(*c.DEFAULT_NUMBER_OF_THREADS, None) # Deletes temporary setting
 
         print("All tasks done.")
     else:

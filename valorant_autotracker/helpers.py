@@ -1,10 +1,8 @@
-from configparser import RawConfigParser, NoSectionError, NoOptionError
+
 from datetime import datetime, timedelta
 from os import listdir
-import threading
-from time import sleep
 from tkinter import filedialog, messagebox
-from typing import Literal, Any
+from typing import Literal
 
 import gspread
 from gspread.exceptions import SpreadsheetNotFound
@@ -15,8 +13,11 @@ from openpyxl.utils.exceptions import InvalidFileException
 from openpyxl.worksheet.worksheet import Worksheet as ExcelWorksheet
 import requests
 
-import constants as c
-import selenium_youtube
+from selenium_youtube.constants import UPLOAD_POLL_FREQUENCY
+import selenium_youtube.upload as selytupload
+from utils.threads import wait_until_number_of_threads_is
+from utils.settings import get_setting
+import valorant_autotracker.constants as c
 
 def get_excel_workbook(path: str) -> Workbook:
     try:
@@ -96,14 +97,14 @@ def manage_henrikdev_api_errors(status_code: int) -> Literal[True]:
             raise c.APIError(f"An error ({status_code}) has occured. Please try again.")
 
 def find_puuid(name: str, tag: str) -> str:
-    request = requests.get(c.ACCOUNT_BY_NAME_URL(name, tag), timeout=c.TIMEOUT).json()
+    request = requests.get(c.ACCOUNT_BY_NAME_URL(name, tag), timeout=c.API_REQUEST_TIMEOUT).json()
 
     manage_henrikdev_api_errors(request["status"])
 
     return request["data"]["puuid"]
 
 def get_matches(puuid: str, affinity: c.Affinity, size: int=10) -> list:
-    request = requests.get(c.MATCHES_URL(puuid, affinity), {"mode": "competitive", "size": size}, timeout=c.TIMEOUT).json()
+    request = requests.get(c.MATCHES_URL(puuid, affinity), {"mode": "competitive", "size": size}, timeout=c.API_REQUEST_TIMEOUT).json()
 
     manage_henrikdev_api_errors(request["status"])
 
@@ -125,7 +126,7 @@ def get_new_matches(puuid: str, affinity: c.Affinity, latest_match_id: str) -> l
     return new_matches
 
 def get_mmr_changes(puuid: str, affinity: c.Affinity, size: int) -> list:
-    request = requests.get(c.MMR_HISTORY_URL(puuid, affinity), {"size": size}, timeout=c.TIMEOUT).json()
+    request = requests.get(c.MMR_HISTORY_URL(puuid, affinity), {"size": size}, timeout=c.API_REQUEST_TIMEOUT).json()
 
     manage_henrikdev_api_errors(request["status"])
 
@@ -170,7 +171,7 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
         max_videos_simultaneously = get_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR, integer=True)
 
         # Waits for number of videos uploading to reach setting
-        wait_until_number_of_threads_is(default_number_of_threads + (max_videos_simultaneously - 1), c.UPLOAD_POLL_FREQUENCY)
+        wait_until_number_of_threads_is(default_number_of_threads + (max_videos_simultaneously - 1), UPLOAD_POLL_FREQUENCY)
 
         try:
             link = upload_video(formatted_match_info, date_started_datetime)
@@ -180,10 +181,6 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
     formatted_match_info["video_link"] = link
 
     return formatted_match_info
-
-def wait_until_number_of_threads_is(threads: int, polling_frequency: float):
-    while (threading.active_count()) > threads:
-        sleep(polling_frequency)
 
 def upload_video(match_info: dict[str, str | int], date_started_datetime: datetime) -> str:
     firefox_profile_path = get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
@@ -211,7 +208,7 @@ def upload_video(match_info: dict[str, str | int], date_started_datetime: dateti
 
         while attempts > 0:
             try:
-                video_link = selenium_youtube.upload_video(firefox_profile_path,
+                video_link = selytupload.upload_video(firefox_profile_path,
                                                 video_path,
                                                 title,
                                                 visibility=visibility,
@@ -280,54 +277,3 @@ def autofind_video_path(match_start_datetime: datetime) -> str:
 
 def format_video_title(formatted_match_info: dict) -> str:
     return f"VALORANT {formatted_match_info["date_started"]} {formatted_match_info["map"]} {formatted_match_info["agent"]} {formatted_match_info["rank"].replace(" ", "")}"
-
-def get_setting(section: str, name: str, integer: bool=False, floatp: bool=False, boolean: bool=False) -> str | int | float | bool:
-    config = RawConfigParser()
-    files = config.read(c.SETTINGS_FILE_PATH)
-
-    if not files:
-        make_default_settings_file(c.DEFAULT_SETTINGS)
-
-        raise c.InvalidSettingsError("Settings file not found. A new settings file with the default settings has been created.")
-
-    c_kwargs = {"section": section, "option": name}
-
-    try:
-        if integer:
-            return config.getint(**c_kwargs)
-        if floatp:
-            return config.getfloat(**c_kwargs)
-        if boolean:
-            return config.getboolean(**c_kwargs)
-
-        return config.get(**c_kwargs)
-    except (NoSectionError, NoOptionError) as e:
-        raise c.InvalidSettingsError(f"'{name}' setting not found. Please check and save your settings.") from e
-    except ValueError as e:
-        raise c.InvalidSettingsError(f"'{name}' setting is not valid. Please check and save your settings.") from e
-
-def edit_setting(section: str, name: str, value: str | int | float | bool) -> None:
-    config = RawConfigParser()
-    files = config.read(c.SETTINGS_FILE_PATH)
-
-    if not files:
-        make_default_settings_file(c.DEFAULT_SETTINGS)
-
-        raise c.InvalidSettingsError("Settings file not found. A new settings file with the default settings has been created.")
-
-    config.set(section, name, value)
-
-    with open(c.SETTINGS_FILE_PATH, "w", encoding="utf-8") as file:
-        config.write(file)
-
-def make_default_settings_file(settings: dict[str, dict[str, str | int | float | bool]]) -> None:
-    config = RawConfigParser()
-
-    for section, section_settings in settings.items():
-        config[section] = section_settings
-
-    with open(c.SETTINGS_FILE_PATH, "w", encoding="utf-8") as file:
-        config.write(file)
-
-def get_key_from_value(dictionary: dict, value: Any) -> Any:
-    return list(dictionary.keys())[list(dictionary.values()).index(value)]

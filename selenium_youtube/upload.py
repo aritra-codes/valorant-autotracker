@@ -9,7 +9,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 
-import constants as c
+import valorant_autotracker.constants as c
 
 def input_to_field(field: WebElement, text: str) -> None:
     field.clear()

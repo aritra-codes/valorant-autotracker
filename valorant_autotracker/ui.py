@@ -10,9 +10,11 @@ from customtkinter import (set_appearance_mode, set_default_color_theme,
                            CTkSlider, CTkOptionMenu, CTkScrollableFrame)
 from PIL import Image
 
-from main import main
-import helpers as h
-import constants as c
+from utils.misc import get_key_from_value
+from utils.settings import get_setting, edit_setting
+import valorant_autotracker.constants as c
+import valorant_autotracker.helpers as h
+from valorant_autotracker.main import main
 
 set_appearance_mode("light") # Set theme
 set_default_color_theme(c.DEFAULT_COLOR_THEME) # Set colour theme for buttons etc.
@@ -467,25 +469,25 @@ class SettingsWindow(Toplevel):
 
     def update_info(self):
         """Updates the interal class variables that contain the setting values"""
-        self.autoupload_video = h.get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True)
-        self.firefox_profile_dir = h.get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
-        self.bg_process = h.get_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, boolean=True)
-        self.max_vids = h.get_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR)
-        self.visibility = h.get_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR)
-        self.autoselect_video = h.get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, boolean=True)
-        self.video_directory = h.get_setting(*c.VIDEO_DIRECTORY_SETTING_LOCATOR)
-        self.recording_client = h.get_setting(*c.RECORDING_CLIENT_SETTING_LOCATOR)
-        self.filename_format = h.get_setting(*c.FILENAME_FORMAT_SETTING_LOCATOR)
-        self.recording_delay = h.get_setting(*c.RECORDING_START_DELAY_SETTING_LOCATOR)
-        self.puuid = h.get_setting(*c.PUUID_SETTING_LOCATOR)
-        self.region = h.get_setting(*c.AFFINITY_SETTING_LOCATOR)
-        self.latest_match = h.get_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR)
-        self.spreadsheet_name = h.get_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR)
-        self.service_account_json = h.get_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR)
-        self.spreadsheet_row2 = h.get_setting(*c.INSERT_TO_ROW_2_LOCATOR, boolean=True)
-        self.write_to_excel = h.get_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, boolean=True)
-        self.excel_file_path = h.get_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR)
-        self.write_to_googlesheets = h.get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, boolean=True)
+        self.autoupload_video = get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True)
+        self.firefox_profile_dir = get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
+        self.bg_process = get_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, boolean=True)
+        self.max_vids = get_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR)
+        self.visibility = get_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR)
+        self.autoselect_video = get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, boolean=True)
+        self.video_directory = get_setting(*c.VIDEO_DIRECTORY_SETTING_LOCATOR)
+        self.recording_client = get_setting(*c.RECORDING_CLIENT_SETTING_LOCATOR)
+        self.filename_format = get_setting(*c.FILENAME_FORMAT_SETTING_LOCATOR)
+        self.recording_delay = get_setting(*c.RECORDING_START_DELAY_SETTING_LOCATOR)
+        self.puuid = get_setting(*c.PUUID_SETTING_LOCATOR)
+        self.region = get_setting(*c.AFFINITY_SETTING_LOCATOR)
+        self.latest_match = get_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR)
+        self.spreadsheet_name = get_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR)
+        self.service_account_json = get_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR)
+        self.spreadsheet_row2 = get_setting(*c.INSERT_TO_ROW_2_LOCATOR, boolean=True)
+        self.write_to_excel = get_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, boolean=True)
+        self.excel_file_path = get_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR)
+        self.write_to_googlesheets = get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, boolean=True)
 
     def insert_info(self):
         """Collect all settings"""
@@ -671,7 +673,7 @@ class SettingsWindow(Toplevel):
             self.filename_format_entry.delete(0,END)
         else:
             self.filename_format_entry.configure(state="normal")
-            recording_client_new = h.get_key_from_value(c.RECORDING_CLIENT_OPTIONS, recording_client)
+            recording_client_new = get_key_from_value(c.RECORDING_CLIENT_OPTIONS, recording_client)
             filename_format = c.RECORDING_CLIENT_FILENAME_FORMATS[recording_client_new]
             self.filename_format_entry.delete(0,END)
             self.filename_format_entry.insert(END, filename_format)
@@ -779,7 +781,7 @@ class SettingsWindow(Toplevel):
         """Saves all new settings"""
         if self.val == "on":
             if not self.autoupload_video:
-                h.edit_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, True)
+                edit_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, True)
 
             if not os.path.exists(firefox_profile_path := self.firefox_entry.get()):
                 messagebox.showerror(title="Invalid File",
@@ -787,18 +789,18 @@ class SettingsWindow(Toplevel):
 
                 return
             if firefox_profile_path != self.firefox_profile_dir:
-                h.edit_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR, firefox_profile_path)
+                edit_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR, firefox_profile_path)
 
             if (visibility := self.visibility_dropdown.get()) != self.visibility:
-                visibility = h.get_key_from_value(c.VIDEO_VISIBILITY_OPTIONS, visibility)
-                h.edit_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR, visibility)
+                visibility = get_key_from_value(c.VIDEO_VISIBILITY_OPTIONS, visibility)
+                edit_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR, visibility)
 
             background_process_setting = self.background_process_switch.get()
             if background_process_setting == "on":
                 if not self.bg_process:
-                    h.edit_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, True)
+                    edit_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, True)
             elif self.bg_process:
-                h.edit_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, False)
+                edit_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, False)
 
             if not (max_vids := self.maxvids_sim_entry.get()):
                 messagebox.showerror(title="Invalid Input", message="Max. Vids Simultaneously: Please enter a valid integer.")
@@ -813,13 +815,13 @@ class SettingsWindow(Toplevel):
                 messagebox.showerror(title="Invalid Input", message="Max. Vids Simultaneously: Please enter an integer above 0.")
                 return
             if max_vids != c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR:
-                h.edit_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR, max_vids)
+                edit_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR, max_vids)
         elif self.autoupload_video:
-            h.edit_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, False)
+            edit_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, False)
 
         if self.val2 == "on":
             if not self.autoselect_video:
-                h.edit_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, True)
+                edit_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, True)
 
             if not os.path.exists(viddir := self.viddir_entry.get()):
                 messagebox.showerror(title="Invalid File",
@@ -827,19 +829,19 @@ class SettingsWindow(Toplevel):
 
                 return
             if viddir != self.video_directory:
-                h.edit_setting(*c.VIDEO_DIRECTORY_SETTING_LOCATOR, viddir)
+                edit_setting(*c.VIDEO_DIRECTORY_SETTING_LOCATOR, viddir)
 
-            recording_client = h.get_key_from_value(c.RECORDING_CLIENT_OPTIONS,
+            recording_client = get_key_from_value(c.RECORDING_CLIENT_OPTIONS,
                                                     self.filename_format_optionmenu.get())
             if recording_client != self.recording_client:
-                h.edit_setting(*c.RECORDING_CLIENT_SETTING_LOCATOR, recording_client)
+                edit_setting(*c.RECORDING_CLIENT_SETTING_LOCATOR, recording_client)
 
             if not (filename_format := self.filename_format_entry.get()):
                 messagebox.showerror(title="Invalid Input",
                                      message="Please enter a valid filename format.")
                 return
             if filename_format != self.filename_format:
-                h.edit_setting(*c.FILENAME_FORMAT_SETTING_LOCATOR, filename_format)
+                edit_setting(*c.FILENAME_FORMAT_SETTING_LOCATOR, filename_format)
 
             if not (recording_delay := self.slider_value.get()):
                 messagebox.showerror(title="Invalid Input",
@@ -853,69 +855,69 @@ class SettingsWindow(Toplevel):
                                      message="Please enter a valid recording delay (must be an integer).")
                 return
             if recording_delay != self.recording_delay:
-                h.edit_setting(*c.RECORDING_START_DELAY_SETTING_LOCATOR, recording_delay)
+                edit_setting(*c.RECORDING_START_DELAY_SETTING_LOCATOR, recording_delay)
         elif self.autoselect_video:
-            h.edit_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, False)
+            edit_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, False)
 
         if not (puuid := self.puuid_entry.get()):
             messagebox.showerror(title="Invalid Input",
                                  message="Please enter a valid PUUID.")
             return
         if puuid != self.puuid:
-            h.edit_setting(*c.PUUID_SETTING_LOCATOR, puuid)
+            edit_setting(*c.PUUID_SETTING_LOCATOR, puuid)
 
-        translated_region = h.get_key_from_value(c.REGION_OPTIONS, self.region_dropdown.get())
+        translated_region = get_key_from_value(c.REGION_OPTIONS, self.region_dropdown.get())
         if translated_region != self.region:
-            h.edit_setting(*c.AFFINITY_SETTING_LOCATOR, translated_region)
+            edit_setting(*c.AFFINITY_SETTING_LOCATOR, translated_region)
 
         if not self.latest_matchid_entry.get():
             messagebox.showerror(title="Invalid Input",
                                  message="Please enter a valid latest match ID.")
             return
         if self.latest_matchid_entry.get() != self.latest_match:
-            h.edit_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR, self.latest_matchid_entry.get())
+            edit_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR, self.latest_matchid_entry.get())
 
         r2_setting = self.insert_r2_switch.get()
         if r2_setting == "on":
             if not self.spreadsheet_row2:
-                h.edit_setting(*c.INSERT_TO_ROW_2_LOCATOR, True)
+                edit_setting(*c.INSERT_TO_ROW_2_LOCATOR, True)
         elif self.spreadsheet_row2:
-            h.edit_setting(*c.INSERT_TO_ROW_2_LOCATOR, False)
+            edit_setting(*c.INSERT_TO_ROW_2_LOCATOR, False)
 
         googlesheets_setting = self.switch_googlesheet.get()
         if googlesheets_setting == "on":
             if not self.write_to_googlesheets:
-                h.edit_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, True)
+                edit_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, True)
 
             if not (spreadsheet_name := self.spreadsheet_name_entry.get()):
                 messagebox.showerror(title="Invalid Input",
                                         message="Please enter a valid spreadsheet name (Google Sheets).")
                 return
             if spreadsheet_name != self.spreadsheet_name:
-                h.edit_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR, spreadsheet_name)
+                edit_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR, spreadsheet_name)
 
             if not os.path.exists(service_account_key := self.google_service_key_entry.get()):
                 messagebox.showerror(title="Invalid Input",
                                         message="Please enter a path to a valid JSON file.")
                 return
             if service_account_key != self.service_account_json:
-                h.edit_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR, service_account_key)
+                edit_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR, service_account_key)
         elif self.write_to_googlesheets:
-            h.edit_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, False)
+            edit_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, False)
 
         excel_setting = self.switch_excel.get()
         if excel_setting == "on":
             if not self.write_to_excel:
-                h.edit_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, True)
+                edit_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, True)
 
             if not os.path.exists(excel_file_path := self.excel_file_path_dir.get()):
                 messagebox.showerror(title="Invalid Input",
                                      message="Please enter a path to a valid Excel file.")
                 return
             if excel_file_path != self.excel_file_path:
-                h.edit_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR, excel_file_path)
+                edit_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR, excel_file_path)
         elif self.write_to_excel:
-            h.edit_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, False)
+            edit_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, False)
 
         self.update_info()
         messagebox.showinfo(title="Success", message="Settings have been saved.")
@@ -966,7 +968,7 @@ class SpreadsheetFormat(Toplevel):
         self.save_button = CTkButton(self.frame, text="Save", font=default_font,
                                      width=100, image=save_image, command=self.save_format_changes)
         self.save_button.grid(row=1, column=0, padx=10, pady=(20,0), sticky="w")
-        spreadsheet_format = h.get_setting(*c.SPREADSHEET_FORMAT_LOCATOR)
+        spreadsheet_format = get_setting(*c.SPREADSHEET_FORMAT_LOCATOR)
 
         # If there is data in the spreadsheet format setting, add rows in window
         if spreadsheet_format:
@@ -1011,7 +1013,7 @@ class SpreadsheetFormat(Toplevel):
 
     def edit_column(self, index: int, value: str) -> None:
         # Looks in the SPREADSHEET_FORMAT_OPTIONS dict for the value and returns the corresponding key (e.g. "Match ID" returns "match_id")
-        formatted_value = h.get_key_from_value(c.SPREADSHEET_FORMAT_OPTIONS, value)
+        formatted_value = get_key_from_value(c.SPREADSHEET_FORMAT_OPTIONS, value)
 
         try:
             self.format_columns_list[index] = formatted_value
@@ -1021,10 +1023,10 @@ class SpreadsheetFormat(Toplevel):
     def save_format_changes(self):
         """Saves changes to spreadsheet format"""
         format_settings_change = ",".join(self.format_columns_list)
-        format_setting = h.get_setting(*c.SPREADSHEET_FORMAT_LOCATOR)
+        format_setting = get_setting(*c.SPREADSHEET_FORMAT_LOCATOR)
 
         if format_settings_change != format_setting:
-            h.edit_setting(*c.SPREADSHEET_FORMAT_LOCATOR, format_settings_change)
+            edit_setting(*c.SPREADSHEET_FORMAT_LOCATOR, format_settings_change)
 
 if __name__ == "__main__":
     App().mainloop()

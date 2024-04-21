@@ -885,19 +885,21 @@ class SettingsWindow(Toplevel):
             if not self.write_to_googlesheets:
                 h.edit_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, True)
 
-                if not (spreadsheet_name := self.spreadsheet_name_entry.get()):
-                    messagebox.showerror(title="Invalid Input",
-                                         message="Please enter a valid spreadsheet name (Google Sheets).")
-                    return
-                if spreadsheet_name != self.spreadsheet_name:
-                    h.edit_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR, spreadsheet_name)
+            if not (spreadsheet_name := self.spreadsheet_name_entry.get()):
+                messagebox.showerror(title="Invalid Input",
+                                        message="Please enter a valid spreadsheet name (Google Sheets).")
+                return
+            print(spreadsheet_name)
+            if spreadsheet_name != self.spreadsheet_name:
+                print(spreadsheet_name)
+                h.edit_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR, spreadsheet_name)
 
-                if not os.path.exists(service_account_key := self.google_service_key_entry.get()):
-                    messagebox.showerror(title="Invalid Input",
-                                         message="Please enter a path to a valid JSON file.")
-                    return
-                if service_account_key != self.service_account_json:
-                    h.edit_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR, service_account_key)
+            if not os.path.exists(service_account_key := self.google_service_key_entry.get()):
+                messagebox.showerror(title="Invalid Input",
+                                        message="Please enter a path to a valid JSON file.")
+                return
+            if service_account_key != self.service_account_json:
+                h.edit_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR, service_account_key)
         elif self.write_to_googlesheets:
             h.edit_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, False)
 

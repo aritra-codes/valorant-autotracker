@@ -12,7 +12,31 @@
 
 # ⬇️ Installation
 
-Text
+Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported (as Valorant does not support other OSes).
+
+You must have [python 3.12 or higher](https://www.python.org/downloads/windows/) installed.
+
+## Command Prompt Installation
+
+You must have [git](https://git-scm.com/download/win) installed.
+
+Firstly, clone the repository (alternatively you can download and extract the repo):
+
+```
+git clone https://github.com/Aritra587/valorant-autotracker.git
+```
+
+Then, change directories into the newly cloned repository:
+
+```
+cd valorant-autotracker
+```
+
+Then, using [pip](https://pip.pypa.io/en/stable/), install the dependencies:
+
+```
+pip install -r requirements.txt
+```
 
 ---
 

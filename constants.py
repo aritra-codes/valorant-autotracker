@@ -158,7 +158,7 @@ RUN_IMAGE_PATH = {"light": f"{IMAGES_FOLDER_PATH}/run.png",
                   "dark": f"{IMAGES_FOLDER_PATH}/run_dark.png"}
 SETTINGS_IMAGE_PATH = {"light": f"{IMAGES_FOLDER_PATH}/settings.png",
                        "dark": f"{IMAGES_FOLDER_PATH}/settings_dark.png"}
-PAYPAL_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/paypal.png"
+GITHUB_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/github.png"
 
 
 RECORDING_CLIENT_FILENAME_FORMATS = {

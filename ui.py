@@ -63,8 +63,8 @@ class App(CTk):
         self.settings_image = CTkImage(light_image=Image.open(c.SETTINGS_IMAGE_PATH["dark"]),
                                 dark_image=Image.open(c.SETTINGS_IMAGE_PATH["light"])) # Settings image
 
-        self.paypal_image = CTkImage(light_image=Image.open(c.PAYPAL_IMAGE_PATH),
-                      dark_image=Image.open(c.PAYPAL_IMAGE_PATH)) # Donation button image
+        self.github_image = CTkImage(light_image=Image.open(c.GITHUB_IMAGE_PATH),
+                      dark_image=Image.open(c.GITHUB_IMAGE_PATH)) # Donation button image
 
         self.geometry(c.MAIN_WINDOW_RESOLUTION) # Set the window size (can be resizable)
         self.iconbitmap(c.LOGO_IMAGE_PATH) # Set logo
@@ -87,11 +87,11 @@ class App(CTk):
                                          font=default_font, command=self.open_settings)
         self.settings_button.pack(pady=(10,0))
 
-        # Create a donation button
-        self.paypal_donate = CTkButton(self.frame, text="Why not consider donating?", width=200,
-                                         height=40, image=self.paypal_image,
-                                         font=default_font, command=self.donate_function)
-        self.paypal_donate.pack(pady=(10,0))
+        # Create a Github follow button
+        self.github = CTkButton(self.frame, text="Follow us on Github", width=200,
+                                         height=40, image=self.github_image,
+                                         font=default_font, command=self.github_function)
+        self.github.pack(pady=(10,0))
 
         # Entry box displays console output
         self.output_label = CTkLabel(self.frame, text="Output:", font=default_font)
@@ -121,7 +121,7 @@ class App(CTk):
         settings_window = SettingsWindow()
         settings_window.mainloop()
 
-    def donate_function(self):
+    def github_function(self):
         pass # ADD FUNCTION HERE
 
 class HoverButton(CTkButton):

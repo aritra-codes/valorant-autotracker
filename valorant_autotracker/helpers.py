@@ -149,8 +149,10 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
     headshot_percentage = round((stats["headshots"] / (stats["headshots"] + stats["bodyshots"] + stats["legshots"])) * 100)
     average_damage_per_round = round(player["damage_made"] / meta["rounds_played"])
 
+    use_mdy_dates = get_setting(*c.USE_MDY_DATES, boolean=True)
+
     formatted_match_info = {"match_id": meta["matchid"],
-                            "date_started": date_started_datetime.strftime(r"%d/%m/%Y"),
+                            "date_started": date_started_datetime.strftime(r"%m/%d/%Y" if use_mdy_dates else r"%d/%m/%Y"),
                             "rank": player["currenttier_patched"],
                             "mmr_change": mmr_change,
                             "rounds_won": team["rounds_won"], 

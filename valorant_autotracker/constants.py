@@ -50,6 +50,7 @@ SCOPE = scope = ['https://www.googleapis.com/auth/spreadsheets',
 # Settings
 GENERAL_SETTING_SECTION_NAME = "GENERAL"
 DEFAULT_NUMBER_OF_THREADS = (GENERAL_SETTING_SECTION_NAME, "default_number_of_threads")
+USE_MDY_DATES = (GENERAL_SETTING_SECTION_NAME, "use_mdy_dates")
 
 VIDEO_SETTING_SECTION_NAME = "VIDEO"
 AUTOUPLOAD_VIDEOS_SETTING_LOCATOR = (VIDEO_SETTING_SECTION_NAME, "autoupload_videos")

@@ -11,7 +11,7 @@ from customtkinter import (set_appearance_mode, set_default_color_theme,
 from PIL import Image
 
 from utils.misc import get_key_from_value
-from utils.settings import get_setting, edit_setting
+from utils.settings import get_setting, edit_setting, make_default_settings_file
 import valorant_autotracker.constants as c
 import valorant_autotracker.helpers as h
 from valorant_autotracker.main import main as script
@@ -121,12 +121,13 @@ class App(CTk):
         thread.start()
 
     def open_settings(self):
+        self.state(newstate="iconic")
         settings_window = SettingsWindow()
         settings_window.mainloop()
 
     def open_github_profiles(self):
         webbrowser.open("https://github.com/lmdrums")
-        webbrowser.open("https://github.com/Aritra587")
+        webbrowser.open("https://github.com/aritra-codes")
 
 class HoverButton(CTkButton):
     """Class for hover button (question mark)"""
@@ -181,66 +182,80 @@ class SettingsWindow(Toplevel):
                                          command=self.reset_function, width=160)
         self.reset.grid(row=0, column=1, pady=(10,0), sticky="w")
 
+        self.general_header = CTkLabel(self.frame, text="General",
+                                       font=("Calibri Bold",18))
+        self.general_header.grid(row=1, column=0, padx=10, pady=(10,0), sticky="w")
+
+        self.mdy_dates_label = CTkLabel(self.frame, text="Use M/D/Y Dates",
+                                        font=default_font)
+        self.mdy_dates_label.grid(row=2, column=0, padx=10, pady=(10,0), sticky="w")
+
+        self.mdy_dates_var = StringVar(value="off")
+        self.mdy_dates_switch = CTkSwitch(self.frame, text="",
+                                      variable=self.mdy_dates_var, onvalue="on",
+                                      offvalue="off")
+        self.mdy_dates_switch.grid(row=2, column=1, pady=(10,0), sticky="w")
+
         self.video_header = CTkLabel(self.frame, text="Video",
                                      font=("Calibri Bold",18))
-        self.video_header.grid(row=1, column=0, padx=10, pady=(10,0), sticky="w")
+        self.video_header.grid(row=3, column=0, padx=10, pady=(10,0), sticky="w")
 
         self.switch_var = StringVar(value="off")
         self.switch_label = CTkLabel(self.frame, text="Auto-Upload Videos",
                                      font=default_font)
-        self.switch_label.grid(row=2, column=0, pady=(10,0), padx=10, sticky="w")
+        self.switch_label.grid(row=4, column=0, pady=(10,0), padx=10, sticky="w")
         self.switch_onoff = CTkSwitch(self.frame, text="", command=self.switch1,
                                       variable=self.switch_var, onvalue="on",
                                       offvalue="off")
-        self.switch_onoff.grid(row=2, column=1, pady=(10,0), sticky="w")
+        self.switch_onoff.grid(row=4, column=1, pady=(10,0), sticky="w")
         self.val = self.switch_onoff.get()
 
         self.firefox_profile_label = CTkLabel(self.frame, text="Firefox Profile Path",
                                               font=default_font)
-        self.firefox_profile_label.grid(row=3, column=0, pady=(10,0), padx=10, sticky="w")
+        self.firefox_profile_label.grid(row=5, column=0, pady=(10,0), padx=10, sticky="w")
         self.firefox_entry = CTkEntry(self.frame, font=default_font, width=500,
                                       placeholder_text="Firefox profile path (C:/...)")
-        self.firefox_entry.grid(row=3, column=1, pady=(10,0), columnspan=4)
+        self.firefox_entry.grid(row=5, column=1, pady=(10,0), columnspan=4)
         self.firefox_change = CTkButton(self.frame, text="Change  ", font=default_font,
                                         width=70, command=self.firefoxprofile_change_function,
                                         image=change_dir)
-        self.firefox_change.grid(row=3, column=5, pady=(10,0), padx=5)
+        self.firefox_change.grid(row=5, column=5, pady=(10,0), padx=5)
 
         self.background_process_label = CTkLabel(self.frame, text="Background Process",
                                                  font=default_font)
-        self.background_process_label.grid(row=4, column=0, padx=10, pady=(10,0),
+        self.background_process_label.grid(row=6, column=0, padx=10, pady=(10,0),
                                            sticky="w")
         self.background_process_var = StringVar(value="off")
         self.background_process_switch = CTkSwitch(self.frame, text="",
                                                    variable=self.background_process_var,
                                                    onvalue="on", offvalue="off")
-        self.background_process_switch.grid(row=4, column=1, pady=(10,0), sticky="w")
+        self.background_process_switch.grid(row=6, column=1, pady=(10,0), sticky="w")
         self.background_process_hoverbutton = HoverButton(self.frame, text="", image=question_image,
                                                           tooltip_text="When turned on, Firefox will open in the background when\nuploading videos and not appear on your screen.",
                                                           width=15, fg_color="transparent",
                                                           hover_color="grey")
-        self.background_process_hoverbutton.grid(row=4, column=1, padx=40, pady=(10,0), sticky="w")
+        self.background_process_hoverbutton.grid(row=6, column=1, padx=40, pady=(10,0), sticky="w")
         self.background_process_hoverbutton.configure(state="disabled")
 
         self.maxvids_sim_label = CTkLabel(self.frame, text="Max. Vids Simultaneously",
                                           font=default_font)
-        self.maxvids_sim_label.grid(row=5, column=0, padx=10, pady=(10,0),
+        self.maxvids_sim_label.grid(row=7, column=0, padx=10, pady=(10,0),
                                     sticky="w")
         self.maxvids_sim_entry = CTkEntry(self.frame, font=default_font,
                                           width=40, justify="center",
                                           placeholder_text="Enter int.")
-        self.maxvids_sim_entry.grid(row=5, column=1, pady=(10,0), sticky="w")
+        self.maxvids_sim_entry.grid(row=7, column=1, pady=(10,0), sticky="w")
 
         self.maxvids_hoverbutton = HoverButton(self.frame, text="", image=question_image,
                                                tooltip_text="The number of videos that can be uploaded at the same time.",
                                                width=15, fg_color="transparent",
                                                hover_color="grey")
-        self.maxvids_hoverbutton.grid(row=5, column=1, padx=40, pady=(10,0), sticky="w")
+        self.maxvids_hoverbutton.grid(row=7, column=1, padx=40, pady=(10,0), sticky="w")
         self.maxvids_hoverbutton.configure(state="disabled")
 
         self.visibility_label = CTkLabel(self.frame, text="Visibility",
                                          font=default_font)
-        self.visibility_label.grid(row=6, column=0, padx=10, pady=(10,0),
+        self.visibility_label.grid(row=8, column=0, padx=10, pady=(10,0),
                                    sticky="w")
         self.visibility_list = list(c.VIDEO_VISIBILITY_OPTIONS.values())
 
@@ -248,32 +263,32 @@ class SettingsWindow(Toplevel):
                                                  font=default_font, button_color="grey",
                                                  button_hover_color="dark grey",
                                                  fg_color="white", text_color="black")
-        self.visibility_dropdown.grid(row=6, column=1, padx=2, pady=(10,0), sticky="w")
+        self.visibility_dropdown.grid(row=8, column=1, padx=2, pady=(10,0), sticky="w")
 
         self.switch_var2 = StringVar(value="off")
         self.switch_label_2 = CTkLabel(self.frame, text="Auto-Select Videos",
                                        font=default_font)
-        self.switch_label_2.grid(row=7, column=0, pady=(10,0), padx=10, sticky="w")
+        self.switch_label_2.grid(row=9, column=0, pady=(10,0), padx=10, sticky="w")
         self.switch_onoff2 = CTkSwitch(self.frame, text="", command=self.switch2,
                                        variable=self.switch_var2, onvalue="on",
                                        offvalue="off")
-        self.switch_onoff2.grid(row=7, column=1, pady=(10,0), sticky="w")
+        self.switch_onoff2.grid(row=9, column=1, pady=(10,0), sticky="w")
         self.val2 = self.switch_onoff2.get()
 
         self.viddir_label = CTkLabel(self.frame, text="Video Directory",
                                      font=default_font)
-        self.viddir_label.grid(row=8, column=0, padx=10, pady=(10,0), sticky="w")
+        self.viddir_label.grid(row=10, column=0, padx=10, pady=(10,0), sticky="w")
         self.viddir_entry = CTkEntry(self.frame, font=default_font, width=500,
                                      placeholder_text="Video directory (C:/...)")
-        self.viddir_entry.grid(row=8, column=1, pady=(10,0), columnspan=4)
+        self.viddir_entry.grid(row=10, column=1, pady=(10,0), columnspan=4)
         self.viddir_change = CTkButton(self.frame, text="Change  ", font=default_font,
                                        width=70, command=self.viddir_change_function,
                                        image=change_dir)
-        self.viddir_change.grid(row=8, column=5, pady=(10,0), padx=5)
+        self.viddir_change.grid(row=10, column=5, pady=(10,0), padx=5)
 
         self.recording_client_label = CTkLabel(self.frame, text="Recording Client",
                                                font=default_font)
-        self.recording_client_label.grid(row=9, column=0, padx=10, pady=(10,0),
+        self.recording_client_label.grid(row=11, column=0, padx=10, pady=(10,0),
                                          sticky="w")
 
         self.filename_format_list = list(c.RECORDING_CLIENT_OPTIONS.values())
@@ -283,192 +298,197 @@ class SettingsWindow(Toplevel):
                                                         button_hover_color="dark grey",
                                                         fg_color="white", text_color="black",
                                                         command=self.filename_format_options)
-        self.filename_format_optionmenu.grid(row=9, column=1, pady=(10,0), sticky="w")
+        self.filename_format_optionmenu.grid(row=11, column=1, pady=(10,0), sticky="w")
 
         self.filename_format_label = CTkLabel(self.frame, text="Filename Format",
                                               font=default_font)
-        self.filename_format_label.grid(row=10, column=0, padx=10, pady=(10,0), sticky="w")
+        self.filename_format_label.grid(row=12, column=0, padx=10, pady=(10,0), sticky="w")
         self.filename_format_entry = CTkEntry(self.frame, font=default_font,
                                               placeholder_text="Enter filename format",
                                               width=200)
-        self.filename_format_entry.grid(row=10, column=1, pady=(10,0), sticky="ew",
+        self.filename_format_entry.grid(row=12, column=1, pady=(10,0), sticky="ew",
                                         columnspan=3)
         self.filename_hover_button = HoverButton(self.frame, text="", image=question_image,
                                                  tooltip_text="The format in which the recorded video files are named by the\nrecording client (written in Python datetime format codes).",
                                                  width=15, fg_color="transparent",
                                                  hover_color="grey")
-        self.filename_hover_button.grid(row=10, column=4, pady=(10,0), sticky="w")
+        self.filename_hover_button.grid(row=12, column=4, pady=(10,0), sticky="w")
 
         self.recording_delay_label = CTkLabel(self.frame, text="Recording Delay",
                                               font=default_font)
-        self.recording_delay_label.grid(row=11, column=0, padx=10, pady=(10,0),
+        self.recording_delay_label.grid(row=13, column=0, padx=10, pady=(10,0),
                                         sticky="w")
         self.recording_delay_slider = CTkSlider(self.frame, from_=0, to=60,
                                                 number_of_steps=60,
                                                 command=self.slider)
-        self.recording_delay_slider.grid(row=11, column=1, pady=(10,0), sticky="ew")
+        self.recording_delay_slider.grid(row=13, column=1, pady=(10,0), sticky="ew")
         self.recording_delay_slider.set(0)
         self.slider_value = CTkEntry(self.frame, font=default_font,
                                      width=40, justify="center")
         self.slider_value.insert(END, "0")
-        self.slider_value.grid(row=11, column=2, pady=(10,0), padx=(10,10), sticky="ew")
+        self.slider_value.grid(row=13, column=2, pady=(10,0), padx=(10,10), sticky="ew")
         self.secs_label = CTkLabel(self.frame, text="secs",
                                    font=default_font)
-        self.secs_label.grid(row=11, column=4, pady=(10,0), sticky="w")
+        self.secs_label.grid(row=13, column=4, pady=(10,0), sticky="w")
 
         self.slider_hoverbutton = HoverButton(self.frame, text="", image=question_image,
                                               tooltip_text="How long it takes for the recording to start after the start of the match.",
                                               width=15, fg_color="transparent",
                                               hover_color="grey")
-        self.slider_hoverbutton.grid(row=11, column=4, padx=25, pady=(10,0), sticky="w")
+        self.slider_hoverbutton.grid(row=13, column=4, padx=25, pady=(10,0), sticky="w")
         self.slider_hoverbutton.configure(state="disabled")
 
         self.valorant_header = CTkLabel(self.frame, text="Valorant",
                                         font=("Calibri Bold",18))
-        self.valorant_header.grid(row=12, column=0, padx=10, pady=(15,0), sticky="w")
+        self.valorant_header.grid(row=14, column=0, padx=10, pady=(15,0), sticky="w")
 
         self.username_label = CTkLabel(self.frame, text="Username",
                                        font=default_font)
-        self.username_label.grid(row=13, column=0, padx=10, pady=(10,0), sticky="w")
+        self.username_label.grid(row=15, column=0, padx=10, pady=(10,0), sticky="w")
         self.username_entry = CTkEntry(self.frame, font=default_font,
                                        placeholder_text="Enter username (for PUUID)")
-        self.username_entry.grid(row=13, column=1, pady=(10,0), sticky="ew")
+        self.username_entry.grid(row=15, column=1, pady=(10,0), sticky="ew")
 
         self.tag_label = CTkLabel(self.frame, text="Tag", font=default_font)
-        self.tag_label.grid(row=14, column=0, padx=10, pady=(10,0), sticky="w")
+        self.tag_label.grid(row=16, column=0, padx=10, pady=(10,0), sticky="w")
         self.tag_entry = CTkEntry(self.frame, font=default_font,
                                   placeholder_text="Enter tag (for PUUID)")
-        self.tag_entry.grid(row=14, column=1, pady=(10,0), sticky="ew")
+        self.tag_entry.grid(row=16, column=1, pady=(10,0), sticky="ew")
 
         self.puuid_label = CTkLabel(self.frame, text="PUUID", font=default_font)
-        self.puuid_label.grid(row=15, column=0, padx=10, pady=(10,0), sticky="w")
+        self.puuid_label.grid(row=17, column=0, padx=10, pady=(10,0), sticky="w")
         self.puuid_entry = CTkEntry(self.frame, font=default_font,
                                     placeholder_text="Enter/Find PUUID")
-        self.puuid_entry.grid(row=15, column=1, pady=(10,0), sticky="ew",
+        self.puuid_entry.grid(row=17, column=1, pady=(10,0), sticky="ew",
                               columnspan=3)
         self.puuid_find = CTkButton(self.frame, text="Find PUUID",
                                     font=default_font, image=find_image,
                                     command=self.find_puuid_function, width=110)
-        self.puuid_find.grid(row=15, column=4, pady=(10,0), padx=5, sticky="w")
+        self.puuid_find.grid(row=17, column=4, pady=(10,0), padx=5, sticky="w")
 
         self.region_label = CTkLabel(self.frame, text="Region", font=default_font)
-        self.region_label.grid(row=16, column=0, padx=10, pady=(10,0), sticky="w")
+        self.region_label.grid(row=18, column=0, padx=10, pady=(10,0), sticky="w")
         self.region_list = list(c.REGION_OPTIONS.values())
         self.region_dropdown = CTkOptionMenu(self.frame, values=self.region_list,
                                              font=default_font, button_color="grey",
                                              button_hover_color="dark grey",
                                              fg_color="white", text_color="black",
                                              width=250)
-        self.region_dropdown.grid(row=16, column=1, pady=(10,0), sticky="w", columnspan=2)
+        self.region_dropdown.grid(row=18, column=1, pady=(10,0), sticky="w", columnspan=2)
 
         self.latest_matchid_label = CTkLabel(self.frame, text="Latest Match ID",
                                              font=default_font)
-        self.latest_matchid_label.grid(row=17, column=0, padx=10, pady=(10,0),
+        self.latest_matchid_label.grid(row=19, column=0, padx=10, pady=(10,0),
                                        sticky="w")
         self.latest_matchid_entry = CTkEntry(self.frame, font=default_font,
                                              placeholder_text="Enter Latest Match ID")
-        self.latest_matchid_entry.grid(row=17, column=1, pady=(10,0), sticky="ew",
+        self.latest_matchid_entry.grid(row=19, column=1, pady=(10,0), sticky="ew",
                                        columnspan=3)
 
         self.spreadsheet_header = CTkLabel(self.frame, text="Spreadsheet",
                                      font=("Calibri Bold",18))
-        self.spreadsheet_header.grid(row=18, column=0, padx=10, pady=(15,0), sticky="w")
+        self.spreadsheet_header.grid(row=20, column=0, padx=10, pady=(15,0), sticky="w")
 
         self.spreadsheet_format_label = CTkLabel(self.frame, text="Spreadsheet Format",
                                                  font=default_font)
-        self.spreadsheet_format_label.grid(row=19, column=0, padx=10, pady=(10,0),
+        self.spreadsheet_format_label.grid(row=21, column=0, padx=10, pady=(10,0),
                                            sticky="w")
 
         self.spreadsheet_format_button = CTkButton(self.frame, text="Edit",
                                                    font=default_font,
                                                    command=self.spreadsheet_format_function)
-        self.spreadsheet_format_button.grid(row=19, column=1, pady=(10,0), sticky="w")
+        self.spreadsheet_format_button.grid(row=21, column=1, pady=(10,0), sticky="w")
 
         self.spreadsheet_format_hoverbutton = HoverButton(self.frame, text="", image=question_image,
                                                           tooltip_text="What information will be in each column of your spreadsheet(s).",
                                                           width=15, fg_color="transparent",
                                                           hover_color="grey")
-        self.spreadsheet_format_hoverbutton.grid(row=19, column=1, padx=140, pady=(10,0), sticky="w")
+        self.spreadsheet_format_hoverbutton.grid(row=21, column=1, padx=140, pady=(10,0), sticky="w")
         self.spreadsheet_format_hoverbutton.configure(state="disabled")
 
         self.insert_r2_label = CTkLabel(self.frame, text="Insert at Row 2",
                                         font=default_font)
-        self.insert_r2_label.grid(row=20, column=0, padx=10, pady=(10,0),
+        self.insert_r2_label.grid(row=22, column=0, padx=10, pady=(10,0),
                                   sticky="w")
         self.insert_r2_switch_var = StringVar(value="off")
         self.insert_r2_switch  = CTkSwitch(self.frame, text="",
                                            variable=self.insert_r2_switch_var, onvalue="on",
                                            offvalue="off")
-        self.insert_r2_switch.grid(row=20, column=1, pady=(10,0),
+        self.insert_r2_switch.grid(row=22, column=1, pady=(10,0),
                                    sticky="w")
 
         self.insert_r2_hoverbutton = HoverButton(self.frame, text="", image=question_image,
                                                  tooltip_text="When turned on, new matches will be inserted at the 2nd row of your\nspreadsheet instead of being appended to the bottom.",
                                                  width=15, fg_color="transparent",
                                                  hover_color="grey")
-        self.insert_r2_hoverbutton.grid(row=20, column=1, padx=40, pady=(10,0),
+        self.insert_r2_hoverbutton.grid(row=22, column=1, padx=40, pady=(10,0),
                                         sticky="w")
         self.insert_r2_hoverbutton.configure(state="disabled")
 
         self.switch_var_spreadsheet = StringVar(value="off")
         self.switch_googlesheet_label = CTkLabel(self.frame, text="Google Sheets",
                                                  font=default_font)
-        self.switch_googlesheet_label.grid(row=21, column=0, pady=(10,0), padx=10, sticky="w")
+        self.switch_googlesheet_label.grid(row=23, column=0, pady=(10,0), padx=10, sticky="w")
         self.switch_googlesheet = CTkSwitch(self.frame, text="", command=self.googlesheet_switch,
                                             variable=self.switch_var_spreadsheet, onvalue="on",
                                             offvalue="off")
-        self.switch_googlesheet.grid(row=21, column=1, pady=(10,0), sticky="w")
+        self.switch_googlesheet.grid(row=23, column=1, pady=(10,0), sticky="w")
 
         self.spreadsheet_name_label = CTkLabel(self.frame, text="Spreadsheet Name",
                                                font=default_font)
-        self.spreadsheet_name_label.grid(row=22, column=0, pady=(10,0), padx=10,
+        self.spreadsheet_name_label.grid(row=24, column=0, pady=(10,0), padx=10,
                                          sticky="w")
         self.spreadsheet_name_entry = CTkEntry(self.frame, font=default_font,
                                                placeholder_text="Enter spreadsheet name (Google Sheets)")
-        self.spreadsheet_name_entry.grid(row=22, column=1, pady=(10,0), sticky="ew",
+        self.spreadsheet_name_entry.grid(row=24, column=1, pady=(10,0), sticky="ew",
                                          columnspan=3)
 
         self.google_service_key_label = CTkLabel(self.frame, text="Google Service Acc. Key",
                                                  font=default_font)
-        self.google_service_key_label.grid(row=23, column=0, padx=10, pady=(10,0),
+        self.google_service_key_label.grid(row=25, column=0, padx=10, pady=(10,0),
                                            sticky="w")
         self.google_service_key_entry = CTkEntry(self.frame, font=default_font,
                                                  placeholder_text="Location of key (C:/...)")
-        self.google_service_key_entry.grid(row=23, column=1, pady=(10,0), sticky="ew",
+        self.google_service_key_entry.grid(row=25, column=1, pady=(10,0), sticky="ew",
                                            columnspan=4)
         self.google_key_dirchange = CTkButton(self.frame, text="Change  ", font=default_font,
                                               width=70, command=self.google_key_dirchange_function,
                                               image=change_dir)
-        self.google_key_dirchange.grid(row=23, column=5, pady=(10,0), padx=5)
+        self.google_key_dirchange.grid(row=25, column=5, pady=(10,0), padx=5)
 
         self.excel_switch_var = StringVar(value="off")
         self.excel_switch_label = CTkLabel(self.frame, text="Excel",
                                            font=default_font)
-        self.excel_switch_label.grid(row=24, column=0, pady=(10,0), padx=10, sticky="w")
+        self.excel_switch_label.grid(row=26, column=0, pady=(10,0), padx=10, sticky="w")
         self.switch_excel = CTkSwitch(self.frame, text="", command=self.excel_switch,
                                       variable=self.excel_switch_var, onvalue="on",
                                       offvalue="off")
-        self.switch_excel.grid(row=24, column=1, pady=(10,0), sticky="w")
+        self.switch_excel.grid(row=26, column=1, pady=(10,0), sticky="w")
 
         self.excel_file_path_label = CTkLabel(self.frame, text="Excel File Path",
                                               font=default_font)
-        self.excel_file_path_label.grid(row=25, column=0, padx=10, pady=10,
+        self.excel_file_path_label.grid(row=27, column=0, padx=10, pady=10,
                                         sticky="w")
 
         self.excel_file_path_dir = CTkEntry(self.frame, font=default_font,
                                             placeholder_text="Location of excel spreadsheet (C:/...)")
-        self.excel_file_path_dir.grid(row=25, column=1, pady=10, sticky="ew",
+        self.excel_file_path_dir.grid(row=27, column=1, pady=10, sticky="ew",
                                       columnspan=4)
         self.excel_change = CTkButton(self.frame, text="Change  ", font=default_font,
                                       width=70, command=self.excel_dir_change,
                                       image=change_dir)
-        self.excel_change.grid(row=25, column=5, pady=10, padx=5)
+        self.excel_change.grid(row=27, column=5, pady=10, padx=5)
 
         self.update_info()
         self.insert_info() # When settings window set up, insert current settings
 
+    def focus_in(self, event):
+        self.lift()
+        self.after(1000, self.focus_in)
+
     def update_info(self):
         """Updates the interal class variables that contain the setting values"""
+        self.mdy_dates_setting = get_setting(*c.USE_MDY_DATES, boolean=True)
         self.autoupload_video = get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True)
         self.firefox_profile_dir = get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
         self.bg_process = get_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, boolean=True)
@@ -492,6 +512,12 @@ class SettingsWindow(Toplevel):
     def insert_info(self):
         """Collect all settings"""
         # Insert vals into all entries, dropdowns etc.
+
+        if self.mdy_dates_setting:
+            self.mdy_dates_var.set("on")
+        else:
+            self.mdy_dates_var.set("off")
+
         if self.firefox_profile_dir:
             self.firefox_entry.delete(0,END)
             self.firefox_entry.insert(END, self.firefox_profile_dir)
@@ -779,6 +805,13 @@ class SettingsWindow(Toplevel):
 
     def save_settings(self) -> None:
         """Saves all new settings"""
+        mdy_setting = self.mdy_dates_switch.get()
+        if mdy_setting == "on":
+            if not self.mdy_dates_setting:
+                edit_setting(*c.USE_MDY_DATES, True)
+        elif self.mdy_dates_setting:
+            edit_setting(*c.USE_MDY_DATES, False)
+
         if self.val == "on":
             if not self.autoupload_video:
                 edit_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, True)
@@ -928,7 +961,7 @@ class SettingsWindow(Toplevel):
                                                     message="Are you sure you would like to reset to default settings?\nAll current settings will be wiped.",
                                                     icon="warning")
         if reset_confirmation == "yes":
-            h.make_default_settings_file(c.DEFAULT_SETTINGS)
+            make_default_settings_file(c.DEFAULT_SETTINGS)
             SettingsWindow.destroy(self) # Reloads the window
             settings = SettingsWindow()
             settings.mainloop()

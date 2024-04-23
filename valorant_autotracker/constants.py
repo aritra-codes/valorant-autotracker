@@ -137,6 +137,7 @@ RUN_IMAGE_PATH = {"light": f"{IMAGES_FOLDER_PATH}/run.png",
 SETTINGS_IMAGE_PATH = {"light": f"{IMAGES_FOLDER_PATH}/settings.png",
                        "dark": f"{IMAGES_FOLDER_PATH}/settings_dark.png"}
 GITHUB_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/github.png"
+RETURN_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/return.png"
 
 
 RECORDING_CLIENT_FILENAME_FORMATS = {

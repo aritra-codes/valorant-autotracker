@@ -38,6 +38,9 @@ save_image = CTkImage(light_image=Image.open(c.SAVE_IMAGE_PATH),
 reset_image = CTkImage(light_image=Image.open(c.RESET_IMAGE_PATH),
                        dark_image=Image.open(c.RESET_IMAGE_PATH))
 
+return_image = CTkImage(light_image=Image.open(c.RETURN_IMAGE_PATH),
+                       dark_image=Image.open(c.RETURN_IMAGE_PATH))
+
 class PrintLogger():
     """File like object"""
     def __init__(self, textbox):  # Pass reference to text widget
@@ -125,6 +128,10 @@ class App(CTk):
         settings_window = SettingsWindow()
         settings_window.mainloop()
 
+    # NEEDS LOOKING AT...
+    def maximise(self):
+        self.state(newstate="normal")
+
     def open_github_profiles(self):
         webbrowser.open("https://github.com/lmdrums")
         webbrowser.open("https://github.com/aritra-codes")
@@ -180,7 +187,13 @@ class SettingsWindow(Toplevel):
         self.reset = CTkButton(self.frame, text="Reset to Default",
                                          font=default_font, image=reset_image,
                                          command=self.reset_function, width=160)
-        self.reset.grid(row=0, column=1, pady=(10,0), sticky="w")
+        self.reset.grid(row=0, column=1, padx=(0,10), pady=(10,0), sticky="w")
+
+        self.return_button = CTkButton(self.frame, text="Close and Return",
+                                       font=default_font, width=150, image=return_image,
+                                       fg_color="#e00b0b", hover_color="dark red",
+                                       command=self.return_function)
+        self.return_button.grid(row=0, column=1, pady=(10,0), sticky="e")
 
         self.general_header = CTkLabel(self.frame, text="General",
                                        font=("Calibri Bold",18))
@@ -242,8 +255,7 @@ class SettingsWindow(Toplevel):
         self.maxvids_sim_label.grid(row=7, column=0, padx=10, pady=(10,0),
                                     sticky="w")
         self.maxvids_sim_entry = CTkEntry(self.frame, font=default_font,
-                                          width=40, justify="center",
-                                          placeholder_text="Enter int.")
+                                          width=40, justify="center")
         self.maxvids_sim_entry.grid(row=7, column=1, pady=(10,0), sticky="w")
 
         self.maxvids_hoverbutton = HoverButton(self.frame, text="", image=question_image,
@@ -482,9 +494,11 @@ class SettingsWindow(Toplevel):
         self.update_info()
         self.insert_info() # When settings window set up, insert current settings
 
-    def focus_in(self, event):
-        self.lift()
-        self.after(1000, self.focus_in)
+    # NEEDS LOOKING AT
+    def return_function(self):
+        """Destroys the settings window and returns back to main"""
+        self.destroy()
+        App().maximise()
 
     def update_info(self):
         """Updates the interal class variables that contain the setting values"""

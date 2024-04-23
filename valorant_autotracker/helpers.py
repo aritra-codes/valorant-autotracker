@@ -1,6 +1,7 @@
 
 from datetime import datetime, timedelta
-from os import listdir
+from functools import partial
+import os
 from tkinter import filedialog, messagebox
 from typing import Literal
 
@@ -9,6 +10,7 @@ from gspread.exceptions import SpreadsheetNotFound
 from gspread.spreadsheet import Spreadsheet
 from oauth2client.service_account import ServiceAccountCredentials
 from openpyxl import Workbook, load_workbook
+from openpyxl.styles import PatternFill
 from openpyxl.utils.exceptions import InvalidFileException
 from openpyxl.worksheet.worksheet import Worksheet as ExcelWorksheet
 import requests
@@ -72,7 +74,34 @@ def append_row_to_excel_sheet(workbook: Workbook, path: str, values: list) -> No
 
     workbook.save(path)
 
-#def make_default_excel_workbook()
+def fill_cells(workbook: Workbook, path: str, cell_range: str, pattern_fill: PatternFill) -> None:
+    sheet: ExcelWorksheet = workbook.active
+
+    if sheet is None:
+        raise FileNotFoundError("Excel sheet not found. Please make sure your excel workbook contains atleast 1 sheet.")
+    
+    for cell in sheet[cell_range]:
+        cell.fill = pattern_fill
+
+    workbook.save(path)
+
+def make_default_excel_file() -> str | Literal[False]:
+    abs_path = os.path.abspath(f"./{c.DEFAULT_EXCEL_FILENAME}")
+
+    if os.path.exists(abs_path) and not messagebox.askokcancel("Replace File", "There is already a file called 'valorant_comp_matches.xlsx', would you like to replace it?"):
+        return False
+
+    workbook = Workbook()
+
+    spreadsheet_format_setting = get_setting(*c.SPREADSHEET_FORMAT_LOCATOR).split(",")
+    column_headers = [c.SPREADSHEET_FORMAT_OPTIONS[column_header] for column_header in spreadsheet_format_setting] # Converts into user-friendly format
+    insert_row_to_excel_sheet(workbook, abs_path, 1, column_headers)
+
+    # Makes row yellow
+    pattern_fill = PatternFill(start_color="FFFF00", fill_type="solid")
+    fill_cells(workbook, abs_path, "1:1", pattern_fill)
+
+    return abs_path
 
 def manage_henrikdev_api_errors(status_code: int) -> Literal[True]:
     match status_code:
@@ -265,7 +294,7 @@ def autofind_video_path(match_start_datetime: datetime) -> str:
     filename_format = get_setting(*c.FILENAME_FORMAT_SETTING_LOCATOR)
 
     try:
-        for filename in reversed(listdir(directory)):
+        for filename in reversed(os.listdir(directory)):
             # Checks if filename follows format setting
             try:
                 video_datetime = datetime.strptime(filename, filename_format)

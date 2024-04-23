@@ -1,6 +1,5 @@
 
 from datetime import datetime, timedelta
-from functools import partial
 import os
 from tkinter import filedialog, messagebox
 from typing import Literal

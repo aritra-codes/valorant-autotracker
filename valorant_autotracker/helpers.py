@@ -19,6 +19,26 @@ from utils.threads import wait_until_number_of_threads_is
 from utils.settings import get_setting
 import valorant_autotracker.constants as c
 
+
+def get_google_sheet(name: str) -> Spreadsheet:
+    try:
+        creds = ServiceAccountCredentials.from_json_keyfile_name(get_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR), c.SCOPE)
+    except FileNotFoundError as e:
+        raise FileNotFoundError("Serivce account key not found. Please make sure you have set a valid service account key path (.json) in the settings.") from e
+    except ValueError as e:
+        raise c.InvalidGoogleServiceAccountKeyError("Credential type is not SERVICE_ACCOUNT. Please make sure your key is for a service account.") from e
+    except KeyError as e:
+        raise c.InvalidGoogleServiceAccountKeyError("Expected key(s) not present. Please make sure your service account key is valid.") from e
+
+    client = gspread.authorize(creds)
+
+    try:
+        sheet = client.open(name)
+    except SpreadsheetNotFound as e:
+        raise SpreadsheetNotFound("Spreadsheet not found. Please make sure you have set a valid spreadsheet name in the settings.") from e
+
+    return sheet
+
 def get_excel_workbook(path: str) -> Workbook:
     try:
         workbook = load_workbook(path)
@@ -52,24 +72,7 @@ def append_row_to_excel_sheet(workbook: Workbook, path: str, values: list) -> No
 
     workbook.save(path)
 
-def get_google_sheet(name: str) -> Spreadsheet:
-    try:
-        creds = ServiceAccountCredentials.from_json_keyfile_name(get_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR), c.SCOPE)
-    except FileNotFoundError as e:
-        raise FileNotFoundError("Serivce account key not found. Please make sure you have set a valid service account key path (.json) in the settings.") from e
-    except ValueError as e:
-        raise c.InvalidGoogleServiceAccountKeyError("Credential type is not SERVICE_ACCOUNT. Please make sure your key is for a service account.") from e
-    except KeyError as e:
-        raise c.InvalidGoogleServiceAccountKeyError("Expected key(s) not present. Please make sure your service account key is valid.") from e
-
-    client = gspread.authorize(creds)
-
-    try:
-        sheet = client.open(name)
-    except SpreadsheetNotFound as e:
-        raise SpreadsheetNotFound("Spreadsheet not found. Please make sure you have set a valid spreadsheet name in the settings.") from e
-
-    return sheet
+#def make_default_excel_workbook()
 
 def manage_henrikdev_api_errors(status_code: int) -> Literal[True]:
     match status_code:

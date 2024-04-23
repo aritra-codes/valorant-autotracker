@@ -47,9 +47,6 @@ SCOPE = scope = ['https://www.googleapis.com/auth/spreadsheets',
                  "https://www.googleapis.com/auth/drive.file",
                  "https://www.googleapis.com/auth/drive"]
 
-# Excel
-DEFAULT_EXCEL_FILENAME = "valorant_comp_matches.xlsx"
-
 # Settings
 GENERAL_SETTING_SECTION_NAME = "GENERAL"
 USE_GUI = (GENERAL_SETTING_SECTION_NAME, "use_gui")

@@ -124,12 +124,13 @@ class App(CTk):
         thread.start()
 
     def open_settings(self):
+        """Opens the settings and minimises the main window"""
         self.state(newstate="iconic")
-        settings_window = SettingsWindow()
+        settings_window = SettingsWindow(self)
         settings_window.mainloop()
 
-    # NEEDS LOOKING AT...
     def maximise(self):
+        """Maximises window when settings window is destroyed"""
         self.state(newstate="normal")
 
     def open_github_profiles(self):
@@ -167,8 +168,10 @@ class HoverButton(CTkButton):
             self.tooltip = None
 
 class SettingsWindow(Toplevel):
-    def __init__(self):
+    def __init__(self, parent):
         super().__init__()
+
+        self.parent = parent # Ref to parent window
 
         # Window attributes
         self.geometry(c.SETTINGS_WINDOW_RESOLUTION)
@@ -494,11 +497,10 @@ class SettingsWindow(Toplevel):
         self.update_info()
         self.insert_info() # When settings window set up, insert current settings
 
-    # NEEDS LOOKING AT
     def return_function(self):
         """Destroys the settings window and returns back to main"""
         self.destroy()
-        App().maximise()
+        self.parent.maximise()
 
     def update_info(self):
         """Updates the interal class variables that contain the setting values"""

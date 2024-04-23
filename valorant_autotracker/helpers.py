@@ -84,7 +84,7 @@ def fill_cells(workbook: Workbook, path: str, cell_range: str, pattern_fill: Pat
 
     workbook.save(path)
 
-def make_default_excel_file(filename) -> str | Literal[False]:
+def make_default_excel_file(filename: str) -> str | Literal[False]:
     abs_path = os.path.abspath(f"./{filename}.xlsx")
 
     if os.path.exists(abs_path) and not messagebox.askokcancel("Replace File", "There is already a file called 'valorant_comp_matches.xlsx', would you like to replace it?"):

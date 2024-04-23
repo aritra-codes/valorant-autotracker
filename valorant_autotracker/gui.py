@@ -22,24 +22,27 @@ default_font = c.DEFAULT_FONT
 
 # Define the image path for all images used
 image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
-# Question image for Hoverbuttons
+
 question_image = CTkImage(light_image=Image.open(c.QUESTION_IMAGE_PATH["dark"]),
                           dark_image=Image.open(c.QUESTION_IMAGE_PATH["light"]))
-# Change directory/file image (folder)
+
 change_dir = CTkImage(light_image=Image.open(c.FOLDER_IMAGE_PATH),
                       dark_image=Image.open(c.FOLDER_IMAGE_PATH))
-# Find image (find PUUID)
+
 find_image = CTkImage(light_image=Image.open(c.FIND_IMAGE_PATH["dark"]),
                       dark_image=Image.open(c.FIND_IMAGE_PATH["light"]))
-# Save (settings) image
+
 save_image = CTkImage(light_image=Image.open(c.SAVE_IMAGE_PATH),
                       dark_image=Image.open(c.SAVE_IMAGE_PATH))
-# Reset (settings) image
+
 reset_image = CTkImage(light_image=Image.open(c.RESET_IMAGE_PATH),
                        dark_image=Image.open(c.RESET_IMAGE_PATH))
 
 return_image = CTkImage(light_image=Image.open(c.RETURN_IMAGE_PATH),
                        dark_image=Image.open(c.RETURN_IMAGE_PATH))
+
+pencil_image = CTkImage(light_image=Image.open(c.PENCIL_IMAGE_PATH),
+                       dark_image=Image.open(c.PENCIL_IMAGE_PATH))
 
 class PrintLogger():
     """File like object"""
@@ -411,7 +414,8 @@ class SettingsWindow(Toplevel):
 
         self.spreadsheet_format_button = CTkButton(self.frame, text="Edit",
                                                    font=default_font,
-                                                   command=self.spreadsheet_format_function)
+                                                   command=self.spreadsheet_format_function,
+                                                   image=pencil_image)
         self.spreadsheet_format_button.grid(row=21, column=1, pady=(10,0), sticky="w")
 
         self.spreadsheet_format_hoverbutton = HoverButton(self.frame, text="", image=question_image,
@@ -482,17 +486,31 @@ class SettingsWindow(Toplevel):
 
         self.excel_file_path_label = CTkLabel(self.frame, text="Excel File Path",
                                               font=default_font)
-        self.excel_file_path_label.grid(row=27, column=0, padx=10, pady=10,
+        self.excel_file_path_label.grid(row=27, column=0, padx=10, pady=(10,0),
                                         sticky="w")
 
         self.excel_file_path_dir = CTkEntry(self.frame, font=default_font,
                                             placeholder_text="Location of excel spreadsheet (C:/...)")
-        self.excel_file_path_dir.grid(row=27, column=1, pady=10, sticky="ew",
+        self.excel_file_path_dir.grid(row=27, column=1, pady=(10,0), sticky="ew",
                                       columnspan=4)
         self.excel_change = CTkButton(self.frame, text="Change  ", font=default_font,
                                       width=70, command=self.excel_dir_change,
                                       image=change_dir)
-        self.excel_change.grid(row=27, column=5, pady=10, padx=5)
+        self.excel_change.grid(row=27, column=5, pady=(10,0), padx=5)
+
+        self.create_excel_label = CTkLabel(self.frame, text="Create Excel Spreadsheet",
+                                           font=default_font)
+        self.create_excel_label.grid(row=28, column=0, padx=10, pady=10, sticky="w")
+
+        self.create_excel_filename = CTkEntry(self.frame, font=default_font,
+                                              placeholder_text="Filename for Spreadsheet")
+        self.create_excel_filename.grid(row=28, column=1, pady=10, sticky="ew",
+                                        columnspan=3)
+
+        self.create_excel_button = CTkButton(self.frame, text="Create", font=default_font,
+                                             image=pencil_image, command=self.create_excel_function,
+                                             width=100)
+        self.create_excel_button.grid(row=28, column=4, padx=5, pady=10, sticky="w")
 
         self.update_info()
         self.insert_info() # When settings window set up, insert current settings
@@ -800,12 +818,22 @@ class SettingsWindow(Toplevel):
                                                placeholder_text_color="grey",
                                                text_color="black")
             self.excel_change.configure(state="normal")
+            self.create_excel_button.configure(state="normal")
+            self.create_excel_filename.configure(state="normal",
+                                               placeholder_text_color="grey",
+                                               text_color="black")
+            self.create_excel_label.configure(text_color="black")
         elif excel_val == "off":
             self.excel_file_path_label.configure(text_color="grey")
             self.excel_file_path_dir.configure(state="disabled",
                                                placeholder_text_color="#c9c9c9",
                                                text_color="grey")
             self.excel_change.configure(state="disabled")
+            self.create_excel_button.configure(state="disabled")
+            self.create_excel_filename.configure(state="disabled",
+                                               placeholder_text_color="#c9c9c9",
+                                               text_color="grey")
+            self.create_excel_label.configure(text_color="grey")
 
     def excel_dir_change(self):
         """Change file path for Excel Spreadsheet"""
@@ -818,6 +846,15 @@ class SettingsWindow(Toplevel):
 
         self.excel_file_path_dir.delete(0, END)
         self.excel_file_path_dir.insert(END, excelfile)
+
+    def create_excel_function(self):
+        """Creates a new Excel Spreadsheet"""
+        if self.create_excel_filename.get():
+            filedir = h.make_default_excel_file(self.create_excel_filename.get())
+            self.excel_file_path_dir.delete(0,END)
+            self.excel_file_path_dir.insert(END, filedir)
+        else:
+            messagebox.showerror(title="Invalid Input", message="Please enter a valid Excel filename.")
 
     def save_settings(self) -> None:
         """Saves all new settings"""
@@ -979,7 +1016,7 @@ class SettingsWindow(Toplevel):
         if reset_confirmation == "yes":
             make_default_settings_file(c.DEFAULT_SETTINGS)
             SettingsWindow.destroy(self) # Reloads the window
-            settings = SettingsWindow()
+            settings = SettingsWindow(self.parent)
             settings.mainloop()
 
 class SpreadsheetFormat(Toplevel):

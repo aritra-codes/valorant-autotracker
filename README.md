@@ -10,6 +10,8 @@
 
 ---
 
+# This is project is not affiliated with Riot Games. Go to the bottom for more information.
+
 # ⬇️ Installation
 
 Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported (as Valorant does not support other OSes).
@@ -56,6 +58,11 @@ Text
 ---|---
 [Aritra (aritra-codes)](https://github.com/aritra-codes) | [Lewis M (lmdrums)](https://github.com/lmdrums)
 Backend | Frontend
+
+---
+
+# Message for Riot Games
+
 
 
 

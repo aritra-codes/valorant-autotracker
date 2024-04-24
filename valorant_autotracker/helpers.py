@@ -17,7 +17,7 @@ import requests
 from selenium_youtube.constants import UPLOAD_POLL_FREQUENCY
 import selenium_youtube.upload as selytupload
 from utils.threads import wait_until_number_of_threads_is
-from utils.settings import get_setting
+from utils.settings import get_setting, InvalidSettingsError
 import valorant_autotracker.constants as c
 
 
@@ -223,7 +223,7 @@ def upload_video(match_info: dict[str, str | int], date_started_datetime: dateti
     try:
         visibility = c.Visibility[get_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR)]
     except KeyError as e:
-        raise c.InvalidSettingsError("'visibility' setting is not valid. Please check and save your settings.") from e
+        raise InvalidSettingsError("'visibility' setting is not valid. Please check and save your settings.") from e
 
     if get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, boolean=True):
         try:

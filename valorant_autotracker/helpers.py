@@ -17,7 +17,7 @@ import requests
 from selenium_youtube.constants import UPLOAD_POLL_FREQUENCY
 import selenium_youtube.upload as selytupload
 from utils.threads import wait_until_number_of_threads_is
-from utils.settings import get_setting
+from utils.settings import get_setting, InvalidSettingsError
 import valorant_autotracker.constants as c
 
 

@@ -3,7 +3,7 @@ import threading
 
 from selenium_youtube.constants import UPLOAD_POLL_FREQUENCY
 from utils.threads import wait_until_number_of_threads_is
-from utils.settings import get_setting, edit_setting, delete_setting
+from utils.settings import get_setting, edit_setting, delete_setting, InvalidSettingsError
 import valorant_autotracker.constants as c
 import valorant_autotracker.helpers as h
 
@@ -17,7 +17,7 @@ def main() -> None:
     try:
         affinity = c.Affinity[get_setting(*c.AFFINITY_SETTING_LOCATOR)]
     except KeyError as e:
-        raise c.InvalidSettingsError("'region' setting is not valid. Please check and save your settings.") from e
+        raise InvalidSettingsError("'region' setting is not valid. Please check and save your settings.") from e
 
     latest_match_id = get_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR)
     matches = h.get_new_matches(puuid, affinity, latest_match_id)
@@ -51,7 +51,7 @@ def main() -> None:
                 formatted_match = [match_info[column_heading]
                                    for column_heading in spreadsheet_format]
             except KeyError as e:
-                raise c.InvalidSettingsError("'spreadsheet_format' setting is not valid. Please check and save your settings.") from e
+                raise InvalidSettingsError("'spreadsheet_format' setting is not valid. Please check and save your settings.") from e
 
             if write_to_google_sheets:
                 if insert_to_row_2:

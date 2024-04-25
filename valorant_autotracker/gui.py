@@ -107,7 +107,7 @@ class App(CTk):
         self.output_label.pack(pady=(10,0))
 
         self.output_entry = scrolledtext.ScrolledText(self.frame, bd=1,
-                                                      font=("Cascadia Code", 9),
+                                                      font=("Consolas", 9),
                                                       height=8)
         self.output_entry.pack(expand=True, fill="both", pady=(10,20), padx=20)
         self.output_entry.configure(state="disabled")
@@ -184,6 +184,8 @@ class SettingsWindow(Toplevel):
         # Create a frame for settings
         self.frame = CTkScrollableFrame(self)
         self.frame.pack(pady=20, padx=20, fill="both", expand=True)
+
+        self.not_saved = True
 
         # Create and place all the objects of settings window
         self.save_button = CTkButton(self.frame, text="Save", font=default_font,
@@ -517,8 +519,19 @@ class SettingsWindow(Toplevel):
 
     def return_function(self):
         """Destroys the settings window and returns back to main"""
-        self.destroy()
-        self.parent.maximise()
+        if self.not_saved:
+            confirmation = messagebox.askyesnocancel(title="Settings", message="Do you want to save the changes you made to the settings?",
+                                                     icon="warning")
+            if confirmation:
+                self.save_settings()
+                self.destroy()
+                self.parent.maximise()
+            else:
+                self.destroy()
+                self.parent.maximise()
+        else:
+            self.destroy()
+            self.parent.maximise()
 
     def update_info(self):
         """Updates the interal class variables that contain the setting values"""
@@ -545,8 +558,8 @@ class SettingsWindow(Toplevel):
 
     def insert_info(self):
         """Collect all settings"""
-        # Insert vals into all entries, dropdowns etc.
 
+        # Insert vals into all entries, dropdowns etc.
         if self.mdy_dates_setting:
             self.mdy_dates_var.set("on")
         else:
@@ -858,6 +871,7 @@ class SettingsWindow(Toplevel):
 
     def save_settings(self) -> None:
         """Saves all new settings"""
+        self.not_saved = False
         mdy_setting = self.mdy_dates_switch.get()
         if mdy_setting == "on":
             if not self.mdy_dates_setting:
@@ -1051,8 +1065,8 @@ class SpreadsheetFormat(Toplevel):
                                       command=self.subtract_boxes, width=20, corner_radius=20)
         self.minus_button.grid(row=0, column=4, padx=0, pady=(10,0), sticky="w")
 
-        self.save_button = CTkButton(self.frame, text="Save", font=default_font,
-                                     width=100, image=save_image, command=self.save_format_changes)
+        self.save_button = CTkButton(self.frame, text="Save and Close", font=default_font,
+                                     width=110, image=save_image, command=self.save_format_changes)
         self.save_button.grid(row=1, column=0, padx=10, pady=(20,0), sticky="w")
         spreadsheet_format = get_setting(*c.SPREADSHEET_FORMAT_LOCATOR)
 
@@ -1113,6 +1127,9 @@ class SpreadsheetFormat(Toplevel):
 
         if format_settings_change != format_setting:
             edit_setting(*c.SPREADSHEET_FORMAT_LOCATOR, format_settings_change)
+
+        messagebox.showinfo(title="Success", message="Settings have been saved.")
+        self.destroy()
 
 def main():
     App().mainloop()

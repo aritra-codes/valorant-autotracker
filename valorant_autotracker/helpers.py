@@ -239,7 +239,7 @@ def upload_video(match_info: dict[str, str | int], date_started_datetime: dateti
 
         attempts = 3
 
-        while attempts > 0:
+        while True:
             try:
                 video_link = selytupload.upload_video(firefox_profile_path,
                                                 video_path,
@@ -262,11 +262,12 @@ def upload_video(match_info: dict[str, str | int], date_started_datetime: dateti
 
                 attempts -= 1
 
+                if attempts <= 0:
+                    raise c.VideoUploadError(f"Video '{title}' failed to upload.") from e
+
                 print(f"Video '{title}' failed to upload. Retrying ({attempts} attempts left)...")
             else:
                 return video_link
-
-        raise c.VideoUploadError(f"Video '{title}' failed to upload.") from e
 
     raise FileNotFoundError(f"No video path found for '{title}'.")
 

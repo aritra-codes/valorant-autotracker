@@ -52,12 +52,18 @@ Text
 
 ---
 
-# ❤️ Credits
+# 💪 Team
 
 <img src="https://github.com/aritra-codes.png" alt="pfp of aritra-codes" height="200"/> | <img src="https://github.com/lmdrums.png" alt="pfp of lmdrums" height="200"/>
 ---|---
 [Aritra (aritra-codes)](https://github.com/aritra-codes) | [Lewis M (lmdrums)](https://github.com/lmdrums)
 Backend | Frontend
+
+---
+
+# ❤️ Credits
+
+Big thanks to [Henrik-3](https://github.com/Henrik-3) and his [unofficial-valorant-api](https://github.com/Henrik-3/unofficial-valorant-api) for making this project possible.
 
 ---
 

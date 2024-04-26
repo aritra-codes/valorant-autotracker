@@ -402,6 +402,12 @@ class SettingsWindow(Toplevel):
                                              placeholder_text="Enter Latest Match ID")
         self.latest_matchid_entry.grid(row=19, column=1, pady=(10,0), sticky="ew",
                                        columnspan=3)
+        self.latest_matchid_hoverbutton = HoverButton(self.frame, text="", image=question_image,
+                                              tooltip_text="All the matches (limited to 10 latest) after this match will be inserted and/or uploaded.\nIf set to blank, it will return the last 10 matches.",
+                                              width=15, fg_color="transparent",
+                                              hover_color="grey")
+        self.latest_matchid_hoverbutton.grid(row=19, column=4, pady=(10,0), sticky="w")
+        self.latest_matchid_hoverbutton.configure(state="disabled")
 
         self.spreadsheet_header = CTkLabel(self.frame, text="Spreadsheet",
                                      font=("Calibri Bold",18))

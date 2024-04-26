@@ -145,16 +145,20 @@ def get_matches(puuid: str, affinity: c.Affinity, size: int=10) -> list:
     return matches
 
 def get_new_matches(puuid: str, affinity: c.Affinity, latest_match_id: str) -> list:
-    new_matches = []
+    new_matches = get_matches(puuid, affinity)
 
-    for match in reversed(get_matches(puuid, affinity)):
+    for index, match in enumerate(reversed(new_matches)):
         if match["metadata"]["matchid"] == latest_match_id:
-            break
+            return new_matches[:index]
 
-        new_matches.append(match)
+    upload_last_10 = messagebox.askokcancel("Match not found",
+                                            "No match in the last 10 matches has the latest match id set in the settings."
+                                            " Would you like to insert and/or upload the last 10 matches?")
 
-    new_matches.reverse() # Reverses from descending to ascending
-    return new_matches
+    if upload_last_10:
+        return new_matches
+    
+    raise c.MatchNotFoundError("No match in the last 10 matches has the latest match id set in the settings.")
 
 def get_mmr_changes(puuid: str, affinity: c.Affinity, size: int) -> list:
     request = requests.get(c.MMR_HISTORY_URL(puuid, affinity), {"size": size}, timeout=c.API_REQUEST_TIMEOUT).json()
@@ -180,7 +184,7 @@ def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str
     headshot_percentage = round((stats["headshots"] / (stats["headshots"] + stats["bodyshots"] + stats["legshots"])) * 100)
     average_damage_per_round = round(player["damage_made"] / meta["rounds_played"])
 
-    use_mdy_dates = get_setting(*c.USE_MDY_DATES, boolean=True)
+    use_mdy_dates = get_setting(*c.USE_MDY_DATES_SETTING_LOCATOR, boolean=True)
 
     formatted_match_info = {"match_id": meta["matchid"],
                             "date_started": date_started_datetime.strftime(r"%m/%d/%Y" if use_mdy_dates else r"%d/%m/%Y"),

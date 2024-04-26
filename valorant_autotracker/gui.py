@@ -956,10 +956,6 @@ class SettingsWindow(Toplevel):
         if translated_region != self.region:
             edit_setting(*c.AFFINITY_SETTING_LOCATOR, translated_region)
 
-        if not self.latest_matchid_entry.get():
-            messagebox.showerror(title="Invalid Input",
-                                 message="Please enter a valid latest match ID.")
-            return
         if self.latest_matchid_entry.get() != self.latest_match:
             edit_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR, self.latest_matchid_entry.get())
 

@@ -6,6 +6,8 @@ from selenium_youtube.constants import Visibility
 # Custom errors
 class APIError(Exception):
     pass
+class MatchNotFoundError(Exception):
+    pass
 class FirefoxProfileNotFoundError(Exception):
     pass
 class VideoUploadError(Exception):

@@ -185,8 +185,6 @@ class SettingsWindow(Toplevel):
         self.frame = CTkScrollableFrame(self)
         self.frame.pack(pady=20, padx=20, fill="both", expand=True)
 
-        self.not_saved = True
-
         # Create and place all the objects of settings window
         self.save_button = CTkButton(self.frame, text="Save", font=default_font,
                                      width=100, image=save_image, command=self.save_settings)
@@ -519,23 +517,12 @@ class SettingsWindow(Toplevel):
 
     def return_function(self):
         """Destroys the settings window and returns back to main"""
-        if self.not_saved:
-            confirmation = messagebox.askyesnocancel(title="Settings", message="Do you want to save the changes you made to the settings?",
-                                                     icon="warning")
-            if confirmation:
-                self.save_settings()
-                self.destroy()
-                self.parent.maximise()
-            else:
-                self.destroy()
-                self.parent.maximise()
-        else:
-            self.destroy()
-            self.parent.maximise()
+        self.destroy()
+        self.parent.maximise()
 
     def update_info(self):
         """Updates the interal class variables that contain the setting values"""
-        self.mdy_dates_setting = get_setting(*c.USE_MDY_DATES, boolean=True)
+        self.mdy_dates_setting = get_setting(*c.USE_MDY_DATES_SETTING_LOCATOR, boolean=True)
         self.autoupload_video = get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True)
         self.firefox_profile_dir = get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
         self.bg_process = get_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, boolean=True)
@@ -871,13 +858,12 @@ class SettingsWindow(Toplevel):
 
     def save_settings(self) -> None:
         """Saves all new settings"""
-        self.not_saved = False
         mdy_setting = self.mdy_dates_switch.get()
         if mdy_setting == "on":
             if not self.mdy_dates_setting:
-                edit_setting(*c.USE_MDY_DATES, True)
+                edit_setting(*c.USE_MDY_DATES_SETTING_LOCATOR, True)
         elif self.mdy_dates_setting:
-            edit_setting(*c.USE_MDY_DATES, False)
+            edit_setting(*c.USE_MDY_DATES_SETTING_LOCATOR, False)
 
         if self.val == "on":
             if not self.autoupload_video:

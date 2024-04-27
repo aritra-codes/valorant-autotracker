@@ -136,6 +136,13 @@ def find_puuid(name: str, tag: str) -> str:
 
     return request["data"]["puuid"]
 
+def find_region(name: str, tag: str) -> str:
+    request = requests.get(c.ACCOUNT_BY_NAME_URL(name, tag), timeout=c.API_REQUEST_TIMEOUT).json()
+
+    manage_henrikdev_api_errors(request["status"])
+
+    return request["data"]["region"]
+
 def get_matches(puuid: str, affinity: c.Affinity, size: int=10) -> list:
     request = requests.get(c.MATCHES_URL(puuid, affinity), {"mode": "competitive", "size": size}, timeout=c.API_REQUEST_TIMEOUT).json()
 

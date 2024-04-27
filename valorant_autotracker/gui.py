@@ -52,6 +52,7 @@ class PrintLogger():
         self.textbox = textbox  # Keep ref
 
     def write(self, text):
+        """Writes output to textbox"""
         self.textbox.configure(state="normal")  # Make field editable
         self.textbox.insert(END, f"{text}\n")  # Write text to textbox
         self.textbox.see(END)  # Scroll to end
@@ -67,13 +68,13 @@ class App(CTk):
         self.image_path = os.path.join(os.path.dirname
                                   (os.path.realpath(__file__)), "images") # Image path
         self.run_image = CTkImage(light_image=Image.open(c.RUN_IMAGE_PATH["dark"]),
-                                        dark_image=Image.open(c.RUN_IMAGE_PATH["light"])) # Run image
+                                dark_image=Image.open(c.RUN_IMAGE_PATH["light"])) # Run image
 
         self.settings_image = CTkImage(light_image=Image.open(c.SETTINGS_IMAGE_PATH["dark"]),
                                 dark_image=Image.open(c.SETTINGS_IMAGE_PATH["light"])) # Settings image
 
         self.github_image = CTkImage(light_image=Image.open(c.GITHUB_IMAGE_PATH),
-                      dark_image=Image.open(c.GITHUB_IMAGE_PATH)) # Donation button image
+                                dark_image=Image.open(c.GITHUB_IMAGE_PATH)) # Donation button image
 
         self.geometry(c.MAIN_WINDOW_RESOLUTION) # Set the window size (can be resizable)
         self.iconbitmap(c.LOGO_IMAGE_PATH) # Set logo
@@ -171,6 +172,7 @@ class HoverButton(CTkButton):
             self.tooltip = None
 
 class SettingsWindow(Toplevel):
+    """Settings window"""
     def __init__(self, parent):
         super().__init__()
 

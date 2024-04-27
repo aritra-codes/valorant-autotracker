@@ -16,6 +16,8 @@ import requests
 
 from selenium_youtube.constants import UPLOAD_POLL_FREQUENCY
 import selenium_youtube.upload as selytupload
+from utils.datetime import compare_datetimes_lazily
+from utils.path import list_all_files
 from utils.threads import wait_until_number_of_threads_is
 from utils.settings import get_setting, InvalidSettingsError
 import valorant_autotracker.constants as c
@@ -285,11 +287,6 @@ def input_file_path(title: str) -> str:
 
     return file_path
 
-def compare_datetimes_lazily(a: datetime, b: datetime) -> bool:
-    t_kwargs = {"second": 0, "microsecond": 0}
-
-    return a.replace(**t_kwargs) == b.replace(**t_kwargs)
-
 def autofind_video_path(match_start_datetime: datetime) -> str:
     recording_start_delay = get_setting(*c.RECORDING_START_DELAY_SETTING_LOCATOR, floatp=True)
     match_start_datetime += timedelta(seconds=recording_start_delay)
@@ -298,7 +295,7 @@ def autofind_video_path(match_start_datetime: datetime) -> str:
     filename_format = get_setting(*c.FILENAME_FORMAT_SETTING_LOCATOR)
 
     try:
-        for filename in reversed(os.listdir(directory)):
+        for filename in reversed(list_all_files(directory)):
             # Checks if filename follows format setting
             try:
                 video_datetime = datetime.strptime(filename, filename_format)
@@ -307,7 +304,7 @@ def autofind_video_path(match_start_datetime: datetime) -> str:
 
             # Checks if datetime from filename matches
             if compare_datetimes_lazily(video_datetime, match_start_datetime) or compare_datetimes_lazily(video_datetime, (match_start_datetime - timedelta(minutes=1))):
-                return f"{directory}/{filename}"
+                return os.path.join(directory, filename)
     except FileNotFoundError as e:
         raise c.VideoDirectoryNotFoundError("Video directory not found. Please make sure you have set a valid video directory in the settings.") from e
 

@@ -10,7 +10,7 @@
 
 ---
 
-# This is project is not affiliated with Riot Games. Go to the bottom for more information.
+# This project is not affiliated with Riot Games. Go to the bottom for more information.
 
 # ⬇️ Installation
 

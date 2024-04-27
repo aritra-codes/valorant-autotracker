@@ -844,11 +844,10 @@ class SettingsWindow(Toplevel):
     def excel_dir_change(self):
         """Change file path for Excel Spreadsheet"""
         excelfile = filedialog.askopenfilename(title="Open",
-                                               filetypes=[
-                                                   ("Excel Workbook (*.xlsx)", "*.xlsx"),
-                                                   ("Excel Macro-Enabled Workbook (*.xlsm)", "*.xlsm"),
-                                                   ("Excel Template (*.xltx)", "*.xltx"),
-                                                   ("Excel Macro-Enabled Template (*.xltm)", "*.xltm")])
+                                               filetypes=[("Excel Workbook (*.xlsx)", "*.xlsx"),
+                                                          ("Excel Macro-Enabled Workbook (*.xlsm)", "*.xlsm"),
+                                                          ("Excel Template (*.xltx)", "*.xltx"),
+                                                          ("Excel Macro-Enabled Template (*.xltm)", "*.xltm")])
 
         self.excel_file_path_dir.delete(0, END)
         self.excel_file_path_dir.insert(END, excelfile)

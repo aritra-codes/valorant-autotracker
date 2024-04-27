@@ -147,18 +147,18 @@ def get_matches(puuid: str, affinity: c.Affinity, size: int=10) -> list:
     return matches
 
 def get_new_matches(puuid: str, affinity: c.Affinity, latest_match_id: str) -> list:
-    new_matches = get_matches(puuid, affinity)
+    matches = get_matches(puuid, affinity)
 
-    for index, match in enumerate(reversed(new_matches)):
+    for index, match in enumerate(reversed(matches)):
         if match["metadata"]["matchid"] == latest_match_id:
-            return new_matches[:index]
+            return matches[::-1][:index][::-1] # Reverses to descending, gets index number of matches, reverses back to ascending
 
     upload_last_10 = messagebox.askokcancel("Match not found",
                                             "No match in the last 10 matches has the latest match id set in the settings."
                                             " Would you like to insert and/or upload the last 10 matches?")
 
     if upload_last_10:
-        return new_matches
+        return matches
     
     raise c.MatchNotFoundError("No match in the last 10 matches has the latest match id set in the settings.")
 
@@ -174,7 +174,7 @@ def get_mmr_changes(puuid: str, affinity: c.Affinity, size: int) -> list:
 
 def convert_valorant_date(unformatted_date: str) -> datetime:
     datetime_obj = datetime.strptime(unformatted_date, c.VALORANT_DATE_FORMAT)
-    return datetime_obj - timedelta(minutes=57) # Takes away delay time (≈57 min)
+    return datetime_obj - timedelta(minutes=58) # Takes away delay time (≈58 min)
 
 def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str, str | int]:
     meta = match_info["metadata"]
@@ -303,7 +303,9 @@ def autofind_video_path(match_start_datetime: datetime) -> str:
                 continue
 
             # Checks if datetime from filename matches
-            if compare_datetimes_lazily(video_datetime, match_start_datetime) or compare_datetimes_lazily(video_datetime, (match_start_datetime - timedelta(minutes=1))):
+            if (compare_datetimes_lazily(video_datetime, match_start_datetime) or
+                compare_datetimes_lazily(video_datetime, (match_start_datetime - timedelta(minutes=1))) or
+                compare_datetimes_lazily(video_datetime, (match_start_datetime + timedelta(minutes=1)))):
                 return os.path.join(directory, filename)
     except FileNotFoundError as e:
         raise c.VideoDirectoryNotFoundError("Video directory not found. Please make sure you have set a valid video directory in the settings.") from e

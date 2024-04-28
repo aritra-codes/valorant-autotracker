@@ -1,4 +1,5 @@
 from enum import Enum
+from os.path import join
 
 from selenium_youtube.constants import Visibility
 
@@ -134,22 +135,22 @@ MAIN_WINDOW_RESOLUTION = "1000x700"
 SETTINGS_WINDOW_RESOLUTION = "840x660"
 SPREADSHEET_FORMAT_SETTINGS_WINDOW_RESOLUTION = "500x680"
 
-IMAGES_FOLDER_PATH = "valorant_autotracker/images"
-LOGO_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/logo.ico"
-QUESTION_IMAGE_PATH = {"light": f"{IMAGES_FOLDER_PATH}/question_mark.png",
-                       "dark": f"{IMAGES_FOLDER_PATH}/question_mark_dark.png"}
-FOLDER_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/folder.png"
-FIND_IMAGE_PATH = {"light": f"{IMAGES_FOLDER_PATH}/find.png",
-                   "dark": f"{IMAGES_FOLDER_PATH}/find_dark.png"}
-SAVE_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/save_file.png"
-RESET_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/reset.png"
-RUN_IMAGE_PATH = {"light": f"{IMAGES_FOLDER_PATH}/run.png",
-                  "dark": f"{IMAGES_FOLDER_PATH}/run_dark.png"}
-SETTINGS_IMAGE_PATH = {"light": f"{IMAGES_FOLDER_PATH}/settings.png",
-                       "dark": f"{IMAGES_FOLDER_PATH}/settings_dark.png"}
-GITHUB_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/github.png"
-RETURN_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/return.png"
-PENCIL_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/pencil.png"
+IMAGES_FOLDER_PATH = join("valorant_autotracker", "images")
+LOGO_IMAGE_PATH = join(IMAGES_FOLDER_PATH, "logo.ico")
+QUESTION_IMAGE_PATH = {"light": join(IMAGES_FOLDER_PATH, "question_mark.png"),
+                       "dark": join(IMAGES_FOLDER_PATH, "question_mark_dark.png")}
+FOLDER_IMAGE_PATH = join(IMAGES_FOLDER_PATH, "folder.png")
+FIND_IMAGE_PATH = {"light": join(IMAGES_FOLDER_PATH, "find.png"),
+                   "dark": join(IMAGES_FOLDER_PATH, "find_dark.png")}
+SAVE_IMAGE_PATH = join(IMAGES_FOLDER_PATH, "save_file.png")
+RESET_IMAGE_PATH = join(IMAGES_FOLDER_PATH, "reset.png")
+RUN_IMAGE_PATH = {"light": join(IMAGES_FOLDER_PATH, "run.png"),
+                  "dark": join(IMAGES_FOLDER_PATH, "run_dark.png")}
+SETTINGS_IMAGE_PATH = {"light": join(IMAGES_FOLDER_PATH, "settings.png"),
+                       "dark": join(IMAGES_FOLDER_PATH, "settings_dark.png")}
+GITHUB_IMAGE_PATH = join(IMAGES_FOLDER_PATH, "github.png")
+RETURN_IMAGE_PATH = join(IMAGES_FOLDER_PATH, "return.png")
+PENCIL_IMAGE_PATH = join(IMAGES_FOLDER_PATH, "pencil.png")
 
 
 RECORDING_CLIENT_FILENAME_FORMATS = {

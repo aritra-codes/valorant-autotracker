@@ -51,6 +51,8 @@ SCOPE = scope = ['https://www.googleapis.com/auth/spreadsheets',
                  "https://www.googleapis.com/auth/drive"]
 
 # Settings
+SETTINGS_INI_FILENAME = "settings.ini"
+
 GENERAL_SETTING_SECTION_NAME = "GENERAL"
 USE_GUI = (GENERAL_SETTING_SECTION_NAME, "use_gui")
 USE_MDY_DATES_SETTING_LOCATOR = (GENERAL_SETTING_SECTION_NAME, "use_mdy_dates")

@@ -44,6 +44,14 @@ return_image = CTkImage(light_image=get_pillow_image(c.RETURN_IMAGE_PATH),
 
 pencil_image = CTkImage(light_image=get_pillow_image(c.PENCIL_IMAGE_PATH),
                        dark_image=get_pillow_image(c.PENCIL_IMAGE_PATH))
+run_image = CTkImage(light_image=get_pillow_image(c.RUN_IMAGE_PATH["dark"]),
+                     dark_image=get_pillow_image(c.RUN_IMAGE_PATH["light"]))
+
+settings_image = CTkImage(light_image=get_pillow_image(c.SETTINGS_IMAGE_PATH["dark"]),
+                          dark_image=get_pillow_image(c.SETTINGS_IMAGE_PATH["light"]))
+
+github_image = CTkImage(light_image=get_pillow_image(c.GITHUB_IMAGE_PATH),
+                        dark_image=get_pillow_image(c.GITHUB_IMAGE_PATH))
 
 class PrintLogger():
     """File like object"""
@@ -66,19 +74,8 @@ class App(CTk):
     """Main application class"""
     def __init__(self):
         super().__init__()
-        self.image_path = os.path.join(os.path.dirname
-                                  (os.path.realpath(__file__)), "images") # Image path
-        self.run_image = CTkImage(light_image=Image.open(c.RUN_IMAGE_PATH["dark"]),
-                                dark_image=Image.open(c.RUN_IMAGE_PATH["light"])) # Run image
-
-        self.settings_image = CTkImage(light_image=Image.open(c.SETTINGS_IMAGE_PATH["dark"]),
-                                dark_image=Image.open(c.SETTINGS_IMAGE_PATH["light"])) # Settings image
-
-        self.github_image = CTkImage(light_image=Image.open(c.GITHUB_IMAGE_PATH),
-                                dark_image=Image.open(c.GITHUB_IMAGE_PATH)) # Donation button image
-
         self.geometry(c.MAIN_WINDOW_RESOLUTION) # Set the window size (can be resizable)
-        self.iconbitmap(c.LOGO_IMAGE_PATH) # Set logo
+        self.iconbitmap(get_resource_path(c.LOGO_IMAGE_PATH)) # Set logo
         self.title(c.APP_TITLE)
 
         # Create a frame
@@ -88,19 +85,19 @@ class App(CTk):
 
         # Create a button to run the main script
         self.run = CTkButton(self.frame, text="Run", width=200,
-                             height=40, image=self.run_image,
+                             height=40, image=run_image,
                              font=default_font, command=self.thread_script)
         self.run.pack(pady=(20,0))
 
         # Create a button to open settings window (class)
         self.settings_button = CTkButton(self.frame, text="Settings", width=200,
-                                         height=40, image=self.settings_image,
+                                         height=40, image=settings_image,
                                          font=default_font, command=self.open_settings)
         self.settings_button.pack(pady=(10,0))
 
         # Create a Github follow button
         self.github = CTkButton(self.frame, text="Follow us on Github", width=200,
-                                         height=40, image=self.github_image,
+                                         height=40, image=github_image,
                                          font=default_font, command=self.open_github_profiles)
         self.github.pack(pady=(10,0))
 
@@ -182,7 +179,7 @@ class SettingsWindow(Toplevel):
         # Window attributes
         self.geometry(c.SETTINGS_WINDOW_RESOLUTION)
         self.title(c.SETTINGS_TITLE)
-        self.iconbitmap(c.LOGO_IMAGE_PATH)
+        self.iconbitmap(get_resource_path(c.LOGO_IMAGE_PATH))
 
         # Create a frame for settings
         self.frame = CTkScrollableFrame(self)

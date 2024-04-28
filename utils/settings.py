@@ -1,21 +1,25 @@
 from configparser import RawConfigParser, NoSectionError, NoOptionError
+import os
 
-from valorant_autotracker.constants import DEFAULT_SETTINGS
+import valorant_autotracker.constants as c
+from utils.path import get_resource_path, get_project_directory
 
-SETTINGS_FILE_PATH = "settings.ini"
+SETTINGS_INI_PATH = os.path.join(get_project_directory(), c.SETTINGS_INI_FILENAME)
 
 class InvalidSettingsError(Exception):
     pass
 
 def init_config() -> RawConfigParser:
     config = RawConfigParser()
-    files = config.read(SETTINGS_FILE_PATH)
+    files = config.read(SETTINGS_INI_PATH)
 
     if not files:
-        make_default_settings_file(DEFAULT_SETTINGS)
+        make_default_settings_file(c.DEFAULT_SETTINGS)
 
-        raise InvalidSettingsError("Settings file not found. A new settings file with the default settings has been created.")
+        print("Settings file not found. A new settings file with the default settings has been created.")
     
+        config.read(SETTINGS_INI_PATH)
+
     return config
 
 def get_setting(section: str, name: str, integer: bool=False, floatp: bool=False, boolean: bool=False) -> str | int | float | bool:
@@ -42,7 +46,7 @@ def edit_setting(section: str, name: str, value: str | int | float | bool) -> No
 
     config.set(section, name, value)
 
-    with open(SETTINGS_FILE_PATH, "w", encoding="utf-8") as file:
+    with open(SETTINGS_INI_PATH, "w", encoding="utf-8") as file:
         config.write(file)
 
 def delete_setting(section: str, name: str) -> None:
@@ -50,7 +54,7 @@ def delete_setting(section: str, name: str) -> None:
     
     config.remove_option(section, name)
 
-    with open(SETTINGS_FILE_PATH, "w", encoding="utf-8") as file:
+    with open(SETTINGS_INI_PATH, "w", encoding="utf-8") as file:
         config.write(file)
 
 def make_default_settings_file(settings: dict[str, dict[str, str | int | float | bool]]) -> None:
@@ -59,5 +63,5 @@ def make_default_settings_file(settings: dict[str, dict[str, str | int | float |
     for section, section_settings in settings.items():
         config[section] = section_settings
 
-    with open(SETTINGS_FILE_PATH, "w", encoding="utf-8") as file:
+    with open(SETTINGS_INI_PATH, "w", encoding="utf-8") as file:
         config.write(file)

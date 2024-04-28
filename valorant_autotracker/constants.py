@@ -134,7 +134,7 @@ MAIN_WINDOW_RESOLUTION = "1000x700"
 SETTINGS_WINDOW_RESOLUTION = "840x660"
 SPREADSHEET_FORMAT_SETTINGS_WINDOW_RESOLUTION = "500x680"
 
-IMAGES_FOLDER_PATH = "valorant_autotracker/images"
+IMAGES_FOLDER_PATH = "./valorant_autotracker/images"
 LOGO_IMAGE_PATH = f"{IMAGES_FOLDER_PATH}/logo.ico"
 QUESTION_IMAGE_PATH = {"light": f"{IMAGES_FOLDER_PATH}/question_mark.png",
                        "dark": f"{IMAGES_FOLDER_PATH}/question_mark_dark.png"}

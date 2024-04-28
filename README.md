@@ -16,9 +16,14 @@
 
 Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported (as Valorant does not support other OSes).
 
+## GUI Installation
+
+
 **Video Tutorial:**
 <br/>
 <img src="readme_images/video_thumbnail.png" alt="Valorant AutoTracker logo" width="500">
+
+
 
 ## Command Prompt Installation (Python)
 
@@ -63,14 +68,13 @@ Backend | Frontend
 
 # ❤️ Credits
 
-Big thanks to [Henrik-3](https://github.com/Henrik-3) and his [unofficial-valorant-api](https://github.com/Henrik-3/unofficial-valorant-api) for making this project possible.
-Also massive thanks to [Tom Schimansky](https://github.com/TomSchimansky) with [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) for making the UI possible.
+- Big thanks to [Henrik-3](https://github.com/Henrik-3) and his [unofficial-valorant-api](https://github.com/Henrik-3/unofficial-valorant-api) for making this project possible.
+- Massive thanks to [Tom Schimansky](https://github.com/TomSchimansky) with [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) for making the UI possible.
 
 ---
 
 # Message for Riot Games
 
-
-
-
-
+This application does not modify Valorant in any way. 
+It only makes a request to the [unofficial-valorant-api](https://github.com/Henrik-3/unofficial-valorant-api) to get user and match data.
+If you have any problems with this project, please send me an email at aritra8.codes@gmail.com.

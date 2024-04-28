@@ -366,159 +366,160 @@ class SettingsWindow(Toplevel):
                                        font=default_font)
         self.username_label.grid(row=15, column=0, padx=10, pady=(10,0), sticky="w")
         self.username_entry = CTkEntry(self.frame, font=default_font,
-                                       placeholder_text="Enter username (for PUUID)")
+                                       placeholder_text="Enter username (for PUUID and Region)")
         self.username_entry.grid(row=15, column=1, pady=(10,0), sticky="ew")
 
         self.tag_label = CTkLabel(self.frame, text="Tag", font=default_font)
         self.tag_label.grid(row=16, column=0, padx=10, pady=(10,0), sticky="w")
         self.tag_entry = CTkEntry(self.frame, font=default_font,
-                                  placeholder_text="Enter tag (for PUUID)")
+                                  placeholder_text="Enter tag (for PUUID and Region)")
         self.tag_entry.grid(row=16, column=1, pady=(10,0), sticky="ew")
 
-        self.puuid_label = CTkLabel(self.frame, text="PUUID", font=default_font)
-        self.puuid_label.grid(row=17, column=0, padx=10, pady=(10,0), sticky="w")
-        self.puuid_entry = CTkEntry(self.frame, font=default_font,
-                                    placeholder_text="Enter/Find PUUID")
-        self.puuid_entry.grid(row=17, column=1, pady=(10,0), sticky="ew",
-                              columnspan=3)
-        self.puuid_find = CTkButton(self.frame, text="Find PUUID",
+        self.puuid_find = CTkButton(self.frame, text="Find PUUID and Region",
                                     font=default_font, image=find_image,
-                                    command=self.find_puuid_function, width=110)
-        self.puuid_find.grid(row=17, column=4, pady=(10,0), padx=5, sticky="w")
+                                    command=self.find_puuid_region_function, width=110)
+        self.puuid_find.grid(row=17, column=1, pady=(10,0), sticky="w")
+
+        self.puuid_label = CTkLabel(self.frame, text="PUUID", font=default_font)
+        self.puuid_label.grid(row=18, column=0, padx=10, pady=(10,0), sticky="w")
+        self.puuid_entry = CTkEntry(self.frame, font=default_font,
+                                    placeholder_text="Enter PUUID")
+        self.puuid_entry.grid(row=18, column=1, pady=(10,0), sticky="ew",
+                              columnspan=3)
 
         self.region_label = CTkLabel(self.frame, text="Region", font=default_font)
-        self.region_label.grid(row=18, column=0, padx=10, pady=(10,0), sticky="w")
+        self.region_label.grid(row=19, column=0, padx=10, pady=(10,0), sticky="w")
         self.region_list = list(c.REGION_OPTIONS.values())
         self.region_dropdown = CTkOptionMenu(self.frame, values=self.region_list,
                                              font=default_font, button_color="grey",
                                              button_hover_color="dark grey",
                                              fg_color="white", text_color="black",
                                              width=250)
-        self.region_dropdown.grid(row=18, column=1, pady=(10,0), sticky="w", columnspan=2)
+        self.region_dropdown.grid(row=19, column=1, pady=(10,0), sticky="w", columnspan=2)
 
         self.latest_matchid_label = CTkLabel(self.frame, text="Latest Match ID",
                                              font=default_font)
-        self.latest_matchid_label.grid(row=19, column=0, padx=10, pady=(10,0),
+        self.latest_matchid_label.grid(row=20, column=0, padx=10, pady=(10,0),
                                        sticky="w")
         self.latest_matchid_entry = CTkEntry(self.frame, font=default_font,
                                              placeholder_text="Enter Latest Match ID")
-        self.latest_matchid_entry.grid(row=19, column=1, pady=(10,0), sticky="ew",
+        self.latest_matchid_entry.grid(row=20, column=1, pady=(10,0), sticky="ew",
                                        columnspan=3)
         self.latest_matchid_hoverbutton = HoverButton(self.frame, text="", image=question_image,
                                               tooltip_text="All the matches (limited to 10 latest) after this match will be inserted and/or uploaded.\nIf set to blank, it will return the last 10 matches.",
                                               width=15, fg_color="transparent",
                                               hover_color="grey")
-        self.latest_matchid_hoverbutton.grid(row=19, column=4, pady=(10,0), sticky="w")
+        self.latest_matchid_hoverbutton.grid(row=20, column=4, pady=(10,0), sticky="w")
         self.latest_matchid_hoverbutton.configure(state="disabled")
 
         self.spreadsheet_header = CTkLabel(self.frame, text="Spreadsheet",
                                      font=("Calibri Bold",18))
-        self.spreadsheet_header.grid(row=20, column=0, padx=10, pady=(15,0), sticky="w")
+        self.spreadsheet_header.grid(row=21, column=0, padx=10, pady=(15,0), sticky="w")
 
         self.spreadsheet_format_label = CTkLabel(self.frame, text="Spreadsheet Format",
                                                  font=default_font)
-        self.spreadsheet_format_label.grid(row=21, column=0, padx=10, pady=(10,0),
+        self.spreadsheet_format_label.grid(row=22, column=0, padx=10, pady=(10,0),
                                            sticky="w")
 
         self.spreadsheet_format_button = CTkButton(self.frame, text="Edit",
                                                    font=default_font,
                                                    command=self.spreadsheet_format_function,
                                                    image=pencil_image)
-        self.spreadsheet_format_button.grid(row=21, column=1, pady=(10,0), sticky="w")
+        self.spreadsheet_format_button.grid(row=22, column=1, pady=(10,0), sticky="w")
 
         self.spreadsheet_format_hoverbutton = HoverButton(self.frame, text="", image=question_image,
                                                           tooltip_text="What information will be in each column of your spreadsheet(s).",
                                                           width=15, fg_color="transparent",
                                                           hover_color="grey")
-        self.spreadsheet_format_hoverbutton.grid(row=21, column=1, padx=140, pady=(10,0), sticky="w")
+        self.spreadsheet_format_hoverbutton.grid(row=22, column=1, padx=140, pady=(10,0), sticky="w")
         self.spreadsheet_format_hoverbutton.configure(state="disabled")
 
         self.insert_r2_label = CTkLabel(self.frame, text="Insert at Row 2",
                                         font=default_font)
-        self.insert_r2_label.grid(row=22, column=0, padx=10, pady=(10,0),
+        self.insert_r2_label.grid(row=23, column=0, padx=10, pady=(10,0),
                                   sticky="w")
         self.insert_r2_switch_var = StringVar(value="off")
         self.insert_r2_switch  = CTkSwitch(self.frame, text="",
                                            variable=self.insert_r2_switch_var, onvalue="on",
                                            offvalue="off")
-        self.insert_r2_switch.grid(row=22, column=1, pady=(10,0),
+        self.insert_r2_switch.grid(row=23, column=1, pady=(10,0),
                                    sticky="w")
 
         self.insert_r2_hoverbutton = HoverButton(self.frame, text="", image=question_image,
                                                  tooltip_text="When turned on, new matches will be inserted at the 2nd row of your\nspreadsheet instead of being appended to the bottom.",
                                                  width=15, fg_color="transparent",
                                                  hover_color="grey")
-        self.insert_r2_hoverbutton.grid(row=22, column=1, padx=40, pady=(10,0),
+        self.insert_r2_hoverbutton.grid(row=23, column=1, padx=40, pady=(10,0),
                                         sticky="w")
         self.insert_r2_hoverbutton.configure(state="disabled")
 
         self.switch_var_spreadsheet = StringVar(value="off")
         self.switch_googlesheet_label = CTkLabel(self.frame, text="Google Sheets",
                                                  font=default_font)
-        self.switch_googlesheet_label.grid(row=23, column=0, pady=(10,0), padx=10, sticky="w")
+        self.switch_googlesheet_label.grid(row=24, column=0, pady=(10,0), padx=10, sticky="w")
         self.switch_googlesheet = CTkSwitch(self.frame, text="", command=self.googlesheet_switch,
                                             variable=self.switch_var_spreadsheet, onvalue="on",
                                             offvalue="off")
-        self.switch_googlesheet.grid(row=23, column=1, pady=(10,0), sticky="w")
+        self.switch_googlesheet.grid(row=24, column=1, pady=(10,0), sticky="w")
 
         self.spreadsheet_name_label = CTkLabel(self.frame, text="Spreadsheet Name",
                                                font=default_font)
-        self.spreadsheet_name_label.grid(row=24, column=0, pady=(10,0), padx=10,
+        self.spreadsheet_name_label.grid(row=25, column=0, pady=(10,0), padx=10,
                                          sticky="w")
         self.spreadsheet_name_entry = CTkEntry(self.frame, font=default_font,
                                                placeholder_text="Enter spreadsheet name (Google Sheets)")
-        self.spreadsheet_name_entry.grid(row=24, column=1, pady=(10,0), sticky="ew",
+        self.spreadsheet_name_entry.grid(row=25, column=1, pady=(10,0), sticky="ew",
                                          columnspan=3)
 
         self.google_service_key_label = CTkLabel(self.frame, text="Google Service Acc. Key",
                                                  font=default_font)
-        self.google_service_key_label.grid(row=25, column=0, padx=10, pady=(10,0),
+        self.google_service_key_label.grid(row=26, column=0, padx=10, pady=(10,0),
                                            sticky="w")
         self.google_service_key_entry = CTkEntry(self.frame, font=default_font,
                                                  placeholder_text="Location of key (C:/...)")
-        self.google_service_key_entry.grid(row=25, column=1, pady=(10,0), sticky="ew",
+        self.google_service_key_entry.grid(row=26, column=1, pady=(10,0), sticky="ew",
                                            columnspan=4)
         self.google_key_dirchange = CTkButton(self.frame, text="Change  ", font=default_font,
                                               width=70, command=self.google_key_dirchange_function,
                                               image=change_dir)
-        self.google_key_dirchange.grid(row=25, column=5, pady=(10,0), padx=5)
+        self.google_key_dirchange.grid(row=26, column=5, pady=(10,0), padx=5)
 
         self.excel_switch_var = StringVar(value="off")
         self.excel_switch_label = CTkLabel(self.frame, text="Excel",
                                            font=default_font)
-        self.excel_switch_label.grid(row=26, column=0, pady=(10,0), padx=10, sticky="w")
+        self.excel_switch_label.grid(row=27, column=0, pady=(10,0), padx=10, sticky="w")
         self.switch_excel = CTkSwitch(self.frame, text="", command=self.excel_switch,
                                       variable=self.excel_switch_var, onvalue="on",
                                       offvalue="off")
-        self.switch_excel.grid(row=26, column=1, pady=(10,0), sticky="w")
+        self.switch_excel.grid(row=27, column=1, pady=(10,0), sticky="w")
 
         self.excel_file_path_label = CTkLabel(self.frame, text="Excel File Path",
                                               font=default_font)
-        self.excel_file_path_label.grid(row=27, column=0, padx=10, pady=(10,0),
+        self.excel_file_path_label.grid(row=28, column=0, padx=10, pady=(10,0),
                                         sticky="w")
 
         self.excel_file_path_dir = CTkEntry(self.frame, font=default_font,
                                             placeholder_text="Location of excel spreadsheet (C:/...)")
-        self.excel_file_path_dir.grid(row=27, column=1, pady=(10,0), sticky="ew",
+        self.excel_file_path_dir.grid(row=28, column=1, pady=(10,0), sticky="ew",
                                       columnspan=4)
         self.excel_change = CTkButton(self.frame, text="Change  ", font=default_font,
                                       width=70, command=self.excel_dir_change,
                                       image=change_dir)
-        self.excel_change.grid(row=27, column=5, pady=(10,0), padx=5)
+        self.excel_change.grid(row=28, column=5, pady=(10,0), padx=5)
 
         self.create_excel_label = CTkLabel(self.frame, text="Create Excel Spreadsheet",
                                            font=default_font)
-        self.create_excel_label.grid(row=28, column=0, padx=10, pady=10, sticky="w")
+        self.create_excel_label.grid(row=29, column=0, padx=10, pady=10, sticky="w")
 
         self.create_excel_filename = CTkEntry(self.frame, font=default_font,
                                               placeholder_text="Filename for Spreadsheet")
-        self.create_excel_filename.grid(row=28, column=1, pady=10, sticky="ew",
+        self.create_excel_filename.grid(row=29, column=1, pady=10, sticky="ew",
                                         columnspan=3)
 
         self.create_excel_button = CTkButton(self.frame, text="Create", font=default_font,
                                              image=pencil_image, command=self.create_excel_function,
                                              width=100)
-        self.create_excel_button.grid(row=28, column=4, padx=5, pady=10, sticky="w")
+        self.create_excel_button.grid(row=29, column=4, padx=5, pady=10, sticky="w")
 
         self.update_info()
         self.insert_info() # When settings window set up, insert current settings
@@ -758,7 +759,7 @@ class SettingsWindow(Toplevel):
         self.slider_value.delete(0, END)
         self.slider_value.insert(END, int(value))
 
-    def find_puuid_function(self):
+    def find_puuid_region_function(self):
         """Finds user PUUID based on username and tag"""
         name_entry = self.username_entry.get()
         tag_entry = self.tag_entry.get()
@@ -773,9 +774,12 @@ class SettingsWindow(Toplevel):
             return
 
         puuid = h.find_puuid(name_entry, tag_entry)
+        region = h.find_region(name_entry, tag_entry)
 
         self.puuid_entry.delete(0, END)
         self.puuid_entry.insert(END, puuid)
+
+        self.region_dropdown.set(c.REGION_OPTIONS[region])
 
     def google_key_dirchange_function(self):
         """Change the path to Google key (.json files)"""

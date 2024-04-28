@@ -11,6 +11,7 @@ from customtkinter import (set_appearance_mode, set_default_color_theme,
 from PIL import Image
 
 from utils.misc import get_key_from_value
+from utils.path import get_resource_path
 from utils.settings import get_setting, edit_setting, make_default_settings_file
 import valorant_autotracker.constants as c
 import valorant_autotracker.helpers as h
@@ -21,28 +22,28 @@ set_default_color_theme(c.DEFAULT_COLOR_THEME) # Set colour theme for buttons et
 default_font = c.DEFAULT_FONT
 
 # Define the image path for all images used
-image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
+get_pillow_image = lambda relative_path: Image.open(get_resource_path(relative_path))
 
-question_image = CTkImage(light_image=Image.open(c.QUESTION_IMAGE_PATH["dark"]),
-                          dark_image=Image.open(c.QUESTION_IMAGE_PATH["light"]))
+question_image = CTkImage(light_image=get_pillow_image(c.QUESTION_IMAGE_PATH["dark"]),
+                          dark_image=get_pillow_image(c.QUESTION_IMAGE_PATH["light"]))
 
-change_dir = CTkImage(light_image=Image.open(c.FOLDER_IMAGE_PATH),
-                      dark_image=Image.open(c.FOLDER_IMAGE_PATH))
+change_dir = CTkImage(light_image=get_pillow_image(c.FOLDER_IMAGE_PATH),
+                      dark_image=get_pillow_image(c.FOLDER_IMAGE_PATH))
 
-find_image = CTkImage(light_image=Image.open(c.FIND_IMAGE_PATH["dark"]),
-                      dark_image=Image.open(c.FIND_IMAGE_PATH["light"]))
+find_image = CTkImage(light_image=get_pillow_image(c.FIND_IMAGE_PATH["dark"]),
+                      dark_image=get_pillow_image(c.FIND_IMAGE_PATH["light"]))
 
-save_image = CTkImage(light_image=Image.open(c.SAVE_IMAGE_PATH),
-                      dark_image=Image.open(c.SAVE_IMAGE_PATH))
+save_image = CTkImage(light_image=get_pillow_image(c.SAVE_IMAGE_PATH),
+                      dark_image=get_pillow_image(c.SAVE_IMAGE_PATH))
 
-reset_image = CTkImage(light_image=Image.open(c.RESET_IMAGE_PATH),
-                       dark_image=Image.open(c.RESET_IMAGE_PATH))
+reset_image = CTkImage(light_image=get_pillow_image(c.RESET_IMAGE_PATH),
+                       dark_image=get_pillow_image(c.RESET_IMAGE_PATH))
 
-return_image = CTkImage(light_image=Image.open(c.RETURN_IMAGE_PATH),
-                       dark_image=Image.open(c.RETURN_IMAGE_PATH))
+return_image = CTkImage(light_image=get_pillow_image(c.RETURN_IMAGE_PATH),
+                       dark_image=get_pillow_image(c.RETURN_IMAGE_PATH))
 
-pencil_image = CTkImage(light_image=Image.open(c.PENCIL_IMAGE_PATH),
-                       dark_image=Image.open(c.PENCIL_IMAGE_PATH))
+pencil_image = CTkImage(light_image=get_pillow_image(c.PENCIL_IMAGE_PATH),
+                       dark_image=get_pillow_image(c.PENCIL_IMAGE_PATH))
 
 class PrintLogger():
     """File like object"""

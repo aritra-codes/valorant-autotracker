@@ -18,7 +18,6 @@ Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported 
 
 ## GUI Installation
 
-
 **Video Tutorial:**
 <br/>
 <img src="readme_images/video_thumbnail.png" alt="Valorant AutoTracker logo" width="500">

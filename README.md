@@ -28,8 +28,7 @@ Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported 
   - Download [Firefox](https://www.mozilla.org/en-US/firefox/new).
   - Turn on the 'Auto-Upload Videos' setting.
   <br/>
-  <img src="readme_images/auto_upload_videos.png" alt="">
-  ![Auto-upload Videos setting](readme_images/auto_upload_videos.png)
+  <img src="readme_images/auto_upload_videos.png" alt="Auto-upload Videos setting">
   - Add a [new firefox profile](https://support.mozilla.org/en-US/kb/profile-manager-create-remove-switch-firefox-profiles) and copy the root directory path into the 'Firefox Profile Path' setting.
   <br/>
   <img src="readme_images/root_directory.png" alt="Root directory of profile">

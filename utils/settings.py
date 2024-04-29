@@ -2,7 +2,7 @@ from configparser import RawConfigParser, NoSectionError, NoOptionError
 import os
 
 import valorant_autotracker.constants as c
-from utils.path import get_resource_path, get_project_directory
+from utils.path import get_project_directory
 
 SETTINGS_INI_PATH = os.path.join(get_project_directory(), c.SETTINGS_INI_FILENAME)
 

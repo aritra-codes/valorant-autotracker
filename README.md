@@ -28,16 +28,16 @@ Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported 
   - Download [Firefox](https://www.mozilla.org/en-US/firefox/new).
   - Turn on the 'Auto-Upload Videos' setting.
   <br/>
-  <img src="readme_images/auto_upload_videos.png">
+  <img src="readme_images/auto_upload_videos.png" alt="">
   ![Auto-upload Videos setting](readme_images/auto_upload_videos.png)
   - Add a [new firefox profile](https://support.mozilla.org/en-US/kb/profile-manager-create-remove-switch-firefox-profiles) and copy the root directory path into the 'Firefox Profile Path' setting.
   <br/>
-  ![Root directory of profile](readme_images/root_directory.png)
+  <img src="readme_images/root_directory.png" alt="Root directory of profile">
   <br/>
-  ![Firefox Profile Path setting](readme_images/firefox_profile_path.png)
+  <img src="readme_images/firefox_profile_path.png" alt="Firefox Profile Path setting">
   - Save your settings.
   <br/>
-  ![Save settings](readme_images/save_settings.png)
+  <img src="readme_images/save_settings.png" alt="Save settings">
   - Go to [YouTube Studio](https://studio.youtube.com) and log in.
   - Choose the YouTube channel to which you like to upload your matches (**if there is a 'Don't ask again' option, select it**).
 - Insert to Google Sheets:
@@ -45,24 +45,24 @@ Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported 
   - Create a [new project](https://console.cloud.google.com/projectcreate) and name it anything (e.g. Valorant AutoTracker)
   - Go to [APIs and services](https://console.cloud.google.com/apis), then to [Enabled APIs and services](https://console.cloud.google.com/apis/dashboard) and click the 'ENABLE APIS AND SERVICES' button.
   <br/>
-  !['ENABLE APIS AND SERVICES' button](readme_images/enable_apis.png)
+  <img src="readme_images/enable_apis.png" alt="'ENABLE APIS AND SERVICES' button">
   - Enable the [Google Drive API](https://console.cloud.google.com/apis/library/drive.googleapis.com) and [Google Sheets API](https://console.cloud.google.com/apis/library/sheets.googleapis.com).
   - Go back to [APIs and services](https://console.cloud.google.com/apis), then to [Credentials](https://console.cloud.google.com/apis/credentials), click the 'CREATE CREDENTIALS' button and choose the 'Service account' option.
   <br/>
-  ![Create 'Service account' option](readme_images/create_service_account.png)
+  <img src="readme_images/create_service_account.png" alt="Create 'Service account' option">
   - Enter any Service account name (e.g. Valorant Spreadsheet Updater) and click the 'DONE' button.
   - Copy the service account's email, go to your Google Sheets spreadsheet and share it with this email as Editor.
   <br/>
-  ![Service account email](readme_images/service_account_email.png)
+  <img src="readme_images/service_account_email.png" alt="Service account email">
   <br/>
-  ![Sharing Google Sheets spreadsheet](readme_images/share_google_sheets.png)
+  <img src="readme_images/share_google_sheets.png" alt="Sharing Google Sheets spreadsheet">
   - Go back to the service account and click the 'Edit service account' button.
   <br/>
-  !['Edit service account' button](readme_images/edit_service_account.png)
+  <img src="readme_images/edit_service_account.png" alt="'Edit service account' button">
   - Go the 'KEYS' section, click 'ADD KEY', choose 'Create new key', choose JSON as the key type and click the 'CREATE' button. A .json file will be downloaded, save this to a memorable location (e.g. the Valorant AutoTracker folder).
   - Turn on the 'Google Sheets' setting, type in your spreadsheet's name in the 'Spreadsheet Name' setting and choose the location of the .json file you downloaded in the 'Google Service Acc. Key' setting.
   <br/>
-  !['Google Sheets' setting and more](readme_images/google_sheets_setting.png)
+  <img src="readme_images/google_sheets_setting.png" alt="'Google Sheets' setting and more">
 
 ---
 

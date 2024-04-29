@@ -60,6 +60,7 @@ Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported 
   <img src="readme_images/service_account_email.png" alt="Service account email">
   <br/>
   <img src="readme_images/share_google_sheets.png" alt="Sharing Google Sheets spreadsheet">
+  <br/>
   - Go back to the service account and click the 'Edit service account' button.
   <br/>
   <img src="readme_images/edit_service_account.png" alt="'Edit service account' button">

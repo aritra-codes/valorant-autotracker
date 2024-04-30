@@ -31,12 +31,12 @@ Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported 
     <img src="readme_images/auto_upload_videos.png" alt="Auto-upload Videos setting">
   - Add a [new firefox profile](https://support.mozilla.org/en-US/kb/profile-manager-create-remove-switch-firefox-profiles) and copy the root directory path into the 'Firefox Profile Path' setting.
     <br/>
-    <img src="readme_images/root_directory.png" alt="Root directory of profile">
+    ![Root directory of profile](readme_images/root_directory.png)
     <br/>
-    <img src="readme_images/firefox_profile_path.png" alt="Firefox Profile Path setting">
+    ![Firefox Profile Path setting](readme_images/firefox_profile_path.png)
   - Save your settings.
     <br/>
-    <img src="readme_images/save_settings.png" alt="Save settings">
+    ![Save settings](readme_images/save_settings.png)
   - Go to [YouTube Studio](https://studio.youtube.com) and log in.
   - Choose the YouTube channel to which you like to upload your matches (**if there is a 'Don't ask again' option, select it**).
 - Insert to Google Sheets:
@@ -55,7 +55,7 @@ Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported 
     <img src="readme_images/service_account_email.png" alt="Service account email">
     <br/>
     <img src="readme_images/share_google_sheets.png" alt="Sharing Google Sheets spreadsheet">
-    - Go back to the service account and click the 'Edit service account' button.
+  - Go back to the service account and click the 'Edit service account' button.
     <br/>
     <img src="readme_images/edit_service_account.png" alt="'Edit service account' button">
   - Go the 'KEYS' section, click 'ADD KEY', choose 'Create new key', choose JSON as the key type and click the 'CREATE' button. A .json file will be downloaded, save this to a memorable location (e.g. the Valorant AutoTracker folder).

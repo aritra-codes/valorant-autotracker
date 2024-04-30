@@ -19,6 +19,15 @@ Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported 
 
 ## Installation
 
+**You will most likely need to make an exception in [Windows Security](https://support.microsoft.com/en-us/windows/add-an-exclusion-to-windows-security-811816c0-4dfd-af4a-47e4-c301afe13b26) and/or other antiviruses:**
+- **Add an exception for .exe files.**
+- **Follow the steps below (main installation).**
+- **Add an exception for the folder with Valorant AutoTracker.**
+- **Remove the exception for .exe files to avoid downloading harmful software in the future.**
+
+<br/>
+
+Main Installation:
 - Click on the latest release (on the right of the page, under the 'About' section).
 - Download the 'Valorant AutoTracker.zip' file.
 - Extract the file.

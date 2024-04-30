@@ -58,7 +58,7 @@ class PrintLogger():
     def __init__(self, textbox):  # Pass reference to text widget
         sys.stdout = self
         sys.stderr = self
-        self.textbox = textbox  # Keep ref
+        self.textbox = textbox  # Keep reference
 
     def write(self, text):
         """Writes output to textbox"""
@@ -67,7 +67,8 @@ class PrintLogger():
         self.textbox.see(END)  # Scroll to end
         self.textbox.configure(state="disabled")  # Make field readonly
 
-    def flush(self):  # Needed for file like object
+    # Needed for file-like object
+    def flush(self):
         pass
 
 class App(CTk):

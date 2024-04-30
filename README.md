@@ -52,7 +52,7 @@ Main Installation:
   - Choose the YouTube channel to which you like to upload your matches (**if there is a 'Don't ask again' option, select it**).
 - Insert to Google Sheets:
   - Go to [Google Cloud](https://console.cloud.google.com) and log in.
-  - Create a [new project](https://console.cloud.google.com/projectcreate) and name it anything (e.g. Valorant AutoTracker)
+  - Create a [new project](https://console.cloud.google.com/projectcreate) and name it anything (e.g. Valorant AutoTracker).
   - Go to [APIs and services](https://console.cloud.google.com/apis), then to [Enabled APIs and services](https://console.cloud.google.com/apis/dashboard) and click the 'ENABLE APIS AND SERVICES' button.
     <br/>
     !['ENABLE APIS AND SERVICES' button](readme_files/enable_apis.png)

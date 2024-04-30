@@ -27,19 +27,12 @@ Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported 
 - Auto-upload to YouTube:
   - Download [Firefox](https://www.mozilla.org/en-US/firefox/new).
   - Turn on the 'Auto-Upload Videos' setting.
-    <br/>
     <img src="readme_images/auto_upload_videos.png" alt="Auto-upload Videos setting">
-    <br/>
   - Add a [new firefox profile](https://support.mozilla.org/en-US/kb/profile-manager-create-remove-switch-firefox-profiles) and copy the root directory path into the 'Firefox Profile Path' setting.
-    <br/>
     <img src="readme_images/root_directory.png" alt="Root directory of profile">
-    <br/>
     <img src="readme_images/firefox_profile_path.png" alt="Firefox Profile Path setting">
-    <br/>
   - Save your settings.
-    <br/>
     <img src="readme_images/save_settings.png" alt="Save settings">
-    <br/>
   - Go to [YouTube Studio](https://studio.youtube.com) and log in.
   - Choose the YouTube channel to which you like to upload your matches (**if there is a 'Don't ask again' option, select it**).
 - Insert to Google Sheets:

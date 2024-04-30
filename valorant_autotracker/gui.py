@@ -1031,7 +1031,7 @@ class SpreadsheetFormat(Toplevel):
         super().__init__()
         self.geometry(c.SPREADSHEET_FORMAT_SETTINGS_WINDOW_RESOLUTION)
         self.title(c.SPREADSHEET_FORMAT_SETTINGS_TITLE)
-        self.iconbitmap(c.LOGO_IMAGE_PATH)
+        self.iconbitmap(get_resource_path(c.LOGO_IMAGE_PATH))
 
         self.frame = CTkScrollableFrame(self)
         self.frame.pack(pady=20, padx=20, fill="both", expand=True)

@@ -17,7 +17,7 @@ import requests
 from selenium_youtube.constants import UPLOAD_POLL_FREQUENCY
 import selenium_youtube.upload as selytupload
 from utils.datetime import compare_datetimes_lazily
-from utils.path import list_all_files
+from utils.path import list_all_files, get_project_directory
 from utils.threads import wait_until_number_of_threads_is
 from utils.settings import get_setting, InvalidSettingsError
 import valorant_autotracker.constants as c
@@ -87,7 +87,7 @@ def fill_cells(workbook: Workbook, path: str, cell_range: str, pattern_fill: Pat
     workbook.save(path)
 
 def make_default_excel_file(filename: str) -> str | Literal[False]:
-    abs_path = os.path.abspath(f"./{filename}.xlsx")
+    abs_path = os.path.join(get_project_directory(), f"{filename}.xlsx")
 
     if os.path.exists(abs_path) and not messagebox.askokcancel("Replace File", "There is already a file called 'valorant_comp_matches.xlsx', would you like to replace it?"):
         return False

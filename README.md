@@ -24,7 +24,6 @@ Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported 
 - **Follow the steps below (main installation).**
 - **Add an exception for the folder with Valorant AutoTracker.**
 - **Remove the exception for .exe files to avoid downloading harmful software in the future.**
-<br/>
 
 Main Installation:
 - Click on the latest release (on the right of the page, under the 'About' section).

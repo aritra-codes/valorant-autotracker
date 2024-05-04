@@ -20,11 +20,11 @@
 
 Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported (as Valorant does not support other OSes).
 
-## Installation
-
 **Video Tutorial:**
 <br/>
 <img src="readme_files/video_thumbnail.png" alt="Valorant AutoTracker logo" width="500">
+
+## Installation
 
 **You will most likely need to make an exception in [Windows Security](https://support.microsoft.com/en-us/windows/add-an-exclusion-to-windows-security-811816c0-4dfd-af4a-47e4-c301afe13b26) and/or other antiviruses:**
 - **Add an exception for .exe files.**

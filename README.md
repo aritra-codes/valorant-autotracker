@@ -22,7 +22,7 @@ Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported 
 
 **Video Tutorial:**
 <br/>
-<a href="https://youtu.be/i68pHqGllIs" target="_blank"><img src="readme_files/video_thumbnail.png" alt="Valorant AutoTracker logo" width="500"></a>
+<a href="https://youtu.be/i68pHqGllIs"><img src="readme_files/video_thumbnail.png" alt="Valorant AutoTracker logo" width="500"></a>
 
 ## Installation
 

@@ -1,5 +1,4 @@
 <div align="center">
-  <h1><b>CURRENTLY NOT WORKING DUE TO API BEING DOWN.</b></h1>
   <img src="readme_files/logo.png" alt="Valorant AutoTracker logo" width="200">
   <h1>Valorant AutoTracker</h1>
   <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/t/aritra-codes/valorant-autotracker">

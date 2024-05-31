@@ -4,11 +4,8 @@
   <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/t/aritra-codes/valorant-autotracker">
   <img alt="GitHub Release Date" src="https://img.shields.io/github/release-date/aritra-codes/valorant-autotracker">
 
-</div>
+  `Valorant AutoTracker` uploads all your Valorant matches to YouTube and puts them on a spreadsheet in the click of a button! 🔘👆
 
-`Valorant AutoTracker` uploads all your Valorant matches to YouTube and puts them on a spreadsheet in the click of a button! 🔘👆
-
-<div align="center">
   <img src="readme_files/running.gif" alt="A gif of the app running">
 </div>
 

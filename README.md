@@ -3,18 +3,20 @@
   # !! Currently down due to a problem with the API !!
   
   <img src="readme_files/logo.png" alt="Valorant AutoTracker logo" width="200">
-  <h1>Valorant AutoTracker</h1>
-  <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/t/aritra-codes/valorant-autotracker">
+
+  # Valorant AutoTracker
+
   <img alt="GitHub Release Date" src="https://img.shields.io/github/release-date/aritra-codes/valorant-autotracker">
+  <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/t/aritra-codes/valorant-autotracker">
 
   `Valorant AutoTracker` uploads all your Valorant matches to YouTube and puts them on a spreadsheet in the click of a button! 🔘👆
 
-  <img src="readme_files/running.gif" alt="A gif of the app running">
+  ![GIF of the app running](readme_files/running.gif)
+
+  If this helps you, please ⭐ the repository & [follow me](https://github.com/aritra-codes) :D
 </div>
 
 ---
-
-# This project is not affiliated with Riot Games. Go to the bottom for more information.
 
 # ⬇️ Installation
 
@@ -35,6 +37,8 @@ Main Installation:
 - Download the 'Valorant AutoTracker.zip' file.
 - Extract the file.
 - You're ready to go!
+
+---
 
 # ⚙️ Setup (only the complicated parts)
 - Auto-upload to YouTube:
@@ -97,4 +101,5 @@ Backend | Frontend
 # ‼️ Disclaimer
 
 This project is not associated with Riot Games. This application does not modify Valorant in any way, it only makes a request to the [unofficial-valorant-api](https://github.com/Henrik-3/unofficial-valorant-api) to get user and match data.
+
 If you have any problems with this project, please send me an email at aritra8.codes@gmail.com.

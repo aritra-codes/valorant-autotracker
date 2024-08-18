@@ -16,15 +16,13 @@
 
 # This project is not affiliated with Riot Games. Go to the bottom for more information.
 
-# ⬇️ Installation & Setup
+# ⬇️ Installation
 
 Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported (as Valorant does not support other OSes).
 
 **Video Tutorial:**
 <br/>
 <a href="https://youtu.be/i68pHqGllIs"><img src="readme_files/video_thumbnail.png" alt="Valorant AutoTracker logo" width="500"></a>
-
-## Installation
 
 **You will most likely need to make an exception in [Windows Security](https://support.microsoft.com/en-us/windows/add-an-exclusion-to-windows-security-811816c0-4dfd-af4a-47e4-c301afe13b26) and/or other antiviruses:**
 - **Add an exception for .exe files.**
@@ -38,7 +36,7 @@ Main Installation:
 - Extract the file.
 - You're ready to go!
 
-## Setup (only the complicated parts)
+# ⚙️ Setup (only the complicated parts)
 - Auto-upload to YouTube:
   - Download [Firefox](https://www.mozilla.org/en-US/firefox/new).
   - Turn on the 'Auto-Upload Videos' setting.
@@ -96,8 +94,7 @@ Backend | Frontend
 
 ---
 
-# Message for Riot Games
+# ‼️ Disclaimer
 
-This application does not modify Valorant in any way. 
-It only makes a request to the [unofficial-valorant-api](https://github.com/Henrik-3/unofficial-valorant-api) to get user and match data.
+This project is not associated with Riot Games. This application does not modify Valorant in any way, it only makes a request to the [unofficial-valorant-api](https://github.com/Henrik-3/unofficial-valorant-api) to get user and match data.
 If you have any problems with this project, please send me an email at aritra8.codes@gmail.com.

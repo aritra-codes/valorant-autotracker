@@ -1,4 +1,3 @@
-
 from datetime import datetime, timedelta
 import os
 from tkinter import filedialog, messagebox
@@ -18,10 +17,9 @@ from selenium_youtube.constants import UPLOAD_POLL_FREQUENCY
 import selenium_youtube.upload as selytupload
 from utils.datetime import compare_datetimes_lazily
 from utils.path import list_all_files, get_project_directory
-from utils.threads import wait_until_number_of_threads_is
 from utils.settings import get_setting, InvalidSettingsError
+from utils.threads import wait_until_number_of_threads_is
 import valorant_autotracker.constants as c
-
 
 def get_google_sheet(name: str) -> Spreadsheet:
     try:
@@ -80,7 +78,7 @@ def fill_cells(workbook: Workbook, path: str, cell_range: str, pattern_fill: Pat
 
     if sheet is None:
         raise FileNotFoundError("Excel sheet not found. Please make sure your excel workbook contains atleast 1 sheet.")
-    
+
     for cell in sheet[cell_range]:
         cell.fill = pattern_fill
 
@@ -104,86 +102,88 @@ def make_default_excel_file(filename: str) -> str | Literal[False]:
 
     return abs_path
 
-def manage_henrikdev_api_errors(status_code: int) -> Literal[True]:
-    match status_code:
-        case 200:
-            return True
-        case 400:
-            raise c.APIError("Request error by the client. Please make sure you have set a valid PUUID and region in the settings.")
-        case 403:
-            raise c.APIError("Forbidden to connect to the Riot API (most likely due to maintenance reasons). Please try again later.")
-        case 404:
-            raise c.APIError("Player not found, invalid PUUID. Please make sure you have set a valid PUUID and region in the settings.")
-        case 408:
-            raise c.APIError("Timeout while fetching riot data. Please try again.")
-        case 410:
-            raise c.APIError("Endpoint is deprecated. Please contact the developer.")
-        case 429:
-            raise c.APIError("Rate limit reached. Please try again later.")
-        case 500:
-            raise c.APIError("Internal server error. Please make sure you have set a valid PUUID and region in the settings.")
-        case 501:
-            raise c.APIError("API Version not implemented. Please contact the developer.")
-        case 503:
-            raise c.APIError("Riot API seems to be down, API unable to connect. Please try again later.")
-        case _:
-            raise c.APIError(f"An error ({status_code}) has occured. Please try again.")
+class ValorantAPI:
+    def __init__(self, api_key) -> None:
+        self.headers = {"Authorization": api_key}
 
-def find_puuid(name: str, tag: str) -> str:
-    request = requests.get(c.ACCOUNT_BY_NAME_URL(name, tag), timeout=c.API_REQUEST_TIMEOUT).json()
+    def manage_henrikdev_api_errors(self, status_code: int) -> Literal[True]:
+        match status_code:
+            case 200:
+                return True
+            case 400:
+                raise c.APIError("Request error by the client. Please make sure you have set a valid PUUID and region in the settings.")
+            case 401 | 403:
+                raise c.APIError("Invalid API Key. Please make sure you have a valid API key in the settings.")
+            case 404:
+                raise c.APIError("Player not found, invalid PUUID. Please make sure you have set a valid PUUID and region in the settings.")
+            case 408:
+                raise c.APIError("Timeout while fetching riot data. Please try again.")
+            case 410:
+                raise c.APIError("Endpoint is deprecated. Please contact the developer.")
+            case 429:
+                raise c.APIError("Rate limit reached. Please try again later.")
+            case 500:
+                raise c.APIError("Internal server error. Please make sure you have set a valid PUUID and region in the settings.")
+            case 501:
+                raise c.APIError("API Version not implemented. Please contact the developer.")
+            case 503:
+                raise c.APIError("Riot API seems to be down, API unable to connect. Please try again later.")
+            case _:
+                raise c.APIError(f"An error ({status_code}) has occured. Please try again or report this to 'github.com/aritra-codes/valorant-autotracker'.")
 
-    manage_henrikdev_api_errors(request["status"])
+    def send_request(self, url: str, params: dict | list[tuple] | None=None) -> dict:
+        response = requests.get(url, params, headers=self.headers, timeout=c.API_REQUEST_TIMEOUT)
 
-    return request["data"]["puuid"]
+        self.manage_henrikdev_api_errors(response.status_code)
 
-def find_region(name: str, tag: str) -> str:
-    request = requests.get(c.ACCOUNT_BY_NAME_URL(name, tag), timeout=c.API_REQUEST_TIMEOUT).json()
+        return response.json()
 
-    manage_henrikdev_api_errors(request["status"])
+    def find_puuid(self, name: str, tag: str) -> str:
+        response = self.send_request(c.ACCOUNT_BY_NAME_URL(name, tag))
 
-    return request["data"]["region"]
+        return response["data"]["puuid"]
 
-def get_matches(puuid: str, affinity: c.Affinity, size: int=10) -> list:
-    request = requests.get(c.MATCHES_URL(puuid, affinity), {"mode": "competitive", "size": size}, timeout=c.API_REQUEST_TIMEOUT).json()
+    def find_region(self, name: str, tag: str) -> str:
+        response = self.send_request(c.ACCOUNT_BY_NAME_URL(name, tag))
 
-    manage_henrikdev_api_errors(request["status"])
+        return response["data"]["region"]
 
-    matches = request["data"]
-    matches.reverse() # Reverses from descending to ascending
+    def get_matches(self, puuid: str, affinity: c.Affinity, size: int=10) -> list:
+        response = self.send_request(c.MATCHES_URL(puuid, affinity), {"mode": "competitive", "size": size})
 
-    return matches
+        matches = response["data"]
+        matches.reverse() # Reverses from descending to ascending
 
-def get_new_matches(puuid: str, affinity: c.Affinity, latest_match_id: str) -> list:
-    matches = get_matches(puuid, affinity)
-
-    for index, match in enumerate(reversed(matches)):
-        if match["metadata"]["matchid"] == latest_match_id:
-            return matches[::-1][:index][::-1] # Reverses to descending, gets index number of matches, reverses back to ascending
-
-    upload_last_10 = messagebox.askokcancel("Match not found",
-                                            "No match in the last 10 matches has the latest match id set in the settings."
-                                            " Would you like to insert and/or upload the last 10 matches?")
-
-    if upload_last_10:
         return matches
-    
-    raise c.MatchNotFoundError("No match in the last 10 matches has the latest match id set in the settings.")
 
-def get_mmr_changes(puuid: str, affinity: c.Affinity, size: int) -> list:
-    request = requests.get(c.MMR_HISTORY_URL(puuid, affinity), {"size": size}, timeout=c.API_REQUEST_TIMEOUT).json()
+    def get_new_matches(self, puuid: str, affinity: c.Affinity, latest_match_id: str) -> list:
+        matches = self.get_matches(puuid, affinity)
 
-    manage_henrikdev_api_errors(request["status"])
+        for index, match in enumerate(reversed(matches)):
+            if match["metadata"]["matchid"] == latest_match_id:
+                return matches[::-1][:index][::-1] # Reverses to descending, gets index number of matches, reverses back to ascending
 
-    mmr_changes = [match["last_mmr_change"] for match in request["data"]]
-    mmr_changes.reverse() # Reverses from descending to ascending
+        upload_last_10 = messagebox.askokcancel("Match not found",
+                                                "No match in the last ~10 matches has the latest match ID set in the settings."
+                                                " Would you like to insert and/or upload the last ~10 matches?")
 
-    return mmr_changes
+        if upload_last_10:
+            return matches
+
+        raise c.MatchNotFoundError("No match in the last ~10 matches has the latest match ID set in the settings.")
+
+    def get_mmr_changes(self, puuid: str, affinity: c.Affinity, size: int=10) -> dict[str, int]:
+        response = self.send_request(c.MMR_HISTORY_URL(puuid, affinity), {"size": size})
+
+        mmr_changes = {match["match_id"]: match["mmr_change_to_last_game"] for match in response["data"]}
+
+        return mmr_changes
 
 def convert_valorant_date(unformatted_date: str) -> datetime:
     datetime_obj = datetime.strptime(unformatted_date, c.VALORANT_DATE_FORMAT)
-    return datetime_obj - timedelta(minutes=58) # Takes away delay time (≈58 min)
+    return datetime_obj + timedelta(hours=1, minutes=2) # Accounts for delay time
 
-def format_match_info(match_info: dict, puuid: str, mmr_change: str) -> dict[str, str | int]:
+def format_match_info(match_info: dict, puuid: str, mmr_change: int) -> dict[str, str | int]:
     meta = match_info["metadata"]
     player = next(player for player in match_info["players"]["all_players"] if player["puuid"] == puuid)
     stats = player["stats"]
@@ -250,7 +250,7 @@ def upload_video(match_info: dict[str, str | int], date_started_datetime: dateti
     if video_path:
         print(f"Starting upload of video '{title}'...")
 
-        attempts = 3
+        attempts = 2
 
         while True:
             try:
@@ -278,7 +278,7 @@ def upload_video(match_info: dict[str, str | int], date_started_datetime: dateti
                 if attempts <= 0:
                     raise c.VideoUploadError(f"Video '{title}' failed to upload.") from e
 
-                print(f"Video '{title}' failed to upload. Retrying ({attempts} attempts left)...")
+                print(f"Video '{title}' failed to upload. Retrying...")
             else:
                 return video_link
 

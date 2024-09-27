@@ -1,57 +1,38 @@
 import os
 import sys
 import threading
-from tkinter import Toplevel, Label, messagebox, scrolledtext
+from tkinter import Toplevel, messagebox, scrolledtext
 import webbrowser
 
 from customtkinter import (set_appearance_mode, set_default_color_theme,
                            CTk, CTkLabel, CTkEntry, CTkButton, CTkFrame,
-                           CTkImage, filedialog, END, CTkSwitch, StringVar,
-                           CTkSlider, CTkOptionMenu, CTkScrollableFrame)
-from PIL import Image
+                           filedialog, END, CTkBaseClass,
+                           CTkOptionMenu, CTkScrollableFrame)
 
-from utils.misc import get_key_from_value
+from utils.misc import get_key_from_value, get_ctk_image
 from utils.path import get_resource_path
-from utils.settings import get_setting, edit_setting, make_default_settings_file
+from utils.settings import (get_setting, edit_setting, make_default_settings_file,
+                            InvalidSettingsError)
 import valorant_autotracker.constants as c
+from valorant_autotracker.gui_classes import (SettingsTooltip, SettingsButton, SettingsEntry,
+                                              SettingsHeader, SettingsLabel, SettingsOptionMenu,
+                                              SettingsSlider, SettingsSwitch)
 import valorant_autotracker.helpers as h
 from valorant_autotracker.main import main as script
 
 set_appearance_mode("light") # Set theme
-set_default_color_theme(c.DEFAULT_COLOR_THEME) # Set colour theme for buttons etc.
-default_font = c.DEFAULT_FONT
+set_default_color_theme(c.DEFAULT_COLOR_THEME)
 
 # Define the image path for all images used
-get_pillow_image = lambda relative_path: Image.open(get_resource_path(relative_path))
-
-question_image = CTkImage(light_image=get_pillow_image(c.QUESTION_IMAGE_PATH["dark"]),
-                          dark_image=get_pillow_image(c.QUESTION_IMAGE_PATH["light"]))
-
-change_dir = CTkImage(light_image=get_pillow_image(c.FOLDER_IMAGE_PATH),
-                      dark_image=get_pillow_image(c.FOLDER_IMAGE_PATH))
-
-find_image = CTkImage(light_image=get_pillow_image(c.FIND_IMAGE_PATH["dark"]),
-                      dark_image=get_pillow_image(c.FIND_IMAGE_PATH["light"]))
-
-save_image = CTkImage(light_image=get_pillow_image(c.SAVE_IMAGE_PATH),
-                      dark_image=get_pillow_image(c.SAVE_IMAGE_PATH))
-
-reset_image = CTkImage(light_image=get_pillow_image(c.RESET_IMAGE_PATH),
-                       dark_image=get_pillow_image(c.RESET_IMAGE_PATH))
-
-return_image = CTkImage(light_image=get_pillow_image(c.RETURN_IMAGE_PATH),
-                       dark_image=get_pillow_image(c.RETURN_IMAGE_PATH))
-
-pencil_image = CTkImage(light_image=get_pillow_image(c.PENCIL_IMAGE_PATH),
-                       dark_image=get_pillow_image(c.PENCIL_IMAGE_PATH))
-run_image = CTkImage(light_image=get_pillow_image(c.RUN_IMAGE_PATH["dark"]),
-                     dark_image=get_pillow_image(c.RUN_IMAGE_PATH["light"]))
-
-settings_image = CTkImage(light_image=get_pillow_image(c.SETTINGS_IMAGE_PATH["dark"]),
-                          dark_image=get_pillow_image(c.SETTINGS_IMAGE_PATH["light"]))
-
-github_image = CTkImage(light_image=get_pillow_image(c.GITHUB_IMAGE_PATH),
-                        dark_image=get_pillow_image(c.GITHUB_IMAGE_PATH))
+change_dir = get_ctk_image(c.FOLDER_IMAGE_PATH, c.FOLDER_IMAGE_PATH)
+find_image = get_ctk_image(c.FIND_IMAGE_PATH["dark"], c.FIND_IMAGE_PATH["light"])
+save_image = get_ctk_image(c.SAVE_IMAGE_PATH, c.SAVE_IMAGE_PATH)
+reset_image = get_ctk_image(c.RESET_IMAGE_PATH, c.RESET_IMAGE_PATH)
+return_image = get_ctk_image(c.RETURN_IMAGE_PATH, c.RETURN_IMAGE_PATH)
+pencil_image = get_ctk_image(c.PENCIL_IMAGE_PATH, c.PENCIL_IMAGE_PATH)
+run_image = get_ctk_image(c.RUN_IMAGE_PATH["dark"], c.RUN_IMAGE_PATH["light"])
+settings_image = get_ctk_image(c.SETTINGS_IMAGE_PATH["dark"], c.SETTINGS_IMAGE_PATH["light"])
+github_image = get_ctk_image(c.GITHUB_IMAGE_PATH, c.GITHUB_IMAGE_PATH)
 
 class PrintLogger():
     """File like object"""
@@ -75,6 +56,7 @@ class App(CTk):
     """Main application class"""
     def __init__(self):
         super().__init__()
+
         self.geometry(c.MAIN_WINDOW_RESOLUTION) # Set the window size (can be resizable)
         self.iconbitmap(get_resource_path(c.LOGO_IMAGE_PATH)) # Set logo
         self.title(c.APP_TITLE)
@@ -85,34 +67,41 @@ class App(CTk):
         self.frame.columnconfigure(0, weight=1)
 
         # Create a button to run the main script
-        self.run = CTkButton(self.frame, text="Run", width=200,
-                             height=40, image=run_image,
-                             font=default_font, command=self.thread_script)
+        self.run = CTkButton(self.frame, text="Run",
+                             width=200, height=40,
+                             image=run_image,
+                             font=c.DEFAULT_FONT,
+                             command=self.thread_script)
         self.run.pack(pady=(20,0))
 
         # Create a button to open settings window (class)
-        self.settings_button = CTkButton(self.frame, text="Settings", width=200,
-                                         height=40, image=settings_image,
-                                         font=default_font, command=self.open_settings)
-        self.settings_button.pack(pady=(10,0))
+        settings_button = CTkButton(self.frame, text="Settings",
+                                    width=200, height=40,
+                                    image=settings_image,
+                                    font=c.DEFAULT_FONT,
+                                    command=self.open_settings)
+        settings_button.pack(pady=(10,0))
 
         # Create a Github follow button
-        self.github = CTkButton(self.frame, text="Follow us on Github", width=200,
-                                         height=40, image=github_image,
-                                         font=default_font, command=self.open_github_profiles)
-        self.github.pack(pady=(10,0))
+        github = CTkButton(self.frame,
+                           text="Follow us on Github",
+                           width=200, height=40,
+                           image=github_image,
+                           font=c.DEFAULT_FONT,
+                           command=self.open_github_profiles)
+        github.pack(pady=(10,0))
 
         # Entry box displays console output
-        self.output_label = CTkLabel(self.frame, text="Output:", font=default_font)
-        self.output_label.pack(pady=(10,0))
+        output_label = CTkLabel(self.frame, text="Output:", font=c.DEFAULT_FONT)
+        output_label.pack(pady=(10,0))
 
-        self.output_entry = scrolledtext.ScrolledText(self.frame, bd=1,
-                                                      font=("Consolas", 9),
-                                                      height=8)
-        self.output_entry.pack(expand=True, fill="both", pady=(10,20), padx=20)
-        self.output_entry.configure(state="disabled")
+        output_entry = scrolledtext.ScrolledText(self.frame, bd=1,
+                                                 font=("Consolas", 9),
+                                                 height=8)
+        output_entry.pack(expand=True, fill="both", pady=(10,20), padx=20)
+        output_entry.configure(state="disabled")
 
-        PrintLogger(self.output_entry) # Ref to entry box for console output
+        PrintLogger(output_entry) # Ref to entry box for console output
 
     def thread_script(self):
         def run_script():
@@ -123,910 +112,640 @@ class App(CTk):
                 print(e)
             self.run.configure(text="Run", fg_color="#3A7EBF",state="normal")
 
-        thread = threading.Thread(target=run_script)
-        thread.start()
+        threading.Thread(target=run_script).start()
 
     def open_settings(self):
         """Opens the settings and minimises the main window"""
         self.state(newstate="iconic")
-        settings_window = SettingsWindow(self)
-        settings_window.mainloop()
+        SettingsWindow(self).mainloop()
 
     def maximise(self):
-        """Maximises window when settings window is destroyed"""
         self.state(newstate="normal")
 
     def open_github_profiles(self):
         webbrowser.open("https://github.com/lmdrums")
         webbrowser.open("https://github.com/aritra-codes")
 
-class HoverButton(CTkButton):
-    """Class for hover button (question mark)"""
-    def __init__(self, master, text, tooltip_text, image, width, fg_color,
-                 hover_color, **kw):
-        CTkButton.__init__(self, master, text=text, image=image, width=width,
-                           fg_color=fg_color, hover_color=hover_color, **kw)
-        self.tooltip = None
-        self.tooltip_text = tooltip_text
-        self.bind("<Enter>", self.on_enter)
-        self.bind("<Leave>", self.on_leave)
+def input_entry(entry: CTkEntry, value):
+    entry.delete(0, END)
+    entry.insert(END, value)
 
-    def on_enter(self, _):
-        """Creates tooltip"""
-        self.tooltip = Toplevel(self)
-        x, y, _, _ = self.bbox("insert")
-        x += self.winfo_rootx() + 25
-        y += self.winfo_rooty() + 25
-        self.tooltip.wm_overrideredirect(True)
-        self.tooltip.wm_geometry(f"+{x}+{y}")
-        label = Label(self.tooltip, text=self.tooltip_text,
-                      bg="white", relief="solid",
-                      borderwidth=0.5)
-        label.pack()
+def filedialog_to_entry(entry: CTkEntry,
+                        filetypes: list[tuple[str, str]]=None,
+                        directory: bool=False) -> None:
+    if directory:
+        path = filedialog.askdirectory(title="Open")
+    else:
+        if not filetypes:
+            filetypes = []
 
-    def on_leave(self, _):
-        """Destroys tooltip"""
-        if self.tooltip:
-            self.tooltip.destroy()
-            self.tooltip = None
+        path = filedialog.askopenfilename(title="Open", filetypes=filetypes)
+
+    if path:
+        input_entry(entry, path)
+
+def validate_integer(value: str, label_text: str, minimum: int=None, maximum: int=None) -> bool:
+    try:
+        value = int(value)
+    except ValueError:
+        messagebox.showerror(title="Invalid Input",
+                             message=f"{label_text}: Please enter an integer.")
+        return False
+
+    if minimum and not value >= minimum:
+        messagebox.showerror(title="Invalid Integer",
+                             message=f"{label_text}: Please enter an integer >= {minimum}.")
+        return False
+    if maximum and not value <= maximum:
+        messagebox.showerror(title="Invalid Integer",
+                             message=f"{label_text}: Please enter an integer <= {maximum}.")
+        return False
+
+    return True
+
+def validate_path(value: str, label_text: str,
+                  filetypes: list[tuple[str, str]]=None, directory: bool=False) -> bool:
+    if directory:
+        if not os.path.isdir(value):
+            messagebox.showerror(title="Invalid Directory",
+                                 message=f"{label_text}: Directory was not found.\nPlease enter a valid directory.")
+            return False
+    else:
+        if not os.path.isfile(value):
+            messagebox.showerror(title="Invalid File",
+                                 message=f"{label_text}: File was not found.\nPlease enter a valid file path.")
+            return False
+
+        if filetypes:
+            exts = [os.path.splitext(filetype[1])[1] for filetype in filetypes]
+
+            if os.path.splitext(value)[1] not in exts:
+                messagebox.showerror(title="Invalid File Type",
+                                     message=f"{label_text}: File must be {"/".join(exts)}.")
+                return False
+
+    return True
 
 class SettingsWindow(Toplevel):
     """Settings window"""
     def __init__(self, parent):
         super().__init__()
 
-        self.parent = parent # Ref to parent window
+        self.parent: App = parent # Ref to parent window
+        self.row: int = 0
+        self.settings: list[CTkBaseClass] = []
 
-        # Window attributes
+        def increment_row(increment: int=1):
+            self.row += increment
+
         self.geometry(c.SETTINGS_WINDOW_RESOLUTION)
         self.title(c.SETTINGS_TITLE)
         self.iconbitmap(get_resource_path(c.LOGO_IMAGE_PATH))
 
-        # Create a frame for settings
         self.frame = CTkScrollableFrame(self)
         self.frame.pack(pady=20, padx=20, fill="both", expand=True)
 
-        # Create and place all the objects of settings window
-        self.save_button = CTkButton(self.frame, text="Save", font=default_font,
-                                     width=100, image=save_image, command=self.save_settings)
-        self.save_button.grid(row=0, column=0, padx=10, pady=(10,0), sticky="ew")
+        save_button = SettingsButton(self,
+                                     text="Save All",
+                                     width=100,
+                                     image=save_image,
+                                     command=self.save_settings)
+        save_button.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="ew")
 
-        self.reset = CTkButton(self.frame, text="Reset to Default",
-                                         font=default_font, image=reset_image,
-                                         command=self.reset_function, width=160)
-        self.reset.grid(row=0, column=1, padx=(0,10), pady=(10,0), sticky="w")
+        reset = SettingsButton(self,
+                               text="Reset to Default",
+                               image=reset_image,
+                               command=self.reset_settings, width=160)
+        reset.grid(row=self.row, column=1, padx=(0,10), pady=(10,0), sticky="w")
 
-        self.return_button = CTkButton(self.frame, text="Close and Return",
-                                       font=default_font, width=150, image=return_image,
-                                       fg_color="#e00b0b", hover_color="dark red",
-                                       command=self.return_function)
-        self.return_button.grid(row=0, column=1, pady=(10,0), sticky="e")
+        return_button = SettingsButton(self, text="Close and Return",
+                                       width=150,
+                                       image=return_image,
+                                       fg_color="#e00b0b",
+                                       hover_color="dark red",
+                                       command=self.return_to_main)
+        return_button.grid(row=self.row, column=1, pady=(10,0), sticky="e")
 
-        self.general_header = CTkLabel(self.frame, text="General",
-                                       font=("Calibri Bold",18))
-        self.general_header.grid(row=1, column=0, padx=10, pady=(10,0), sticky="w")
+        increment_row()
 
-        self.mdy_dates_label = CTkLabel(self.frame, text="Use M/D/Y Dates",
-                                        font=default_font)
-        self.mdy_dates_label.grid(row=2, column=0, padx=10, pady=(10,0), sticky="w")
+        # General section
 
-        self.mdy_dates_var = StringVar(value="off")
-        self.mdy_dates_switch = CTkSwitch(self.frame, text="",
-                                      variable=self.mdy_dates_var, onvalue="on",
-                                      offvalue="off")
-        self.mdy_dates_switch.grid(row=2, column=1, pady=(10,0), sticky="w")
+        self.general_header = SettingsHeader(self, text="General")
+        self.general_header.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
 
-        self.video_header = CTkLabel(self.frame, text="Video",
-                                     font=("Calibri Bold",18))
-        self.video_header.grid(row=3, column=0, padx=10, pady=(10,0), sticky="w")
+        increment_row()
 
-        self.switch_var = StringVar(value="off")
-        self.switch_label = CTkLabel(self.frame, text="Auto-Upload Videos",
-                                     font=default_font)
-        self.switch_label.grid(row=4, column=0, pady=(10,0), padx=10, sticky="w")
-        self.switch_onoff = CTkSwitch(self.frame, text="", command=self.switch1,
-                                      variable=self.switch_var, onvalue="on",
-                                      offvalue="off")
-        self.switch_onoff.grid(row=4, column=1, pady=(10,0), sticky="w")
-        self.val = self.switch_onoff.get()
+        mdy_dates_label = SettingsLabel(self, text="Use M/D/Y Dates")
+        mdy_dates_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
 
-        self.firefox_profile_label = CTkLabel(self.frame, text="Firefox Profile Path",
-                                              font=default_font)
-        self.firefox_profile_label.grid(row=5, column=0, pady=(10,0), padx=10, sticky="w")
-        self.firefox_entry = CTkEntry(self.frame, font=default_font, width=500,
+        mdy_dates_switch = SettingsSwitch(self, mdy_dates_label,
+                                          c.USE_MDY_DATES_SETTING_LOCATOR)
+        mdy_dates_switch.grid(row=self.row, column=1, pady=(10,0), sticky="w")
+
+        increment_row()
+
+        # Valorant section
+
+        valorant_header = SettingsHeader(self, text="Valorant")
+        valorant_header.grid(row=self.row, column=0, padx=10, pady=(15,0), sticky="w")
+
+        increment_row()
+
+        api_key_label = SettingsLabel(self, text="API Key")
+        api_key_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
+
+        api_key_entry = SettingsEntry(self, api_key_label,
+                                      c.API_KEY_SETTING_LOCATOR,
+                                      placeholder_text="Enter API Key")
+        api_key_entry.grid(row=self.row, column=1, pady=(10,0), sticky="ew")
+
+        increment_row()
+
+        def save_api_key() -> None:
+            try:
+                api_key_entry.save()
+            except InvalidSettingsError:
+                pass
+            else:
+                messagebox.showinfo(title="Success", message="API Key has been saved.")
+
+        api_key_save = SettingsButton(self, text="Save API Key  ",
+                                      width=100,
+                                      image=save_image,
+                                      command=save_api_key)
+        api_key_save.grid(row=self.row, column=1, pady=(10,0), sticky="w")
+
+        increment_row()
+
+        username_label = SettingsLabel(self, text="Username")
+        username_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
+
+        username_entry = CTkEntry(self.frame,
+                                  font=c.DEFAULT_FONT,
+                                  placeholder_text="Enter username (for PUUID and Region)")
+        username_entry.grid(row=self.row, column=1, pady=(10,0), sticky="ew")
+
+        increment_row()
+
+        tag_label = SettingsLabel(self, text="Tag")
+        tag_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
+
+        tag_entry = CTkEntry(self.frame,
+                             font=c.DEFAULT_FONT,
+                             placeholder_text="Enter tag (for PUUID and Region)")
+        tag_entry.grid(row=self.row, column=1, pady=(10,0), sticky="ew")
+
+        increment_row()
+
+        def find_puuid_region(name: str, tag: str):
+            """Finds user PUUID and region based on username and tag"""
+            if not name:
+                messagebox.showerror(title="Invalid Input",
+                                     message="Please enter a valid username.")
+                return
+            if not tag:
+                messagebox.showerror(title="Invalid Input",
+                                     message="Please enter a valid tag.")
+                return
+
+            api = h.ValorantAPI(get_setting(*c.API_KEY_SETTING_LOCATOR))
+
+            try:
+                puuid = api.find_puuid(name, tag)
+                region = api.find_region(name, tag)
+            except c.APIError as e:
+                messagebox.showerror(title="API Error", message=e)
+            else:
+                input_entry(self.puuid_entry, puuid)
+
+                self.region_dropdown.set(c.REGION_OPTIONS[region])
+
+        puuid_find = CTkButton(self.frame,
+                               text="Find PUUID and Region  ",
+                               font=c.DEFAULT_FONT,
+                               image=find_image,
+                               width=110,
+                               command=lambda: find_puuid_region(username_entry.get(), tag_entry.get()))
+        puuid_find.grid(row=self.row, column=1, pady=(10,0), sticky="w")
+
+        increment_row()
+
+        puuid_label = SettingsLabel(self, text="PUUID")
+        puuid_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
+
+        self.puuid_entry = SettingsEntry(self, puuid_label,
+                                         c.PUUID_SETTING_LOCATOR,
+                                         placeholder_text="Enter PUUID")
+        self.puuid_entry.grid(row=self.row, column=1, columnspan=3, pady=(10,0), sticky="ew")
+
+        increment_row()
+
+        region_label = SettingsLabel(self, text="Region")
+        region_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
+
+        self.region_dropdown = SettingsOptionMenu(self, region_label,
+                                                  c.AFFINITY_SETTING_LOCATOR,
+                                                  c.REGION_OPTIONS,
+                                                  width=250)
+        self.region_dropdown.grid(row=self.row, column=1, pady=(10,0), sticky="w", columnspan=2)
+
+        increment_row()
+
+        latest_matchid_label = SettingsLabel(self, text="Latest Match ID")
+        latest_matchid_label.grid(row=self.row, column=0, padx=10, pady=(10,0),
+                                       sticky="w")
+
+        latest_matchid_entry = SettingsEntry(self, latest_matchid_label,
+                                             c.LATEST_MATCH_ID_SETTING_LOCATOR,
+                                             False,
+                                             placeholder_text="Enter Latest Match ID")
+        latest_matchid_entry.grid(row=self.row, column=1, columnspan=3, pady=(10,0), sticky="ew")
+
+        latest_matchid_hoverbutton = SettingsTooltip(self.frame,
+                                                     tooltip_text="All the matches (limited to 10 latest) after this match will be inserted and/or uploaded.\nIf set to blank, it will return the last 10 matches.")
+        latest_matchid_hoverbutton.grid(row=self.row, column=4, pady=(10,0), sticky="w")
+        latest_matchid_hoverbutton.configure(state="disabled")
+
+        increment_row()
+
+        # Video section
+
+        self.video_header = SettingsHeader(self, text="Video")
+        self.video_header.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
+
+        increment_row()
+
+        autoupload_videos_label = SettingsLabel(self, text="Auto-Upload Videos")
+        autoupload_videos_label.grid(row=self.row, column=0, pady=(10,0), padx=10, sticky="w")
+
+        autoupload_videos_switch = SettingsSwitch(self, autoupload_videos_label,
+                                                  c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR)
+        autoupload_videos_switch.grid(row=self.row, column=1, pady=(10,0), sticky="w")
+
+        increment_row()
+
+        firefox_profile_label = SettingsLabel(self, text="Firefox Profile Path")
+        firefox_profile_label.grid(row=self.row, column=0, pady=(10,0), padx=10, sticky="w")
+
+        firefox_entry = SettingsEntry(self,
+                                      firefox_profile_label,
+                                      c.FIREFOX_PROFILE_SETTING_LOCATOR,
+                                      validate=lambda v, lt: validate_path(v, lt, directory=True),
+                                      width=500,
                                       placeholder_text="Firefox profile path (C:/...)")
-        self.firefox_entry.grid(row=5, column=1, pady=(10,0), columnspan=4)
-        self.firefox_change = CTkButton(self.frame, text="Change  ", font=default_font,
-                                        width=70, command=self.firefoxprofile_change_function,
+        firefox_entry.grid(row=self.row, column=1, pady=(10,0), columnspan=4)
+
+        firefox_change = SettingsButton(self, text="Change  ",
+                                        width=70,
+                                        command=lambda: filedialog_to_entry(firefox_entry, directory=True),
                                         image=change_dir)
-        self.firefox_change.grid(row=5, column=5, pady=(10,0), padx=5)
+        firefox_change.grid(row=self.row, column=5, pady=(10,0), padx=5)
 
-        self.background_process_label = CTkLabel(self.frame, text="Background Process",
-                                                 font=default_font)
-        self.background_process_label.grid(row=6, column=0, padx=10, pady=(10,0),
-                                           sticky="w")
-        self.background_process_var = StringVar(value="off")
-        self.background_process_switch = CTkSwitch(self.frame, text="",
-                                                   variable=self.background_process_var,
-                                                   onvalue="on", offvalue="off")
-        self.background_process_switch.grid(row=6, column=1, pady=(10,0), sticky="w")
-        self.background_process_hoverbutton = HoverButton(self.frame, text="", image=question_image,
-                                                          tooltip_text="When turned on, Firefox will open in the background when\nuploading videos and not appear on your screen.",
-                                                          width=15, fg_color="transparent",
-                                                          hover_color="grey")
-        self.background_process_hoverbutton.grid(row=6, column=1, padx=40, pady=(10,0), sticky="w")
-        self.background_process_hoverbutton.configure(state="disabled")
+        autoupload_videos_switch.add_child_widget(firefox_entry)
+        autoupload_videos_switch.add_child_widget(firefox_change)
 
-        self.maxvids_sim_label = CTkLabel(self.frame, text="Max. Vids Simultaneously",
-                                          font=default_font)
-        self.maxvids_sim_label.grid(row=7, column=0, padx=10, pady=(10,0),
-                                    sticky="w")
-        self.maxvids_sim_entry = CTkEntry(self.frame, font=default_font,
-                                          width=40, justify="center")
-        self.maxvids_sim_entry.grid(row=7, column=1, pady=(10,0), sticky="w")
+        increment_row()
 
-        self.maxvids_hoverbutton = HoverButton(self.frame, text="", image=question_image,
-                                               tooltip_text="The number of videos that can be uploaded at the same time.",
-                                               width=15, fg_color="transparent",
-                                               hover_color="grey")
-        self.maxvids_hoverbutton.grid(row=7, column=1, padx=40, pady=(10,0), sticky="w")
-        self.maxvids_hoverbutton.configure(state="disabled")
+        background_process_label = SettingsLabel(self, text="Background Process")
+        background_process_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
 
-        self.visibility_label = CTkLabel(self.frame, text="Visibility",
-                                         font=default_font)
-        self.visibility_label.grid(row=8, column=0, padx=10, pady=(10,0),
-                                   sticky="w")
-        self.visibility_list = list(c.VIDEO_VISIBILITY_OPTIONS.values())
+        background_process_switch = SettingsSwitch(self,
+                                                   background_process_label,
+                                                   c.BACKGROUND_PROCESS_SETTING_LOCATOR)
+        background_process_switch.grid(row=self.row, column=1, pady=(10,0), sticky="w")
 
-        self.visibility_dropdown = CTkOptionMenu(self.frame, values=self.visibility_list,
-                                                 font=default_font, button_color="grey",
-                                                 button_hover_color="dark grey",
-                                                 fg_color="white", text_color="black")
-        self.visibility_dropdown.grid(row=8, column=1, padx=2, pady=(10,0), sticky="w")
+        background_process_hoverbutton = SettingsTooltip(self.frame,
+                                                         tooltip_text="When turned on, Firefox will open in the background when\nuploading videos and not appear on your screen.")
+        background_process_hoverbutton.grid(row=self.row, column=1, padx=40, pady=(10,0), sticky="w")
+        background_process_hoverbutton.configure(state="disabled")
 
-        self.switch_var2 = StringVar(value="off")
-        self.switch_label_2 = CTkLabel(self.frame, text="Auto-Select Videos",
-                                       font=default_font)
-        self.switch_label_2.grid(row=9, column=0, pady=(10,0), padx=10, sticky="w")
-        self.switch_onoff2 = CTkSwitch(self.frame, text="", command=self.switch2,
-                                       variable=self.switch_var2, onvalue="on",
-                                       offvalue="off")
-        self.switch_onoff2.grid(row=9, column=1, pady=(10,0), sticky="w")
-        self.val2 = self.switch_onoff2.get()
+        autoupload_videos_switch.add_child_widget(background_process_switch)
 
-        self.viddir_label = CTkLabel(self.frame, text="Video Directory",
-                                     font=default_font)
-        self.viddir_label.grid(row=10, column=0, padx=10, pady=(10,0), sticky="w")
-        self.viddir_entry = CTkEntry(self.frame, font=default_font, width=500,
+        increment_row()
+
+        maxvids_sim_label = SettingsLabel(self, text="Max. Vids Simultaneously")
+        maxvids_sim_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
+        maxvids_sim_entry = SettingsEntry(self,
+                                          maxvids_sim_label,
+                                          c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR,
+                                          validate=lambda v, lt: validate_integer(v, lt, 1),
+                                          width=40,
+                                          justify="center")
+        maxvids_sim_entry.grid(row=self.row, column=1, pady=(10,0), sticky="w")
+
+        maxvids_hoverbutton = SettingsTooltip(self.frame,
+                                              tooltip_text="The number of videos that can be uploaded at the same time.")
+        maxvids_hoverbutton.grid(row=self.row, column=1, padx=40, pady=(10,0), sticky="w")
+        maxvids_hoverbutton.configure(state="disabled")
+
+        autoupload_videos_switch.add_child_widget(maxvids_sim_entry)
+
+        increment_row()
+
+        visibility_label = SettingsLabel(self, text="Visibility")
+        visibility_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
+
+        visibility_dropdown = SettingsOptionMenu(self, visibility_label,
+                                                 c.VIDEO_VISIBILITY_SETTING_LOCATOR,
+                                                 c.VIDEO_VISIBILITY_OPTIONS)
+        visibility_dropdown.grid(row=self.row, column=1, padx=2, pady=(10,0), sticky="w")
+
+        autoupload_videos_switch.add_child_widget(visibility_dropdown)
+
+        increment_row()
+
+        autoselect_videos_label = SettingsLabel(self, text="Auto-Select Videos\n(Experimental)")
+        autoselect_videos_label.grid(row=self.row, column=0, pady=(10,0), padx=10, sticky="w")
+
+        autoselect_videos_switch = SettingsSwitch(self,
+                                                  autoselect_videos_label,
+                                                  c.AUTOSELECT_VIDEOS_SETTING_LOCATOR)
+        autoselect_videos_switch.grid(row=self.row, column=1, pady=(10,0), sticky="w")
+
+        autoupload_videos_switch.add_child_widget(autoselect_videos_switch)
+
+        increment_row()
+
+        viddir_label = SettingsLabel(self, text="Video Directory")
+        viddir_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
+
+        viddir_entry = SettingsEntry(self,
+                                     viddir_label,
+                                     c.VIDEO_DIRECTORY_SETTING_LOCATOR,
+                                     validate=lambda v, lt: validate_path(v, lt, directory=True),
+                                     width=500,
                                      placeholder_text="Video directory (C:/...)")
-        self.viddir_entry.grid(row=10, column=1, pady=(10,0), columnspan=4)
-        self.viddir_change = CTkButton(self.frame, text="Change  ", font=default_font,
-                                       width=70, command=self.viddir_change_function,
+        viddir_entry.grid(row=self.row, column=1, pady=(10,0), columnspan=4)
+
+        viddir_change = SettingsButton(self, text="Change  ",
+                                       width=70,
+                                       command=lambda: filedialog_to_entry(viddir_entry, directory=True),
                                        image=change_dir)
-        self.viddir_change.grid(row=10, column=5, pady=(10,0), padx=5)
+        viddir_change.grid(row=self.row, column=5, pady=(10,0), padx=5)
 
-        self.recording_client_label = CTkLabel(self.frame, text="Recording Client",
-                                               font=default_font)
-        self.recording_client_label.grid(row=11, column=0, padx=10, pady=(10,0),
-                                         sticky="w")
+        autoselect_videos_switch.add_child_widget(viddir_entry)
+        autoselect_videos_switch.add_child_widget(viddir_change)
 
-        self.filename_format_list = list(c.RECORDING_CLIENT_OPTIONS.values())
-        self.filename_format_optionmenu = CTkOptionMenu(self.frame, font=default_font,
-                                                        values=self.filename_format_list,
-                                                        button_color="grey",
-                                                        button_hover_color="dark grey",
-                                                        fg_color="white", text_color="black",
-                                                        command=self.filename_format_options)
-        self.filename_format_optionmenu.grid(row=11, column=1, pady=(10,0), sticky="w")
+        increment_row(2)
 
-        self.filename_format_label = CTkLabel(self.frame, text="Filename Format",
-                                              font=default_font)
-        self.filename_format_label.grid(row=12, column=0, padx=10, pady=(10,0), sticky="w")
-        self.filename_format_entry = CTkEntry(self.frame, font=default_font,
+        filename_format_label = SettingsLabel(self, text="Filename Format")
+        filename_format_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
+
+        filename_format_entry = SettingsEntry(self,
+                                              filename_format_label,
+                                              c.FILENAME_FORMAT_SETTING_LOCATOR,
                                               placeholder_text="Enter filename format",
                                               width=200)
-        self.filename_format_entry.grid(row=12, column=1, pady=(10,0), sticky="ew",
-                                        columnspan=3)
-        self.filename_hover_button = HoverButton(self.frame, text="", image=question_image,
-                                                 tooltip_text="The format in which the recorded video files are named by the\nrecording client (written in Python datetime format codes).",
-                                                 width=15, fg_color="transparent",
-                                                 hover_color="grey")
-        self.filename_hover_button.grid(row=12, column=4, pady=(10,0), sticky="w")
+        filename_format_entry.grid(row=self.row, column=1, columnspan=3, pady=(10,0), sticky="ew")
 
-        self.recording_delay_label = CTkLabel(self.frame, text="Recording Delay",
-                                              font=default_font)
-        self.recording_delay_label.grid(row=13, column=0, padx=10, pady=(10,0),
-                                        sticky="w")
-        self.recording_delay_slider = CTkSlider(self.frame, from_=0, to=60,
+        filename_hover_button = SettingsTooltip(self.frame,
+                                                tooltip_text="The format in which the recorded video files are named by the\nrecording client (written in Python datetime format codes).")
+        filename_hover_button.grid(row=self.row, column=4, pady=(10,0), sticky="w")
+
+        autoselect_videos_switch.add_child_widget(filename_format_entry)
+
+        increment_row(-1)
+
+        def insert_filename_format(recording_client: str):
+            recording_client = get_key_from_value(c.RECORDING_CLIENT_OPTIONS, recording_client)
+
+            filename_format_entry.configure(state="normal")
+            input_entry(filename_format_entry, "")
+
+            if not recording_client == "custom":
+                filename_format = c.RECORDING_CLIENT_FILENAME_FORMATS[recording_client]
+                input_entry(filename_format_entry, filename_format)
+
+                filename_format_entry.save() # Won't save otherwise
+                filename_format_entry.configure(state="disabled")
+
+        recording_client_label = SettingsLabel(self, text="Recording Client")
+        recording_client_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
+
+        recording_client_dropdown = SettingsOptionMenu(self,
+                                                       recording_client_label,
+                                                       c.RECORDING_CLIENT_SETTING_LOCATOR,
+                                                       c.RECORDING_CLIENT_OPTIONS,
+                                                       command=insert_filename_format)
+        recording_client_dropdown.grid(row=self.row, column=1, pady=(10,0), sticky="w")
+
+        autoselect_videos_switch.add_child_widget(recording_client_dropdown)
+
+        increment_row(2)
+
+        recording_delay_label = SettingsLabel(self, text="Recording Delay")
+        recording_delay_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
+
+        recording_delay_entry = SettingsEntry(self,
+                                              recording_delay_label,
+                                              c.RECORDING_START_DELAY_SETTING_LOCATOR,
+                                              validate=lambda v, lt: validate_integer(v, lt, 0),
+                                              width=40,
+                                              justify="center")
+        recording_delay_entry.grid(row=self.row, column=2, pady=(10,0), padx=(10,10), sticky="ew")
+
+        secs_label = SettingsLabel(self, text="secs")
+        secs_label.grid(row=self.row, column=4, pady=(10,0), sticky="w")
+
+        recording_delay_slider = SettingsSlider(self,
+                                                secs_label,
+                                                to=60,
                                                 number_of_steps=60,
-                                                command=self.slider)
-        self.recording_delay_slider.grid(row=13, column=1, pady=(10,0), sticky="ew")
-        self.recording_delay_slider.set(0)
-        self.slider_value = CTkEntry(self.frame, font=default_font,
-                                     width=40, justify="center")
-        self.slider_value.insert(END, "0")
-        self.slider_value.grid(row=13, column=2, pady=(10,0), padx=(10,10), sticky="ew")
-        self.secs_label = CTkLabel(self.frame, text="secs",
-                                   font=default_font)
-        self.secs_label.grid(row=13, column=4, pady=(10,0), sticky="w")
+                                                command=lambda v: input_entry(recording_delay_entry, int(v)))
+        recording_delay_slider.grid(row=self.row, column=1, pady=(10,0), sticky="ew")
 
-        self.slider_hoverbutton = HoverButton(self.frame, text="", image=question_image,
-                                              tooltip_text="How long it takes for the recording to start after the start of the match.",
-                                              width=15, fg_color="transparent",
-                                              hover_color="grey")
-        self.slider_hoverbutton.grid(row=13, column=4, padx=25, pady=(10,0), sticky="w")
-        self.slider_hoverbutton.configure(state="disabled")
+        try:
+            recording_delay_slider.set(int(recording_delay_entry.get()))
+        except ValueError:
+            recording_delay_slider.set(0)
 
-        self.valorant_header = CTkLabel(self.frame, text="Valorant",
-                                        font=("Calibri Bold",18))
-        self.valorant_header.grid(row=14, column=0, padx=10, pady=(15,0), sticky="w")
+        slider_hoverbutton = SettingsTooltip(self.frame,
+                                             tooltip_text="How long it takes for the recording to start after the start of the match.")
+        slider_hoverbutton.grid(row=self.row, column=4, padx=25, pady=(10,0), sticky="w")
+        slider_hoverbutton.configure(state="disabled")
 
-        self.username_label = CTkLabel(self.frame, text="Username",
-                                       font=default_font)
-        self.username_label.grid(row=15, column=0, padx=10, pady=(10,0), sticky="w")
-        self.username_entry = CTkEntry(self.frame, font=default_font,
-                                       placeholder_text="Enter username (for PUUID and Region)")
-        self.username_entry.grid(row=15, column=1, pady=(10,0), sticky="ew")
+        autoselect_videos_switch.add_child_widget(recording_delay_slider)
+        autoselect_videos_switch.add_child_widget(recording_delay_entry)
 
-        self.tag_label = CTkLabel(self.frame, text="Tag", font=default_font)
-        self.tag_label.grid(row=16, column=0, padx=10, pady=(10,0), sticky="w")
-        self.tag_entry = CTkEntry(self.frame, font=default_font,
-                                  placeholder_text="Enter tag (for PUUID and Region)")
-        self.tag_entry.grid(row=16, column=1, pady=(10,0), sticky="ew")
+        increment_row()
 
-        self.puuid_find = CTkButton(self.frame, text="Find PUUID and Region",
-                                    font=default_font, image=find_image,
-                                    command=self.find_puuid_region_function, width=110)
-        self.puuid_find.grid(row=17, column=1, pady=(10,0), sticky="w")
+        # Spreadsheet section
 
-        self.puuid_label = CTkLabel(self.frame, text="PUUID", font=default_font)
-        self.puuid_label.grid(row=18, column=0, padx=10, pady=(10,0), sticky="w")
-        self.puuid_entry = CTkEntry(self.frame, font=default_font,
-                                    placeholder_text="Enter PUUID")
-        self.puuid_entry.grid(row=18, column=1, pady=(10,0), sticky="ew",
-                              columnspan=3)
+        spreadsheet_header = SettingsHeader(self, text="Spreadsheet")
+        spreadsheet_header.grid(row=self.row, column=0, padx=10, pady=(15,0), sticky="w")
 
-        self.region_label = CTkLabel(self.frame, text="Region", font=default_font)
-        self.region_label.grid(row=19, column=0, padx=10, pady=(10,0), sticky="w")
-        self.region_list = list(c.REGION_OPTIONS.values())
-        self.region_dropdown = CTkOptionMenu(self.frame, values=self.region_list,
-                                             font=default_font, button_color="grey",
-                                             button_hover_color="dark grey",
-                                             fg_color="white", text_color="black",
-                                             width=250)
-        self.region_dropdown.grid(row=19, column=1, pady=(10,0), sticky="w", columnspan=2)
+        increment_row()
 
-        self.latest_matchid_label = CTkLabel(self.frame, text="Latest Match ID",
-                                             font=default_font)
-        self.latest_matchid_label.grid(row=20, column=0, padx=10, pady=(10,0),
-                                       sticky="w")
-        self.latest_matchid_entry = CTkEntry(self.frame, font=default_font,
-                                             placeholder_text="Enter Latest Match ID")
-        self.latest_matchid_entry.grid(row=20, column=1, pady=(10,0), sticky="ew",
-                                       columnspan=3)
-        self.latest_matchid_hoverbutton = HoverButton(self.frame, text="", image=question_image,
-                                              tooltip_text="All the matches (limited to 10 latest) after this match will be inserted and/or uploaded.\nIf set to blank, it will return the last 10 matches.",
-                                              width=15, fg_color="transparent",
-                                              hover_color="grey")
-        self.latest_matchid_hoverbutton.grid(row=20, column=4, pady=(10,0), sticky="w")
-        self.latest_matchid_hoverbutton.configure(state="disabled")
+        spreadsheet_format_label = SettingsLabel(self, text="Spreadsheet Format")
+        spreadsheet_format_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
 
-        self.spreadsheet_header = CTkLabel(self.frame, text="Spreadsheet",
-                                     font=("Calibri Bold",18))
-        self.spreadsheet_header.grid(row=21, column=0, padx=10, pady=(15,0), sticky="w")
+        self.spreadsheet_format_button = SettingsButton(self,
+                                                        text="Edit",
+                                                        image=pencil_image,
+                                                        command=self.open_spreadsheet_format)
+        self.spreadsheet_format_button.grid(row=self.row, column=1, pady=(10,0), sticky="w")
 
-        self.spreadsheet_format_label = CTkLabel(self.frame, text="Spreadsheet Format",
-                                                 font=default_font)
-        self.spreadsheet_format_label.grid(row=22, column=0, padx=10, pady=(10,0),
-                                           sticky="w")
+        spreadsheet_format_hoverbutton = SettingsTooltip(self.frame,
+                                                         tooltip_text="What information will be in each column of your spreadsheet(s).")
+        spreadsheet_format_hoverbutton.grid(row=self.row, column=1, padx=140, pady=(10,0), sticky="w")
+        spreadsheet_format_hoverbutton.configure(state="disabled")
 
-        self.spreadsheet_format_button = CTkButton(self.frame, text="Edit",
-                                                   font=default_font,
-                                                   command=self.spreadsheet_format_function,
-                                                   image=pencil_image)
-        self.spreadsheet_format_button.grid(row=22, column=1, pady=(10,0), sticky="w")
+        increment_row()
 
-        self.spreadsheet_format_hoverbutton = HoverButton(self.frame, text="", image=question_image,
-                                                          tooltip_text="What information will be in each column of your spreadsheet(s).",
-                                                          width=15, fg_color="transparent",
-                                                          hover_color="grey")
-        self.spreadsheet_format_hoverbutton.grid(row=22, column=1, padx=140, pady=(10,0), sticky="w")
-        self.spreadsheet_format_hoverbutton.configure(state="disabled")
+        insert_r2_label = SettingsLabel(self, text="Insert at Row 2")
+        insert_r2_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
 
-        self.insert_r2_label = CTkLabel(self.frame, text="Insert at Row 2",
-                                        font=default_font)
-        self.insert_r2_label.grid(row=23, column=0, padx=10, pady=(10,0),
-                                  sticky="w")
-        self.insert_r2_switch_var = StringVar(value="off")
-        self.insert_r2_switch  = CTkSwitch(self.frame, text="",
-                                           variable=self.insert_r2_switch_var, onvalue="on",
-                                           offvalue="off")
-        self.insert_r2_switch.grid(row=23, column=1, pady=(10,0),
-                                   sticky="w")
+        self.insert_r2_switch = SettingsSwitch(self,
+                                               insert_r2_label,
+                                               c.INSERT_TO_ROW_2_LOCATOR)
+        self.insert_r2_switch.grid(row=self.row, column=1, pady=(10,0), sticky="w")
 
-        self.insert_r2_hoverbutton = HoverButton(self.frame, text="", image=question_image,
-                                                 tooltip_text="When turned on, new matches will be inserted at the 2nd row of your\nspreadsheet instead of being appended to the bottom.",
-                                                 width=15, fg_color="transparent",
-                                                 hover_color="grey")
-        self.insert_r2_hoverbutton.grid(row=23, column=1, padx=40, pady=(10,0),
+        self.insert_r2_hoverbutton = SettingsTooltip(self.frame,
+                                                     tooltip_text="When turned on, new matches will be inserted at the 2nd row of your\nspreadsheet instead of being appended to the bottom.")
+        self.insert_r2_hoverbutton.grid(row=self.row, column=1, padx=40, pady=(10,0),
                                         sticky="w")
         self.insert_r2_hoverbutton.configure(state="disabled")
 
-        self.switch_var_spreadsheet = StringVar(value="off")
-        self.switch_googlesheet_label = CTkLabel(self.frame, text="Google Sheets",
-                                                 font=default_font)
-        self.switch_googlesheet_label.grid(row=24, column=0, pady=(10,0), padx=10, sticky="w")
-        self.switch_googlesheet = CTkSwitch(self.frame, text="", command=self.googlesheet_switch,
-                                            variable=self.switch_var_spreadsheet, onvalue="on",
-                                            offvalue="off")
-        self.switch_googlesheet.grid(row=24, column=1, pady=(10,0), sticky="w")
+        increment_row()
 
-        self.spreadsheet_name_label = CTkLabel(self.frame, text="Spreadsheet Name",
-                                               font=default_font)
-        self.spreadsheet_name_label.grid(row=25, column=0, pady=(10,0), padx=10,
-                                         sticky="w")
-        self.spreadsheet_name_entry = CTkEntry(self.frame, font=default_font,
+        googlesheet_label = SettingsLabel(self, text="Google Sheets")
+        googlesheet_label.grid(row=self.row, column=0, pady=(10,0), padx=10, sticky="w")
+
+        googlesheet_switch = SettingsSwitch(self,
+                                            googlesheet_label,
+                                            c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR)
+        googlesheet_switch.grid(row=self.row, column=1, pady=(10,0), sticky="w")
+
+        increment_row()
+
+        spreadsheet_name_label = SettingsLabel(self, text="Spreadsheet Name")
+        spreadsheet_name_label.grid(row=self.row, column=0, pady=(10,0), padx=10, sticky="w")
+
+        spreadsheet_name_entry = SettingsEntry(self, spreadsheet_name_label,
+                                               c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR,
                                                placeholder_text="Enter spreadsheet name (Google Sheets)")
-        self.spreadsheet_name_entry.grid(row=25, column=1, pady=(10,0), sticky="ew",
-                                         columnspan=3)
+        spreadsheet_name_entry.grid(row=self.row, column=1, columnspan=3, pady=(10,0), sticky="ew")
 
-        self.google_service_key_label = CTkLabel(self.frame, text="Google Service Acc. Key",
-                                                 font=default_font)
-        self.google_service_key_label.grid(row=26, column=0, padx=10, pady=(10,0),
-                                           sticky="w")
-        self.google_service_key_entry = CTkEntry(self.frame, font=default_font,
+        googlesheet_switch.add_child_widget(spreadsheet_name_entry)
+
+        increment_row()
+
+        google_key_filetypes = [("JSON Files (*.json)", "*.json")]
+
+        google_service_key_label = SettingsLabel(self, text="Google Service Acc. Key")
+        google_service_key_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
+
+        google_service_key_entry = SettingsEntry(self,
+                                                 google_service_key_label,
+                                                 c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR,
+                                                 validate=lambda v, lt: validate_path(v, lt, google_key_filetypes),
                                                  placeholder_text="Location of key (C:/...)")
-        self.google_service_key_entry.grid(row=26, column=1, pady=(10,0), sticky="ew",
-                                           columnspan=4)
-        self.google_key_dirchange = CTkButton(self.frame, text="Change  ", font=default_font,
-                                              width=70, command=self.google_key_dirchange_function,
-                                              image=change_dir)
-        self.google_key_dirchange.grid(row=26, column=5, pady=(10,0), padx=5)
+        google_service_key_entry.grid(row=self.row, column=1, columnspan=4, pady=(10,0), sticky="ew")
 
-        self.excel_switch_var = StringVar(value="off")
-        self.excel_switch_label = CTkLabel(self.frame, text="Excel",
-                                           font=default_font)
-        self.excel_switch_label.grid(row=27, column=0, pady=(10,0), padx=10, sticky="w")
-        self.switch_excel = CTkSwitch(self.frame, text="", command=self.excel_switch,
-                                      variable=self.excel_switch_var, onvalue="on",
-                                      offvalue="off")
-        self.switch_excel.grid(row=27, column=1, pady=(10,0), sticky="w")
+        google_key_change = SettingsButton(self,
+                                           text="Change  ",
+                                           width=70,
+                                           command=lambda: filedialog_to_entry(google_service_key_entry, google_key_filetypes),
+                                           image=change_dir)
+        google_key_change.grid(row=self.row, column=5, pady=(10,0), padx=5)
 
-        self.excel_file_path_label = CTkLabel(self.frame, text="Excel File Path",
-                                              font=default_font)
-        self.excel_file_path_label.grid(row=28, column=0, padx=10, pady=(10,0),
-                                        sticky="w")
+        googlesheet_switch.add_child_widget(google_service_key_entry)
+        googlesheet_switch.add_child_widget(google_key_change)
 
-        self.excel_file_path_dir = CTkEntry(self.frame, font=default_font,
+        increment_row()
+
+        excel_label = SettingsLabel(self, text="Excel")
+        excel_label.grid(row=self.row, column=0, pady=(10,0), padx=10, sticky="w")
+        excel_switch = SettingsSwitch(self, excel_label, c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR)
+        excel_switch.grid(row=self.row, column=1, pady=(10,0), sticky="w")
+
+        increment_row()
+
+        excel_filetypes = [("Excel Workbook (*.xlsx)", "*.xlsx"),
+                           ("Excel Macro-Enabled Workbook (*.xlsm)", "*.xlsm"),
+                           ("Excel Template (*.xltx)", "*.xltx"),
+                           ("Excel Macro-Enabled Template (*.xltm)", "*.xltm")]
+
+        excel_file_path_label = SettingsLabel(self, text="Excel File Path")
+        excel_file_path_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
+
+        excel_file_path_dir = SettingsEntry(self,
+                                            excel_file_path_label,
+                                            c.EXCEL_FILE_PATH_SETTING_LOCATOR,
+                                            validate=lambda v, lt: validate_path(v, lt, excel_filetypes),
                                             placeholder_text="Location of excel spreadsheet (C:/...)")
-        self.excel_file_path_dir.grid(row=28, column=1, pady=(10,0), sticky="ew",
-                                      columnspan=4)
-        self.excel_change = CTkButton(self.frame, text="Change  ", font=default_font,
-                                      width=70, command=self.excel_dir_change,
+        excel_file_path_dir.grid(row=self.row, column=1, columnspan=4, pady=(10,0), sticky="ew")
+
+        excel_change = SettingsButton(self, text="Change  ",
+                                      width=70,
+                                      command=lambda: filedialog_to_entry(excel_file_path_dir, excel_filetypes),
                                       image=change_dir)
-        self.excel_change.grid(row=28, column=5, pady=(10,0), padx=5)
+        excel_change.grid(row=self.row, column=5, pady=(10,0), padx=5)
 
-        self.create_excel_label = CTkLabel(self.frame, text="Create Excel Spreadsheet",
-                                           font=default_font)
-        self.create_excel_label.grid(row=29, column=0, padx=10, pady=10, sticky="w")
+        excel_switch.add_child_widget(excel_file_path_dir)
+        excel_switch.add_child_widget(excel_change)
 
-        self.create_excel_filename = CTkEntry(self.frame, font=default_font,
+        increment_row()
+
+        create_excel_label = SettingsLabel(self, text="Create Excel Spreadsheet")
+        create_excel_label.grid(row=self.row, column=0, padx=10, pady=10, sticky="w")
+
+        create_excel_filename = SettingsEntry(self, create_excel_label,
                                               placeholder_text="Filename for Spreadsheet")
-        self.create_excel_filename.grid(row=29, column=1, pady=10, sticky="ew",
-                                        columnspan=3)
+        create_excel_filename.grid(row=self.row, column=1, columnspan=3, pady=10, sticky="ew",)
 
-        self.create_excel_button = CTkButton(self.frame, text="Create", font=default_font,
-                                             image=pencil_image, command=self.create_excel_function,
+        def create_excel_function():
+            """Creates a new Excel Spreadsheet"""
+            if create_excel_filename.get():
+                filedir = h.make_default_excel_file(create_excel_filename.get())
+
+                excel_file_path_dir.delete(0,END)
+                excel_file_path_dir.insert(END, filedir)
+            else:
+                messagebox.showerror(title="Invalid Input", message="Please enter a valid Excel filename.")
+
+        create_excel_button = SettingsButton(self, text="Create", image=pencil_image,
+                                             command=create_excel_function,
                                              width=100)
-        self.create_excel_button.grid(row=29, column=4, padx=5, pady=10, sticky="w")
+        create_excel_button.grid(row=self.row, column=4, padx=5, pady=10, sticky="w")
 
-        self.update_info()
-        self.insert_info() # When settings window set up, insert current settings
+        excel_switch.add_child_widget(create_excel_filename)
+        excel_switch.add_child_widget(create_excel_button)
 
-    def return_function(self):
+    def return_to_main(self) -> None:
         """Destroys the settings window and returns back to main"""
         self.destroy()
         self.parent.maximise()
 
-    def update_info(self):
-        """Updates the interal class variables that contain the setting values"""
-        self.mdy_dates_setting = get_setting(*c.USE_MDY_DATES_SETTING_LOCATOR, boolean=True)
-        self.autoupload_video = get_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, boolean=True)
-        self.firefox_profile_dir = get_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR)
-        self.bg_process = get_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, boolean=True)
-        self.max_vids = get_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR)
-        self.visibility = get_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR)
-        self.autoselect_video = get_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, boolean=True)
-        self.video_directory = get_setting(*c.VIDEO_DIRECTORY_SETTING_LOCATOR)
-        self.recording_client = get_setting(*c.RECORDING_CLIENT_SETTING_LOCATOR)
-        self.filename_format = get_setting(*c.FILENAME_FORMAT_SETTING_LOCATOR)
-        self.recording_delay = get_setting(*c.RECORDING_START_DELAY_SETTING_LOCATOR)
-        self.puuid = get_setting(*c.PUUID_SETTING_LOCATOR)
-        self.region = get_setting(*c.AFFINITY_SETTING_LOCATOR)
-        self.latest_match = get_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR)
-        self.spreadsheet_name = get_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR)
-        self.service_account_json = get_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR)
-        self.spreadsheet_row2 = get_setting(*c.INSERT_TO_ROW_2_LOCATOR, boolean=True)
-        self.write_to_excel = get_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, boolean=True)
-        self.excel_file_path = get_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR)
-        self.write_to_googlesheets = get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, boolean=True)
-
-    def insert_info(self):
-        """Collect all settings"""
-
-        # Insert vals into all entries, dropdowns etc.
-        if self.mdy_dates_setting:
-            self.mdy_dates_var.set("on")
-        else:
-            self.mdy_dates_var.set("off")
-
-        if self.firefox_profile_dir:
-            self.firefox_entry.delete(0,END)
-            self.firefox_entry.insert(END, self.firefox_profile_dir)
-
-        if self.bg_process:
-            self.background_process_var.set("on")
-        else:
-            self.background_process_var.set("off")
-
-        if self.max_vids:
-            self.maxvids_sim_entry.delete(0,END)
-            self.maxvids_sim_entry.insert(END, self.max_vids)
-
-        if self.visibility:
-            self.visibility_dropdown.set(c.VIDEO_VISIBILITY_OPTIONS[self.visibility])
-
-        # The switch is done after as if it is off it will disable all objects under it and not info to be inserted
-        if self.autoupload_video:
-            self.switch_var.set("on")
-        else:
-            self.switch_var.set("off")
-        self.switch1()
-
-        if self.video_directory:
-            self.viddir_entry.delete(0,END)
-            self.viddir_entry.insert(END, self.video_directory)
-
-        if self.recording_client:
-            self.filename_format_optionmenu.set(c.RECORDING_CLIENT_OPTIONS[self.recording_client])
-            self.filename_format_entry.delete(0,END)
-            self.filename_format_entry.insert(END, (c.RECORDING_CLIENT_FILENAME_FORMATS[self.recording_client]))
-            self.filename_format_entry.configure(state="disabled")
-        else:
-            self.filename_format_optionmenu.set(c.RECORDING_CLIENT_OPTIONS[self.recording_client])
-            self.filename_format_entry.configure(state="normal")
-            if self.filename_format:
-                self.filename_format_entry.delete(0,END)
-                self.filename_format_entry.insert(END, self.filename_format)
-
-        if self.recording_delay:
-            self.slider_value.delete(0,END)
-            self.slider_value.insert(END, self.recording_delay)
-            self.recording_delay_slider.set(int(self.recording_delay))
-
-        # The switch is done after as if it is off it will disable all objects under it and not info to be inserted
-        if self.autoselect_video:
-            self.switch_var2.set("on")
-        else:
-            self.switch_var2.set("off")
-        self.switch2()
-
-        if self.puuid:
-            self.puuid_entry.delete(0,END)
-            self.puuid_entry.insert(END, self.puuid)
-
-        if self.region:
-            self.region_dropdown.set(c.REGION_OPTIONS[self.region])
-
-        if self.latest_match:
-            self.latest_matchid_entry.delete(0,END)
-            self.latest_matchid_entry.insert(END, self.latest_match)
-
-        if self.spreadsheet_row2:
-            self.insert_r2_switch_var.set("on")
-        else:
-            self.insert_r2_switch_var.set("off")
-
-        if self.spreadsheet_name:
-            self.spreadsheet_name_entry.delete(0,END)
-            self.spreadsheet_name_entry.insert(END, self.spreadsheet_name)
-
-        if self.service_account_json:
-            self.google_service_key_entry.delete(0,END)
-            self.google_service_key_entry.insert(END, self.service_account_json)
-
-        if self.write_to_googlesheets:
-            self.switch_var_spreadsheet.set("on")
-        else:
-            self.switch_var_spreadsheet.set("off")
-        self.googlesheet_switch()
-
-        if self.excel_file_path:
-            self.excel_file_path_dir.delete(0,END)
-            self.excel_file_path_dir.insert(END, self.excel_file_path)
-
-        if self.write_to_excel:
-            self.excel_switch_var.set("on")
-        else:
-            self.excel_switch_var.set("off")
-        self.excel_switch()
-
-    def switch1(self):
-        """Auto-upload setting switch"""
-        self.val = self.switch_onoff.get()
-
-        # If switch is on, enable all objects under auto-upload, otherwise disable them
-        if self.val == "on":
-            self.firefox_entry.configure(state="normal")
-            self.firefox_change.configure(state="normal")
-            self.firefox_profile_label.configure(text_color = "black")
-            self.firefox_entry.configure(placeholder_text_color="grey",
-                                         text_color="black")
-            self.background_process_label.configure(text_color = "black")
-            self.background_process_switch.configure(state="normal")
-            self.maxvids_sim_label.configure(text_color = "black")
-            self.maxvids_sim_entry.configure(state="normal",
-                                             text_color="black")
-            self.visibility_label.configure(text_color = "black")
-            self.visibility_dropdown.configure(state="normal")
-        else:
-            self.firefox_entry.configure(state="disabled")
-            self.firefox_change.configure(state="disabled")
-            self.firefox_profile_label.configure(text_color = "grey")
-            self.firefox_entry.configure(placeholder_text_color="#c9c9c9",
-                                         text_color="grey")
-
-            self.background_process_label.configure(text_color = "grey")
-            self.background_process_switch.configure(state="disabled")
-
-            self.maxvids_sim_label.configure(text_color = "grey")
-            self.maxvids_sim_entry.configure(state="disabled",
-                                             text_color="grey")
-
-            self.visibility_label.configure(text_color = "grey")
-            self.visibility_dropdown.configure(state="disabled")
-
-    def switch2(self):
-        """Auto-select vids setting switch"""
-        self.val2 = self.switch_onoff2.get()
-
-        # If switch is on, enable all objects under auto-select, otherwise disable them
-        if self.val2 == "on":
-            self.viddir_label.configure(text_color="black")
-            self.viddir_entry.configure(state="normal",
-                                        placeholder_text_color="grey",
-                                        text_color="black")
-            self.viddir_change.configure(state="normal")
-            self.filename_format_label.configure(text_color="black")
-            self.filename_format_entry.configure(state="normal",
-                                                 placeholder_text_color="grey",
-                                                 text_color="black")
-            self.recording_delay_label.configure(text_color="black")
-            self.recording_delay_slider.configure(state="normal")
-            self.secs_label.configure(text_color="black")
-            self.slider_value.configure(state="normal",
-                                        text_color="black")
-            self.filename_hover_button.configure(state="disabled")
-            self.recording_client_label.configure(text_color="black")
-            self.filename_format_optionmenu.configure(state="normal")
-        else:
-            self.viddir_label.configure(text_color="grey")
-            self.viddir_entry.configure(state="disabled",
-                                        placeholder_text_color="#c9c9c9",
-                                        text_color="grey")
-            self.viddir_change.configure(state="disabled")
-            self.filename_format_label.configure(text_color="grey")
-            self.filename_format_entry.configure(state="disabled",
-                                                 placeholder_text_color="#c9c9c9",
-                                                 text_color="grey")
-            self.recording_delay_label.configure(text_color="grey")
-            self.recording_delay_slider.configure(state="disabled")
-            self.secs_label.configure(text_color="grey")
-            self.slider_value.configure(state="disabled",
-                                        text_color="grey")
-            self.filename_hover_button.configure(state="disabled")
-            self.recording_client_label.configure(text_color="grey")
-            self.filename_format_optionmenu.configure(state="disabled")
-
-    def viddir_change_function(self):
-        """Change the video directory"""
-        file = filedialog.askdirectory(title="Open")
-        self.viddir_entry.delete(0,END)
-        self.viddir_entry.insert(END, file)
-
-    def filename_format_options(self, recording_client):
-        """If the recording_client is set to custom, clear the format entry box otherwise disable format entry box and insert default format for that recording client"""
-        if recording_client == c.RECORDING_CLIENT_OPTIONS["custom"]:
-            self.filename_format_entry.configure(state="normal")
-            self.filename_format_entry.delete(0,END)
-        else:
-            self.filename_format_entry.configure(state="normal")
-            recording_client_new = get_key_from_value(c.RECORDING_CLIENT_OPTIONS, recording_client)
-            filename_format = c.RECORDING_CLIENT_FILENAME_FORMATS[recording_client_new]
-            self.filename_format_entry.delete(0,END)
-            self.filename_format_entry.insert(END, filename_format)
-            self.filename_format_entry.configure(state="disabled")
-
-    def firefoxprofile_change_function(self):
-        """Change firefox profile directory"""
-        file2 = filedialog.askdirectory(title="Open")
-        self.firefox_entry.delete(0, END)
-        self.firefox_entry.insert(END, file2)
-
-    def slider(self, value):
-        """Changes the value of the slider entry box"""
-        self.slider_value.delete(0, END)
-        self.slider_value.insert(END, int(value))
-
-    def find_puuid_region_function(self):
-        """Finds user PUUID based on username and tag"""
-        name_entry = self.username_entry.get()
-        tag_entry = self.tag_entry.get()
-
-        if not name_entry:
-            messagebox.showerror(title="Invalid Input",
-                                 message="Please enter a valid username.")
-            return
-        elif not tag_entry:
-            messagebox.showerror(title="Invalid Input",
-                                 message="Please enter a valid tag.")
-            return
-
-        puuid = h.find_puuid(name_entry, tag_entry)
-        region = h.find_region(name_entry, tag_entry)
-
-        self.puuid_entry.delete(0, END)
-        self.puuid_entry.insert(END, puuid)
-
-        self.region_dropdown.set(c.REGION_OPTIONS[region])
-
-    def google_key_dirchange_function(self):
-        """Change the path to Google key (.json files)"""
-        jsonfile = filedialog.askopenfilename(title="Open", filetypes=[("JSON Files (*.json)", "*.json")])
-
-        self.google_service_key_entry.delete(0, END)
-        self.google_service_key_entry.insert(END, jsonfile)
-
-    def spreadsheet_format_function(self):
+    def open_spreadsheet_format(self) -> None:
         """Opens the spreadsheet format window"""
-        edit_app = SpreadsheetFormat()
-        edit_app.mainloop()
-
-    def googlesheet_switch(self):
-        """Write to Google Sheets switch"""
-        googlesheet_val = self.switch_var_spreadsheet.get()
-
-        # If switch is on, enable all objects G.Sheets otherwise disables them
-        if googlesheet_val == "on":
-            self.spreadsheet_name_label.configure(text_color="black")
-            self.spreadsheet_name_entry.configure(state="normal",
-                                                  placeholder_text_color="grey",
-                                                  text_color="black")
-            self.google_service_key_label.configure(text_color="black")
-            self.google_service_key_entry.configure(state="normal",
-                                                    placeholder_text_color="grey",
-                                                    text_color="black")
-            self.google_key_dirchange.configure(state="normal")
-        elif googlesheet_val == "off":
-            self.spreadsheet_name_label.configure(text_color="grey")
-            self.spreadsheet_name_entry.configure(state="disabled",
-                                                  placeholder_text_color="#c9c9c9",
-                                                  text_color="grey")
-            self.google_service_key_label.configure(text_color="grey")
-            self.google_service_key_entry.configure(state="disabled",
-                                                    placeholder_text_color="#c9c9c9",
-                                                    text_color="grey")
-            self.google_key_dirchange.configure(state="disabled")
-
-    def excel_switch(self):
-        """Write to Excel switch"""
-        excel_val = self.excel_switch_var.get()
-
-        # If switch is on, enable all objects under Excel otherwise disables them
-        if excel_val == "on":
-            self.excel_file_path_label.configure(text_color="black")
-            self.excel_file_path_dir.configure(state="normal",
-                                               placeholder_text_color="grey",
-                                               text_color="black")
-            self.excel_change.configure(state="normal")
-            self.create_excel_button.configure(state="normal")
-            self.create_excel_filename.configure(state="normal",
-                                               placeholder_text_color="grey",
-                                               text_color="black")
-            self.create_excel_label.configure(text_color="black")
-        elif excel_val == "off":
-            self.excel_file_path_label.configure(text_color="grey")
-            self.excel_file_path_dir.configure(state="disabled",
-                                               placeholder_text_color="#c9c9c9",
-                                               text_color="grey")
-            self.excel_change.configure(state="disabled")
-            self.create_excel_button.configure(state="disabled")
-            self.create_excel_filename.configure(state="disabled",
-                                               placeholder_text_color="#c9c9c9",
-                                               text_color="grey")
-            self.create_excel_label.configure(text_color="grey")
-
-    def excel_dir_change(self):
-        """Change file path for Excel Spreadsheet"""
-        excelfile = filedialog.askopenfilename(title="Open",
-                                               filetypes=[("Excel Workbook (*.xlsx)", "*.xlsx"),
-                                                          ("Excel Macro-Enabled Workbook (*.xlsm)", "*.xlsm"),
-                                                          ("Excel Template (*.xltx)", "*.xltx"),
-                                                          ("Excel Macro-Enabled Template (*.xltm)", "*.xltm")])
-
-        self.excel_file_path_dir.delete(0, END)
-        self.excel_file_path_dir.insert(END, excelfile)
-
-    def create_excel_function(self):
-        """Creates a new Excel Spreadsheet"""
-        if self.create_excel_filename.get():
-            filedir = h.make_default_excel_file(self.create_excel_filename.get())
-            self.excel_file_path_dir.delete(0,END)
-            self.excel_file_path_dir.insert(END, filedir)
-        else:
-            messagebox.showerror(title="Invalid Input", message="Please enter a valid Excel filename.")
+        SpreadsheetFormat().mainloop()
 
     def save_settings(self) -> None:
         """Saves all new settings"""
-        mdy_setting = self.mdy_dates_switch.get()
-        if mdy_setting == "on":
-            if not self.mdy_dates_setting:
-                edit_setting(*c.USE_MDY_DATES_SETTING_LOCATOR, True)
-        elif self.mdy_dates_setting:
-            edit_setting(*c.USE_MDY_DATES_SETTING_LOCATOR, False)
+        try:
+            for widget in self.settings:
+                if widget.cget("state") != "disabled":
+                    widget.save()
+        except InvalidSettingsError:
+            pass
+        else:
+            messagebox.showinfo(title="Success", message="Settings have been saved.")
 
-        if self.val == "on":
-            if not self.autoupload_video:
-                edit_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, True)
-
-            if not os.path.exists(firefox_profile_path := self.firefox_entry.get()):
-                messagebox.showerror(title="Invalid File",
-                                     message="Firefox Profile Path: This directory was not found.\nPlease select a valid directory.")
-
-                return
-            if firefox_profile_path != self.firefox_profile_dir:
-                edit_setting(*c.FIREFOX_PROFILE_SETTING_LOCATOR, firefox_profile_path)
-
-            if (visibility := self.visibility_dropdown.get()) != self.visibility:
-                visibility = get_key_from_value(c.VIDEO_VISIBILITY_OPTIONS, visibility)
-                edit_setting(*c.VIDEO_VISIBILITY_SETTING_LOCATOR, visibility)
-
-            background_process_setting = self.background_process_switch.get()
-            if background_process_setting == "on":
-                if not self.bg_process:
-                    edit_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, True)
-            elif self.bg_process:
-                edit_setting(*c.BACKGROUND_PROCESS_SETTING_LOCATOR, False)
-
-            if not (max_vids := self.maxvids_sim_entry.get()):
-                messagebox.showerror(title="Invalid Input", message="Max. Vids Simultaneously: Please enter a valid integer.")
-                return
-            # Integer testing for max. vids entry box
-            try:
-                max_vids = int(max_vids)
-            except ValueError:
-                messagebox.showerror(title="Invalid Input", message="Max. Vids Simultaneously: Please enter a valid integer.")
-                return
-            if max_vids <= 0:
-                messagebox.showerror(title="Invalid Input", message="Max. Vids Simultaneously: Please enter an integer above 0.")
-                return
-            if max_vids != c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR:
-                edit_setting(*c.MAX_VIDEOS_SIMULTANEOUSLY_SETTING_LOCATOR, max_vids)
-        elif self.autoupload_video:
-            edit_setting(*c.AUTOUPLOAD_VIDEOS_SETTING_LOCATOR, False)
-
-        if self.val2 == "on":
-            if not self.autoselect_video:
-                edit_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, True)
-
-            if not os.path.exists(viddir := self.viddir_entry.get()):
-                messagebox.showerror(title="Invalid File",
-                                     message="Video Directory: This directory was not found.\nPlease select a valid directory.")
-
-                return
-            if viddir != self.video_directory:
-                edit_setting(*c.VIDEO_DIRECTORY_SETTING_LOCATOR, viddir)
-
-            recording_client = get_key_from_value(c.RECORDING_CLIENT_OPTIONS,
-                                                    self.filename_format_optionmenu.get())
-            if recording_client != self.recording_client:
-                edit_setting(*c.RECORDING_CLIENT_SETTING_LOCATOR, recording_client)
-
-            if not (filename_format := self.filename_format_entry.get()):
-                messagebox.showerror(title="Invalid Input",
-                                     message="Please enter a valid filename format.")
-                return
-            if filename_format != self.filename_format:
-                edit_setting(*c.FILENAME_FORMAT_SETTING_LOCATOR, filename_format)
-
-            if not (recording_delay := self.slider_value.get()):
-                messagebox.showerror(title="Invalid Input",
-                                     message="Please enter a valid recording delay (must be an integer).")
-                return
-            # Integer testing for recording delay
-            try:
-                int(self.slider_value.get())
-            except ValueError:
-                messagebox.showerror(title="Invalid Input",
-                                     message="Please enter a valid recording delay (must be an integer).")
-                return
-            if recording_delay != self.recording_delay:
-                edit_setting(*c.RECORDING_START_DELAY_SETTING_LOCATOR, recording_delay)
-        elif self.autoselect_video:
-            edit_setting(*c.AUTOSELECT_VIDEOS_SETTING_LOCATOR, False)
-
-        if not (puuid := self.puuid_entry.get()):
-            messagebox.showerror(title="Invalid Input",
-                                 message="Please enter a valid PUUID.")
-            return
-        if puuid != self.puuid:
-            edit_setting(*c.PUUID_SETTING_LOCATOR, puuid)
-
-        translated_region = get_key_from_value(c.REGION_OPTIONS, self.region_dropdown.get())
-        if translated_region != self.region:
-            edit_setting(*c.AFFINITY_SETTING_LOCATOR, translated_region)
-
-        if self.latest_matchid_entry.get() != self.latest_match:
-            edit_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR, self.latest_matchid_entry.get())
-
-        r2_setting = self.insert_r2_switch.get()
-        if r2_setting == "on":
-            if not self.spreadsheet_row2:
-                edit_setting(*c.INSERT_TO_ROW_2_LOCATOR, True)
-        elif self.spreadsheet_row2:
-            edit_setting(*c.INSERT_TO_ROW_2_LOCATOR, False)
-
-        googlesheets_setting = self.switch_googlesheet.get()
-        if googlesheets_setting == "on":
-            if not self.write_to_googlesheets:
-                edit_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, True)
-
-            if not (spreadsheet_name := self.spreadsheet_name_entry.get()):
-                messagebox.showerror(title="Invalid Input",
-                                        message="Please enter a valid spreadsheet name (Google Sheets).")
-                return
-            if spreadsheet_name != self.spreadsheet_name:
-                edit_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR, spreadsheet_name)
-
-            if not os.path.exists(service_account_key := self.google_service_key_entry.get()):
-                messagebox.showerror(title="Invalid Input",
-                                        message="Please enter a path to a valid JSON file.")
-                return
-            if service_account_key != self.service_account_json:
-                edit_setting(*c.GOOGLE_SERVICE_ACCOUNT_KEY_JSON_PATH_LOCATOR, service_account_key)
-        elif self.write_to_googlesheets:
-            edit_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR, False)
-
-        excel_setting = self.switch_excel.get()
-        if excel_setting == "on":
-            if not self.write_to_excel:
-                edit_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, True)
-
-            if not os.path.exists(excel_file_path := self.excel_file_path_dir.get()):
-                messagebox.showerror(title="Invalid Input",
-                                     message="Please enter a path to a valid Excel file.")
-                return
-            if excel_file_path != self.excel_file_path:
-                edit_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR, excel_file_path)
-        elif self.write_to_excel:
-            edit_setting(*c.WRITE_TO_EXCEL_FILE_SETTING_LOCATOR, False)
-
-        self.update_info()
-        messagebox.showinfo(title="Success", message="Settings have been saved.")
-
-    def reset_function(self):
+    def reset_settings(self) -> None:
         """Resets settings to default"""
         reset_confirmation = messagebox.askquestion(title="Confirmation",
                                                     message="Are you sure you would like to reset to default settings?\nAll current settings will be wiped.",
                                                     icon="warning")
         if reset_confirmation == "yes":
             make_default_settings_file(c.DEFAULT_SETTINGS)
-            SettingsWindow.destroy(self) # Reloads the window
-            settings = SettingsWindow(self.parent)
-            settings.mainloop()
+
+            # Reloads the window
+            SettingsWindow.destroy(self)
+            SettingsWindow(self.parent).mainloop()
 
 class SpreadsheetFormat(Toplevel):
-    """Spreadsheet format window (Toplevel)"""
+    """Spreadsheet format window"""
     def __init__(self):
         super().__init__()
         self.geometry(c.SPREADSHEET_FORMAT_SETTINGS_WINDOW_RESOLUTION)
@@ -1036,28 +755,26 @@ class SpreadsheetFormat(Toplevel):
         self.frame = CTkScrollableFrame(self)
         self.frame.pack(pady=20, padx=20, fill="both", expand=True)
 
-        # Sets up lists
         self.dropdown_menus_list = []
         self.format_columns_list = []
 
-        self.row_count = -1
+        self.row_count: int = -1
 
-        # Configures objects in window
         self.spreadsheet_format_label = CTkLabel(self.frame, text="Spreadsheet Format\n(Columns)",
-                                                 font=default_font)
+                                                 font=c.DEFAULT_FONT)
         self.spreadsheet_format_label.grid(row=0, column=0, padx=(10,20), pady=(10,0),
                                            sticky="w")
         self.spreadsheet_format_list = list(c.SPREADSHEET_FORMAT_OPTIONS.values())
 
-        self.plus_button = CTkButton(self.frame, text="+", font=default_font,
+        self.plus_button = CTkButton(self.frame, text="+", font=c.DEFAULT_FONT,
                                      command=self.add_boxes, width=20, corner_radius=20)
         self.plus_button.grid(row=0, column=3, padx=10, pady=(10,0), sticky="e")
 
-        self.minus_button = CTkButton(self.frame, text="-", font=default_font,
+        self.minus_button = CTkButton(self.frame, text="-", font=c.DEFAULT_FONT,
                                       command=self.subtract_boxes, width=20, corner_radius=20)
         self.minus_button.grid(row=0, column=4, padx=0, pady=(10,0), sticky="w")
 
-        self.save_button = CTkButton(self.frame, text="Save and Close", font=default_font,
+        self.save_button = CTkButton(self.frame, text="Save and Close", font=c.DEFAULT_FONT,
                                      width=110, image=save_image, command=self.save_format_changes)
         self.save_button.grid(row=1, column=0, padx=10, pady=(20,0), sticky="w")
         spreadsheet_format = get_setting(*c.SPREADSHEET_FORMAT_LOCATOR)
@@ -1075,13 +792,13 @@ class SpreadsheetFormat(Toplevel):
         final_count = self.row_count + count
         index = count - 1
 
-        count_number = CTkLabel(self.frame, text=f"{count}.", font=default_font)
+        count_number = CTkLabel(self.frame, text=f"{count}.", font=c.DEFAULT_FONT)
         count_number.grid(row=final_count, column=1, pady=(10,0),
                           padx=10, sticky="w")
         dropdown_menu = CTkOptionMenu(self.frame,
                                       values=self.spreadsheet_format_list,
                                       command=lambda new_value: self.edit_column(index, new_value),
-                                      font=default_font, button_color="grey",
+                                      font=c.DEFAULT_FONT, button_color="grey",
                                       button_hover_color="dark grey",
                                       fg_color="white", text_color="black")
         dropdown_menu.configure(state="normal")
@@ -1104,7 +821,6 @@ class SpreadsheetFormat(Toplevel):
             self.format_columns_list.pop()
 
     def edit_column(self, index: int, value: str) -> None:
-        # Looks in the SPREADSHEET_FORMAT_OPTIONS dict for the value and returns the corresponding key (e.g. "Match ID" returns "match_id")
         formatted_value = get_key_from_value(c.SPREADSHEET_FORMAT_OPTIONS, value)
 
         try:
@@ -1112,8 +828,7 @@ class SpreadsheetFormat(Toplevel):
         except IndexError:
             self.format_columns_list.append(formatted_value)
 
-    def save_format_changes(self):
-        """Saves changes to spreadsheet format"""
+    def save_format_changes(self) -> None:
         format_settings_change = ",".join(self.format_columns_list)
         format_setting = get_setting(*c.SPREADSHEET_FORMAT_LOCATOR)
 

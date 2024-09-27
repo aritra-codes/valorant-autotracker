@@ -19,8 +19,11 @@ def main() -> None:
     except KeyError as e:
         raise InvalidSettingsError("'region' setting is not valid. Please check and save your settings.") from e
 
+    api = h.ValorantAPI(get_setting(*c.API_KEY_SETTING_LOCATOR))
+
     latest_match_id = get_setting(*c.LATEST_MATCH_ID_SETTING_LOCATOR)
-    matches = h.get_new_matches(puuid, affinity, latest_match_id)
+
+    matches = api.get_new_matches(puuid, affinity, latest_match_id)
 
     if matches:
         write_to_google_sheets = get_setting(*c.WRITE_TO_GOOGLE_SHEETS_SETTING_LOCATOR,
@@ -32,7 +35,7 @@ def main() -> None:
             google_sheets_sheet_name = get_setting(*c.GOOGLE_SHEETS_NAME_SETTING_LOCATOR)
             google_sheets_sheet = h.get_google_sheet(google_sheets_sheet_name).sheet1
 
-            google_sheets_kwargs = {"value_input_option": 'USER_ENTERED'}
+            google_sheets_kwargs = {"value_input_option": "USER_ENTERED"}
         if write_to_excel_file:
             excel_file_path = get_setting(*c.EXCEL_FILE_PATH_SETTING_LOCATOR)
             excel_workbook = h.get_excel_workbook(excel_file_path)
@@ -42,10 +45,11 @@ def main() -> None:
         insert_to_row_2 = get_setting(*c.INSERT_TO_ROW_2_LOCATOR, boolean=True)
         spreadsheet_format = get_setting(*c.SPREADSHEET_FORMAT_LOCATOR).split(",")
 
-        mmr_changes = h.get_mmr_changes(puuid, affinity, len(matches))
+        mmr_changes = api.get_mmr_changes(puuid, affinity, len(matches))
 
-        for index, match in enumerate(matches):
-            match_info = h.format_match_info(match, puuid, mmr_changes[index])
+        for match in matches:
+            match_id = match["metadata"]["matchid"]
+            match_info = h.format_match_info(match, puuid, mmr_changes.get(match_id))
 
             try:
                 formatted_match = [match_info[column_heading]

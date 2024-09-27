@@ -362,7 +362,7 @@ class SettingsWindow(Toplevel):
         latest_matchid_entry.grid(row=self.row, column=1, columnspan=3, pady=(10,0), sticky="ew")
 
         latest_matchid_hoverbutton = SettingsTooltip(self.frame,
-                                                     tooltip_text="All the matches (limited to 10 latest) after this match will be inserted and/or uploaded.\nIf set to blank, it will return the last 10 matches.")
+                                                     tooltip_text="All the matches (limited to 10 latest) after this match will be inserted and/or uploaded.\nIf set to blank, it will return the last ~10 matches.")
         latest_matchid_hoverbutton.grid(row=self.row, column=4, pady=(10,0), sticky="w")
         latest_matchid_hoverbutton.configure(state="disabled")
 

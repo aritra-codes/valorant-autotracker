@@ -2,9 +2,12 @@ from configparser import RawConfigParser, NoSectionError, NoOptionError
 import os
 
 import valorant_autotracker.constants as c
-from utils.path import get_project_directory
 
-SETTINGS_INI_PATH = os.path.join(get_project_directory(), c.SETTINGS_INI_FILENAME)
+APP_DATA_PATH = os.getenv("APPDATA")
+APP_SETTINGS_DIR = os.path.join(APP_DATA_PATH, "aritra-codes/Valorant AutoTracker")
+os.makedirs(APP_SETTINGS_DIR, exist_ok=True)
+
+SETTINGS_INI_PATH = os.path.join(APP_SETTINGS_DIR, c.SETTINGS_INI_FILENAME)
 
 class InvalidSettingsError(Exception):
     pass

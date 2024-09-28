@@ -96,7 +96,7 @@ Just follow the installation instructions above but you don't have fill in the s
   - Go back to the service account and click the 'Edit service account' button.
     <br/>
     !['Edit service account' button](readme_files/edit_service_account.png)
-  - Go the 'KEYS' section, click 'ADD KEY', choose 'Create new key', choose JSON as the key type and click the 'CREATE' button. A .json file will be downloaded, save this to a memorable location (e.g. the Valorant AutoTracker folder).
+  - Go the 'KEYS' section, click 'ADD KEY', choose 'Create new key', choose JSON as the key type and click the 'CREATE' button. A .json file will be downloaded, save this to a location you prefer.
   - Turn on the 'Google Sheets' setting, type in your spreadsheet's name in the 'Spreadsheet Name' setting and choose the location of the .json file you downloaded in the 'Google Service Acc. Key' setting.
     <br/>
     !['Google Sheets' setting and more](readme_files/google_sheets_setting.png)

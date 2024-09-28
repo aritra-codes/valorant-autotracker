@@ -84,23 +84,16 @@ def fill_cells(workbook: Workbook, path: str, cell_range: str, pattern_fill: Pat
 
     workbook.save(path)
 
-def make_default_excel_file(filename: str) -> str | Literal[False]:
-    abs_path = os.path.join(get_project_directory(), f"{filename}.xlsx")
-
-    if os.path.exists(abs_path) and not messagebox.askokcancel("Replace File", "There is already a file called 'valorant_comp_matches.xlsx', would you like to replace it?"):
-        return False
-
+def make_default_excel_file(path: str) -> None:
     workbook = Workbook()
 
     spreadsheet_format_setting = get_setting(*c.SPREADSHEET_FORMAT_LOCATOR).split(",")
     column_headers = [c.SPREADSHEET_FORMAT_OPTIONS[column_header] for column_header in spreadsheet_format_setting] # Converts into user-friendly format
-    insert_row_to_excel_sheet(workbook, abs_path, 1, column_headers)
+    insert_row_to_excel_sheet(workbook, path, 1, column_headers)
 
     # Makes row yellow
     pattern_fill = PatternFill(start_color="FFFF00", fill_type="solid")
-    fill_cells(workbook, abs_path, "1:1", pattern_fill)
-
-    return abs_path
+    fill_cells(workbook, path, "1:1", pattern_fill)
 
 class ValorantAPI:
     def __init__(self, api_key) -> None:

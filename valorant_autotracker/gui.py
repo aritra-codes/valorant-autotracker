@@ -118,6 +118,7 @@ class App(CTk):
         """Opens the settings and minimises the main window"""
         self.state(newstate="iconic")
         SettingsWindow(self).mainloop()
+        
 
     def maximise(self):
         self.state(newstate="normal")
@@ -542,10 +543,10 @@ class SettingsWindow(Toplevel):
                                               validate=lambda v, lt: validate_integer(v, lt, 0),
                                               width=40,
                                               justify="center")
-        recording_delay_entry.grid(row=self.row, column=2, pady=(10,0), padx=(10,10), sticky="ew")
+        recording_delay_entry.grid(row=self.row, column=2, pady=(10,0), padx=(10,10), sticky="w")
 
         secs_label = SettingsLabel(self, text="secs")
-        secs_label.grid(row=self.row, column=4, pady=(10,0), sticky="w")
+        secs_label.grid(row=self.row, column=3, pady=(10,0), sticky="w")
 
         recording_delay_slider = SettingsSlider(self,
                                                 secs_label,
@@ -561,7 +562,7 @@ class SettingsWindow(Toplevel):
 
         slider_hoverbutton = SettingsTooltip(self.frame,
                                              tooltip_text="How long it takes for the recording to start after the start of the match.")
-        slider_hoverbutton.grid(row=self.row, column=4, padx=25, pady=(10,0), sticky="w")
+        slider_hoverbutton.grid(row=self.row, column=3, padx=25, pady=(10,0))
         slider_hoverbutton.configure(state="disabled")
 
         autoselect_videos_switch.add_child_widget(recording_delay_slider)
@@ -580,7 +581,7 @@ class SettingsWindow(Toplevel):
         spreadsheet_format_label.grid(row=self.row, column=0, padx=10, pady=(10,0), sticky="w")
 
         self.spreadsheet_format_button = SettingsButton(self,
-                                                        text="Edit",
+                                                        text="Edit  ",
                                                         image=pencil_image,
                                                         command=self.open_spreadsheet_format)
         self.spreadsheet_format_button.grid(row=self.row, column=1, pady=(10,0), sticky="w")
@@ -602,8 +603,7 @@ class SettingsWindow(Toplevel):
 
         self.insert_r2_hoverbutton = SettingsTooltip(self.frame,
                                                      tooltip_text="When turned on, new matches will be inserted at the 2nd row of your\nspreadsheet instead of being appended to the bottom.")
-        self.insert_r2_hoverbutton.grid(row=self.row, column=1, padx=40, pady=(10,0),
-                                        sticky="w")
+        self.insert_r2_hoverbutton.grid(row=self.row, column=1, padx=40, pady=(10,0), sticky="w")
         self.insert_r2_hoverbutton.configure(state="disabled")
 
         increment_row()
@@ -687,29 +687,21 @@ class SettingsWindow(Toplevel):
 
         increment_row()
 
-        create_excel_label = SettingsLabel(self, text="Create Excel Spreadsheet")
-        create_excel_label.grid(row=self.row, column=0, padx=10, pady=10, sticky="w")
-
-        create_excel_filename = SettingsEntry(self, create_excel_label,
-                                              placeholder_text="Filename for Spreadsheet")
-        create_excel_filename.grid(row=self.row, column=1, columnspan=3, pady=10, sticky="ew",)
-
-        def create_excel_function():
+        def create_excel_spreadsheet():
             """Creates a new Excel Spreadsheet"""
-            if create_excel_filename.get():
-                filedir = h.make_default_excel_file(create_excel_filename.get())
+            path = filedialog.asksaveasfilename(initialfile="Valorant.xlsx", defaultextension=".xlsx", filetypes=excel_filetypes)
 
-                excel_file_path_dir.delete(0,END)
-                excel_file_path_dir.insert(END, filedir)
-            else:
-                messagebox.showerror(title="Invalid Input", message="Please enter a valid Excel filename.")
+            if path:
+                h.make_default_excel_file(path)
 
-        create_excel_button = SettingsButton(self, text="Create", image=pencil_image,
-                                             command=create_excel_function,
-                                             width=100)
-        create_excel_button.grid(row=self.row, column=4, padx=5, pady=10, sticky="w")
+                input_entry(excel_file_path_dir, path)
 
-        excel_switch.add_child_widget(create_excel_filename)
+        create_excel_button = SettingsButton(self,
+                                             text="Create Excel Spreadsheet  ",
+                                             image=pencil_image,
+                                             command=create_excel_spreadsheet)
+        create_excel_button.grid(row=self.row, column=1, padx=5, pady=10, sticky="w")
+
         excel_switch.add_child_widget(create_excel_button)
 
     def return_to_main(self) -> None:
@@ -717,7 +709,7 @@ class SettingsWindow(Toplevel):
         self.destroy()
         self.parent.maximise()
 
-    def open_spreadsheet_format(self) -> None:
+    def open_spreadsheet_format(self) -> bool:
         """Opens the spreadsheet format window"""
         SpreadsheetFormat().mainloop()
 
@@ -728,9 +720,10 @@ class SettingsWindow(Toplevel):
                 if widget.cget("state") != "disabled":
                     widget.save()
         except InvalidSettingsError:
-            pass
+            return False
         else:
             messagebox.showinfo(title="Success", message="Settings have been saved.")
+            return True
 
     def reset_settings(self) -> None:
         """Resets settings to default"""

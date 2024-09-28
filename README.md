@@ -23,14 +23,13 @@ Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported 
 <br/>
 <a href="https://youtu.be/i68pHqGllIs"><img src="readme_files/video_thumbnail.png" alt="Valorant AutoTracker logo" width="500"></a>
 
-**A few people may need to turn off their antivirus or add exceptions.**
-
 Main Installation:
 - Click on the latest [release](https://github.com/aritra-codes/valorant-aut/releases) (on the right of the page, under the 'About' section).
   <br>
   <img src="readme_files/latest_release.png" alt="Latest release" width="400">
 - Download 'Valorant_AutoTracker.msi'.
-- Run the file and finish the installation wizard.
+- Run the file (if there is a Windows Defender prompt, click 'More info' and 'Run anyway').
+- Finish the installation wizard.
 - Fill in the settings (check out the setup instructions below).
 - You're ready to go!
 

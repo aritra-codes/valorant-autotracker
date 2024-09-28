@@ -1,7 +1,4 @@
 <div align="center">
-  
-  # !! Currently down due to a problem with the API !!
-  
   <img src="readme_files/logo.png" alt="Valorant AutoTracker logo" width="200">
 
   # Valorant AutoTracker
@@ -22,38 +19,54 @@
 
 Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported (as Valorant does not support other OSes).
 
-**Video Tutorial:**
+**Video Tutorial (old version, so some steps are invalid):**
 <br/>
 <a href="https://youtu.be/i68pHqGllIs"><img src="readme_files/video_thumbnail.png" alt="Valorant AutoTracker logo" width="500"></a>
 
-**You will most likely need to make an exception in [Windows Security](https://support.microsoft.com/en-us/windows/add-an-exclusion-to-windows-security-811816c0-4dfd-af4a-47e4-c301afe13b26) and/or other antiviruses:**
-- **Add an exception for .exe files.**
-- **Follow the steps below (main installation).**
-- **Add an exception for the folder with Valorant AutoTracker.**
-- **Remove the exception for .exe files to avoid downloading harmful software in the future.**
+**A few people may need to turn off their antivirus or add exceptions.**
 
 Main Installation:
 - Click on the latest release (on the right of the page, under the 'About' section).
-- Download the 'Valorant AutoTracker.zip' file.
-- Extract the file.
+- Download the 'Valorant_AutoTracker.msi' file.
+- Run the file and finish the installation wizard.
+- Fill in the settings (check out the setup instructions below).
 - You're ready to go!
 
 ---
 
 # ⚙️ Setup (only the complicated parts)
+- API key:
+  - Join the HenrikDev discord server (https://discord.gg/henrikdev-systems-704231681309278228).
+  - Follow the instructions and verify yourself.
+  - Go to the 'get-a-key' channel.
+  - Click 'Generate' at the bottom of the message.
+    <br>
+    <img src="readme_files/generate_key.png" alt="Generate key button" width="400">
+  - Select 'VALORANT'.
+  - Select 'VALORANT (Basic Key)'.
+  - In the Generate API Key form:
+    - For Product Name, type 'Valorant AutoTracker'
+    - For Product Description, type 'Uploads Valorant matches to YouTube and puts them on a spreadsheet.'
+    - Click Submit.
+  - Copy the key into the 'API Key' setting.
+    <br>
+    <img src="readme_files/key_generated.png" alt="Key generated message" width="400">
+    <br>
+    ![API Key setting](readme_files/api_key_setting.png)
+  - Click 'Save API Key'.
 - Auto-upload to YouTube:
   - Download [Firefox](https://www.mozilla.org/en-US/firefox/new).
   - Turn on the 'Auto-Upload Videos' setting.
     <br/>
     ![Auto-upload Videos setting](readme_files/auto_upload_videos.png)
-  - Add a [new firefox profile](https://support.mozilla.org/en-US/kb/profile-manager-create-remove-switch-firefox-profiles) and copy the root directory path into the 'Firefox Profile Path' setting.
+  - Go to the URL 'about:profiles' and create a [new firefox profile](https://support.mozilla.org/en-US/kb/profile-manager-create-remove-switch-firefox-profiles).
+  - Copy the root directory path of that profile into the 'Firefox Profile Path' setting.
     <br/>
     ![Root directory of profile](readme_files/root_directory.png)
     <br/>
     ![Firefox Profile Path setting](readme_files/firefox_profile_path.png)
-  - Save your settings.
-    <br/>
-    ![Save settings](readme_files/save_settings.png)
+  - Click 'Save All' at the top of the settings window.
+  - Go back to Firefox and click 'Launch profile in new browser'.
   - Go to [YouTube Studio](https://studio.youtube.com) and log in.
   - Choose the YouTube channel to which you like to upload your matches (**if there is a 'Don't ask again' option, select it**).
 - Insert to Google Sheets:
@@ -79,6 +92,7 @@ Main Installation:
   - Turn on the 'Google Sheets' setting, type in your spreadsheet's name in the 'Spreadsheet Name' setting and choose the location of the .json file you downloaded in the 'Google Service Acc. Key' setting.
     <br/>
     !['Google Sheets' setting and more](readme_files/google_sheets_setting.png)
+  - Click 'Save All' at the top of the settings window.
 
 ---
 

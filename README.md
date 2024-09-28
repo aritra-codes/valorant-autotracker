@@ -36,6 +36,12 @@ Main Installation:
 
 ---
 
+# 🔄 Updating
+
+Just follow the installation instructions above but you don't have fill in the settings again.
+
+---
+
 # ⚙️ Setup (only the complicated parts)
 - API key:
   - Join the HenrikDev discord server (https://discord.gg/henrikdev-systems-704231681309278228).

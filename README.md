@@ -3,8 +3,9 @@
 
   # Valorant AutoTracker
 
-  <img alt="GitHub Release Date" src="https://img.shields.io/github/release-date/aritra-codes/valorant-autotracker">
-  <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/t/aritra-codes/valorant-autotracker">
+  ![GitHub Release Date](https://img.shields.io/github/release-date/aritra-codes/valorant-autotracker)
+  ![GitHub Repo stars](https://img.shields.io/github/stars/aritra-codes/valorant-autotracker)
+  ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/aritra-codes/valorant-autotracker/total)
 
   `Valorant AutoTracker` uploads all your Valorant matches to YouTube and puts them on a spreadsheet in the click of a button! 🔘👆
 

@@ -18,6 +18,7 @@
 
 # ⬇️ Installation
 
+> [!NOTE]
 Currently, only [Windows](https://www.microsoft.com/en-gb/windows) is supported (as Valorant does not support other OSes).
 
 **Video Tutorial (old version, so some steps are invalid):**
